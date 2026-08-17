@@ -125,7 +125,7 @@ build_driver() {
     [ $SAIF -eq 1 ] && cmd_opts=$(add_option "$cmd_opts" "SAIF=1")
     [ $TEMPBUILD -eq 1 ] && cmd_opts=$(add_option "$cmd_opts" "DESTDIR=\"$TEMPDIR\"")
     [ -n "$CONFIGS" ] && cmd_opts=$(add_option "$cmd_opts" "CONFIGS=\"$CONFIGS\"")
-    cmd_opts=$(add_option "$cmd_opts" "make -C $DRIVER_PATH > /dev/null")
+    cmd_opts=$(add_option "$cmd_opts" "CFG_FILE=$ROOT_DIR/VX_config.toml make -C $DRIVER_PATH > /dev/null")
     echo "Running: $cmd_opts"
     eval "$cmd_opts"
     status=$?

@@ -536,6 +536,16 @@ module VX_scheduler import VX_gpu_pkg::*; #(
         .ready_out (schedule_if.ready)
     );
 
+`ifdef SIMULATION
+    always @(posedge clk) begin
+        if (!reset && schedule_fire) begin
+            $display("SCHED %0t: %s select wid=%0d cta_id=%0d PC=0x%0h tmask=%b ready=%b stalled=%b ibuf_full=%b",
+                $time, INSTANCE_ID, schedule_wid, schedule_cta_id, to_fullPC(schedule_pc), schedule_tmask,
+                ready_warps, stalled_warps, ibuf_full);
+        end
+    end
+`endif
+
     // Track committed instructions
 
     reg [PERF_CTR_BITS-1:0] instret;

@@ -1,0 +1,3 @@
+main.o: /home/houdong/vortex/tests/regression/vecadd/main.cpp \
+ /home/houdong/vortex/sw/runtime/include/vortex2.h \
+ /home/houdong/vortex/tests/regression/vecadd/common.h
