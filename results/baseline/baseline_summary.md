@@ -1,39 +1,39 @@
-# Experiment 0 Baseline Summary
+# 实验0 基线总结
 
-Date: 2026-08-19
+日期：2026-08-19
 
-## Baseline Identity
+## 基线信息
 
-- Vortex version: 3.0
-- Source commit tested: `71c687a46155bd3fadc6bb4da2333e3fde47e789`
-- Reference snapshot from lab guide: `d76b7f24e658867ab57e3942d7c648c3e6af072d`
-- Configure command: `../configure --xlen=32 --tooldir=$HOME/tools`
-- Build directory: `build/`
-- Test command pattern: `env CCACHE_DISABLE=1 VCD_FILE=<repo>/results/baseline/<test>.vcd make -C hw/unittest/<test> DEBUG=0 run`
+- Vortex 版本：3.0
+- 实测源码 commit：`71c687a46155bd3fadc6bb4da2333e3fde47e789`
+- 实验指导书参考快照：`d76b7f24e658867ab57e3942d7c648c3e6af072d`
+- 配置命令：`../configure --xlen=32 --tooldir=$HOME/tools`
+- 构建目录：`build/`
+- 测试命令格式：`env CCACHE_DISABLE=1 VCD_FILE=<repo>/results/baseline/<test>.vcd make -C hw/unittest/<test> DEBUG=0 run`
 
-## Configuration
+## 配置
 
-- XLEN: 32
-- NUM_CORES: 1
-- NUM_WARPS: 4
-- NUM_THREADS: 4
-- I-cache: enabled
-- D-cache: enabled
-- L2 cache: disabled
-- L3 cache: disabled
+- XLEN：32
+- NUM_CORES：1
+- NUM_WARPS：4
+- NUM_THREADS：4
+- I-cache：开启
+- D-cache：开启
+- L2 cache：关闭
+- L3 cache：关闭
 
-## Toolchain
+## 工具链
 
-- Verilator: 5.046 2026-02-28 rev v5.046-55-g1264184fb
-- GCC: Ubuntu 11.4.0-1ubuntu1~22.04.3
-- G++: Ubuntu 11.4.0-1ubuntu1~22.04.3
+- Verilator：5.046 2026-02-28 rev v5.046-55-g1264184fb
+- GCC：Ubuntu 11.4.0-1ubuntu1~22.04.3
+- G++：Ubuntu 11.4.0-1ubuntu1~22.04.3
 
-## Test Results
+## 测试结果
 
-`cp_unpack` is a combinational test and does not advance `vl_simulator::step()`, so no clock-cycle count is available from the VCD.
-For the other tests, full clock cycles are derived from the final VCD timestamp as `(last_timestamp + 1) / 2`.
+`cp_unpack` 是组合逻辑测试，不会推进 `vl_simulator::step()`，因此无法从 VCD 得到时钟周期数。
+其余测试的完整时钟周期按最终 VCD 时间戳换算，公式为 `(last_timestamp + 1) / 2`。
 
-| Test | Status | Full clock cycles | Wall time (s) | Log |
+| 测试 | 结果 | 完整时钟周期 | 墙钟时间 (s) | 日志 |
 |---|---:|---:|---:|---|
 | cp_unpack | PASS | N/A | 1.48 | `cp_unpack.log` |
 | cp_engine | PASS | 60 | 1.47 | `cp_engine.log` |
@@ -45,16 +45,16 @@ For the other tests, full clock cycles are derived from the final VCD timestamp 
 | cp_axi_path | PASS | 26 | 1.52 | `cp_axi_path.log` |
 | cp_core | PASS | 34 | 3.24 | `cp_core.log` |
 
-## Issues Encountered
+## 遇到的问题
 
-1. The first debug build failed because the environment supplied `DEBUG=release`, producing `-DVX_DBG_DEBUG_LEVEL=release`. With Verilator 5.046, `release` is parsed as a reserved SystemVerilog keyword inside `VX_trace_pkg.sv`, causing syntax errors. The baseline run used `DEBUG=0` for trace-enabled runs and `env -u DEBUG` for non-trace runs.
-2. The first non-debug build failed because `ccache` attempted to create `/run/user/1000/ccache-tmp`, but that path is read-only in this execution environment. The baseline run used `CCACHE_DISABLE=1`, which also matches the repository guidance for avoiding stale ccache artifacts during simulation debugging.
-3. `cp_unpack` does not produce VCD timestamps because the test directly evaluates combinational unpack behavior without calling `step()`. Its PASS/FAIL and wall time are recorded, but cycle count is marked N/A.
-4. The lab guide's Experiment 0 deliverable list names eight CP tests, while the earlier CP unit-test inventory also includes `cp_axi_path`. This baseline includes `cp_axi_path` as well.
+1. 第一次调试构建失败，是因为环境变量里带了 `DEBUG=release`，导致实际传入 `-DVX_DBG_DEBUG_LEVEL=release`。在 Verilator 5.046 下，`release` 会被当作 SystemVerilog 保留关键字，进而在 `VX_trace_pkg.sv` 中触发语法错误。基线运行时我改用 `DEBUG=0` 做带波形的运行，并用 `env -u DEBUG` 跑非波形测试。
+2. 第一次非调试构建失败，是因为 `ccache` 试图创建 `/run/user/1000/ccache-tmp`，但当前环境对此路径是只读的。基线运行时改用 `CCACHE_DISABLE=1`，也符合仓库里避免陈旧缓存干扰仿真的建议。
+3. `cp_unpack` 不会产出有效的 VCD 时间戳，因为它直接验证组合 unpack 行为，没有调用 `step()`。所以它的 PASS/FAIL 和墙钟时间都记录了，但周期数标为 `N/A`。
+4. 实验0正文里的测试清单写了 8 个 CP 单测，但更前面的单元测试清单里还包含 `cp_axi_path`。本次 baseline 额外把 `cp_axi_path` 也纳入了记录。
 
-## Reproduction
+## 复现方式
 
-From the repository root:
+在仓库根目录下执行：
 
 ```bash
 cd build
@@ -70,6 +70,6 @@ for test in cp_unpack cp_engine cp_arbiter cp_dma cp_dcr_proxy cp_launch cp_axil
 done
 ```
 
-## Baseline Status
+## 基线结论
 
-All CP unit tests listed for Experiment 0 passed on the tested commit. No RTL optimization has been started.
+实验0列出的 CP 单元测试在本次实测 commit 上全部通过，且尚未开始任何 RTL 优化。
