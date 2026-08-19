@@ -123,7 +123,34 @@ module VX_cp_core_top
 
   // ---- Debug taps into the inner regfile state for the TB ----
   output wire                       dbg_q0_enabled,
-  output wire [63:0]                dbg_q0_tail
+  output wire [63:0]                dbg_q0_tail,
+  output wire [63:0]                dbg_q0_seqnum,
+
+  // ---- Debug taps for the performance monitor ----
+  output wire [1:0]                 dbg_fetch_state,
+  output wire [6:0]                 dbg_fetch_offset,
+  output wire [63:0]                dbg_fetch_head,
+  output wire                       dbg_cmd_valid,
+  output wire                       dbg_cmd_ready,
+  output wire [7:0]                 dbg_cmd_opcode,
+  output wire [2:0]                 dbg_engine_fsm,
+  output wire [1:0]                 dbg_engine_res,
+  output wire [7:0]                 dbg_engine_opcode,
+  output wire                       dbg_retire_evt,
+  output wire                       dbg_retire_ready,
+  output wire [63:0]                dbg_retire_seqnum,
+  output wire                       dbg_kmu_valid,
+  output wire                       dbg_kmu_grant,
+  output wire                       dbg_dma_valid,
+  output wire                       dbg_dma_grant,
+  output wire                       dbg_dcr_valid,
+  output wire                       dbg_dcr_grant,
+  output wire                       dbg_event_valid,
+  output wire                       dbg_event_grant,
+  output wire                       dbg_launch_done,
+  output wire                       dbg_dma_done,
+  output wire                       dbg_dcr_done,
+  output wire                       dbg_event_done
 );
 
   VX_cp_axil_s_if #(.ADDR_W(AXIL_AW)) axil_s_if ();
@@ -243,5 +270,32 @@ module VX_cp_core_top
   // Cross-module references resolve at elaboration time.
   assign dbg_q0_enabled = u_dut.q_state[0].enabled;
   assign dbg_q0_tail    = u_dut.q_state[0].tail;
+  assign dbg_q0_seqnum  = u_dut.q_seqnum_to_reg[0];
+
+  assign dbg_fetch_state  = u_dut.g_cpe[0].u_fetch.state;
+  assign dbg_fetch_offset = u_dut.g_cpe[0].u_fetch.offset_r;
+  assign dbg_fetch_head   = u_dut.g_cpe[0].u_fetch.head_r;
+  assign dbg_cmd_valid    = u_dut.cpe_cmd_valid[0];
+  assign dbg_cmd_ready    = u_dut.cpe_cmd_ready[0];
+  assign dbg_cmd_opcode   = u_dut.cpe_cmd[0].hdr.opcode;
+
+  assign dbg_engine_fsm      = u_dut.g_cpe[0].u_engine.fsm;
+  assign dbg_engine_res      = u_dut.g_cpe[0].u_engine.cur_res;
+  assign dbg_engine_opcode   = u_dut.g_cpe[0].u_engine.cur_cmd.hdr.opcode;
+  assign dbg_retire_evt      = u_dut.retire_evt[0];
+  assign dbg_retire_ready    = u_dut.retire_ready[0];
+  assign dbg_retire_seqnum   = u_dut.retire_seqnum[0];
+  assign dbg_kmu_valid       = u_dut.kmu_valid[0];
+  assign dbg_kmu_grant       = u_dut.kmu_grant[0];
+  assign dbg_dma_valid       = u_dut.dma_valid[0];
+  assign dbg_dma_grant       = u_dut.dma_grant[0];
+  assign dbg_dcr_valid       = u_dut.dcr_valid[0];
+  assign dbg_dcr_grant       = u_dut.dcr_grant[0];
+  assign dbg_event_valid     = u_dut.event_valid[0];
+  assign dbg_event_grant     = u_dut.event_grant[0];
+  assign dbg_launch_done     = u_dut.launch_done;
+  assign dbg_dma_done        = u_dut.dma_done;
+  assign dbg_dcr_done        = u_dut.dcr_done;
+  assign dbg_event_done      = u_dut.event_done;
 
 endmodule : VX_cp_core_top

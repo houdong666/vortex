@@ -1,0 +1,6 @@
+workload,requested_units,commands,submitted_commands,retired_commands,total_cycles,idle_cycles,decode_cycles,bid_cycles,wait_done_cycles,retire_cycles,kmu_wait_cycles,dma_wait_cycles,dcr_wait_cycles,event_wait_cycles,fetch_cache_lines,fetch_wait_cycles,completion_stall_cycles,arb_wait_cycles,queue_latency_cycles,execution_latency_cycles,total_latency_cycles,latency_samples,cmd_per_cycle,cpc,fetch_bytes,bytes_per_command,dcr_writes,dcr_reads,launches
+B1,16,16,16,16,123,27,16,16,32,32,0,0,32,0,6,24,16,0,32,64,96,16,0.130081,7.6875,384,24.0,16,0,0
+B2,16,16,16,16,171,27,16,16,80,32,0,0,80,0,6,24,16,0,32,112,144,16,0.093567,10.6875,384,24.0,0,16,0
+B7,8,8,8,8,115,19,8,8,64,16,64,0,0,0,2,8,8,0,16,80,96,8,0.069565,14.375,128,16.0,0,0,8
+B8,1,19,19,19,150,30,19,19,44,38,8,0,36,0,7,28,19,0,38,82,120,19,0.126667,7.894737,448,23.578947,18,0,1
+B9,6,18,18,18,191,29,18,18,90,36,48,0,42,0,6,24,18,0,36,126,162,18,0.094241,10.611111,384,21.333333,6,6,6
