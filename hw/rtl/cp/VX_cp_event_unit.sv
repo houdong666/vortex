@@ -1,45 +1,46 @@
-// Copyright © 2019-2023
-// Licensed under the Apache License, Version 2.0.
+
+// 版权所有 © 2019-2023
+// 根据 Apache 许可证 2.0 版授权。
 
 `include "VX_define.vh"
 
 // ============================================================================
-// VX_cp_event_unit — handles CMD_EVENT_SIGNAL and CMD_EVENT_WAIT.
+// VX_cp_event_unit —— 处理 CMD_EVENT_SIGNAL 和 CMD_EVENT_WAIT 命令。
 //
-// Owned by the EVENT resource arbiter. One instance per CP_core.
+// 由 EVENT 资源仲裁器持有。每个 CP_core 一个实例。
 //
-// Command encoding (cmd_t fields):
-//   arg0 = 64-bit byte address of the event counter slot in host memory
-//   arg1 = 64-bit value (for SIGNAL: write this; for WAIT: target value)
-//   arg2 = bits [1:0] = wait_op_e  (WAIT_OP_EQ / GE / GT / NE)
-//          remaining bits reserved
+// 命令编码（cmd_t 字段）：
+//   arg0 = 主机内存中事件计数器槽位的 64 位字节地址
+//   arg1 = 64 位值（SIGNAL：写入此值；WAIT：目标值）
+//   arg2 = 位 [1:0] = wait_op_e（WAIT_OP_EQ / GE / GT / NE）
+//          其余位保留
 //
-// FSM:
-//   S_IDLE     : grant ↑ → latch cmd + opcode, → S_REQ_AW (SIGNAL)
-//                                              or S_REQ_AR (WAIT)
+// 状态机：
+//   S_IDLE     ：grant 上升 → 锁存 cmd + 操作码，→ S_REQ_AW（SIGNAL）
+//                                              或 S_REQ_AR（WAIT）
 //
-//   ---- SIGNAL path ----
-//   S_REQ_AW   : drive AW at arg0, awsize=3 (8 B beat); awready → S_REQ_W
-//   S_REQ_W    : drive W with arg1 in low 8 B (wstrb selects bytes 0..7);
+//   ---- SIGNAL 路径 ----
+//   S_REQ_AW   ：在 arg0 驱动 AW，awsize=3（8 字节节拍）；awready → S_REQ_W
+//   S_REQ_W    ：用 arg1 的低 8 字节驱动 W（wstrb 选择字节 0..7）；
 //                wready → S_WAIT_B
-//   S_WAIT_B   : bvalid → S_DONE
+//   S_WAIT_B   ：bvalid → S_DONE
 //
-//   ---- WAIT path ----
-//   S_REQ_AR   : drive AR at arg0, arsize=3; arready → S_WAIT_R
-//   S_WAIT_R   : rvalid → capture rdata low 8 B; compare to arg1 under
-//                wait_op:  EQ  match if read == arg1
-//                          GE  match if read >= arg1
-//                          GT  match if read >  arg1
-//                          NE  match if read != arg1
-//                match → S_DONE
-//                miss  → S_REQ_AR (spin until satisfied;
-//                        round-trip latency provides natural rate-limiting)
+//   ---- WAIT 路径 ----
+//   S_REQ_AR   ：在 arg0 驱动 AR，arsize=3；arready → S_WAIT_R
+//   S_WAIT_R   ：rvalid → 捕获 rdata 低 8 字节；根据 wait_op 与 arg1 比较：
+//                EQ  匹配条件：读值 == arg1
+//                GE  匹配条件：读值 >= arg1
+//                GT  匹配条件：读值 >  arg1
+//                NE  匹配条件：读值 != arg1
+//                匹配 → S_DONE
+//                不匹配 → S_REQ_AR（自旋直到满足条件；
+//                        往返延迟提供了自然的速率限制）
 //
-//   S_DONE     : pulse `done` for one cycle → S_IDLE
+//   S_DONE     ：脉冲 `done` 一个周期 → S_IDLE
 //
-// This unit holds the EVENT bid grant for the entire wait duration. The
-// arbiter is round-robin across CPEs, so other queues' WAITs interleave
-// fairly when several spin concurrently.
+// 该单元在整个等待期间保持 EVENT bid 授权。
+// 仲裁器在 CPE 之间采用轮询方式，因此当多个等待并发自旋时，
+// 其他队列的 WAIT 会公平地交错执行。
 // ============================================================================
 
 module VX_cp_event_unit
@@ -52,21 +53,21 @@ module VX_cp_event_unit
   input  wire                       reset,
 
   input  wire                       grant,
-  // cmd carries arg0/arg1/arg2 plus header (which we read for opcode);
-  // remaining fields are forwarded but unused by this unit.
+  // cmd 携带 arg0/arg1/arg2 以及头部（我们从中读取操作码）；
+  // 其余字段被转发但本单元不使用。
   input  cmd_t                      cmd,
   output logic                      done,
 
   VX_mem_axi_if.master             axi_m
 );
 
-  // cmd fields not consumed by this unit (opcode/arg0/arg1/arg2[1:0] are read above).
+  // 本单元未使用的 cmd 字段（上面已读取操作码/arg0/arg1/arg2[1:0]）
   `UNUSED_VAR (cmd.hdr.reserved)
   `UNUSED_VAR (cmd.hdr.flags)
   `UNUSED_VAR (cmd.arg2[63:2])
   `UNUSED_VAR (cmd.profile_slot)
 
-  // ---- FSM ----
+  // ---- 状态机 ----
   typedef enum logic [3:0] {
     S_IDLE, S_REQ_AW, S_REQ_W, S_WAIT_B,
             S_REQ_AR, S_WAIT_R, S_DONE
@@ -74,11 +75,11 @@ module VX_cp_event_unit
 
   state_e          state;
   logic [63:0]     addr_r;
-  logic [63:0]     value_r;      // SIGNAL: value to write; WAIT: target
+  logic [63:0]     value_r;      // SIGNAL：要写入的值；WAIT：目标值
   wait_op_e        wait_op_r;
   logic            is_signal_r;
 
-  // ---- Combinational compare for WAIT ----
+  // ---- WAIT 的组合比较逻辑 ----
   logic [63:0] rdata_lo;
   assign rdata_lo = axi_m.rdata[63:0];
 
@@ -94,7 +95,7 @@ module VX_cp_event_unit
     endcase
   end
 
-  // ---- State transitions ----
+  // ---- 状态转移 ----
   always_ff @(posedge clk) begin
     if (reset) begin
       state       <= S_IDLE;
@@ -115,12 +116,12 @@ module VX_cp_event_unit
           end
         end
 
-        // SIGNAL path
+        // SIGNAL 路径
         S_REQ_AW: if (axi_m.awvalid && axi_m.awready) state <= S_REQ_W;
         S_REQ_W:  if (axi_m.wvalid  && axi_m.wready)  state <= S_WAIT_B;
         S_WAIT_B: if (axi_m.bvalid  && axi_m.bready)  state <= S_DONE;
 
-        // WAIT path
+        // WAIT 路径
         S_REQ_AR: if (axi_m.arvalid && axi_m.arready) state <= S_WAIT_R;
         S_WAIT_R: begin
           if (axi_m.rvalid && axi_m.rready) begin
@@ -134,28 +135,28 @@ module VX_cp_event_unit
     end
   end
 
-  // ---- AXI master output drivers ----
+  // ---- AXI 主设备输出驱动 ----
   always_comb begin
-    // ---- AW (SIGNAL) ----
+    // ---- AW（SIGNAL） ----
     axi_m.awvalid = (state == S_REQ_AW);
     axi_m.awaddr  = addr_r;
     axi_m.awid    = TID_PREFIX;
-    axi_m.awlen   = 8'd0;        // 1 beat
-    axi_m.awsize  = 3'd3;        // 2^3 = 8 bytes
+    axi_m.awlen   = 8'd0;        // 1 个节拍
+    axi_m.awsize  = 3'd3;        // 2^3 = 8 字节
     axi_m.awburst = 2'b01;       // INCR
 
-    // ---- W (SIGNAL) ----
+    // ---- W（SIGNAL） ----
     axi_m.wvalid = (state == S_REQ_W);
     axi_m.wdata  = '0;
     axi_m.wdata[63:0] = value_r;
     axi_m.wstrb  = '0;
-    axi_m.wstrb[7:0] = 8'hFF;    // bytes 0..7 valid (low 8 B of bus)
+    axi_m.wstrb[7:0] = 8'hFF;    // 字节 0..7 有效（总线的低 8 字节）
     axi_m.wlast  = 1'b1;
 
-    // ---- B (SIGNAL) ----
+    // ---- B（SIGNAL） ----
     axi_m.bready = (state == S_WAIT_B);
 
-    // ---- AR (WAIT) ----
+    // ---- AR（WAIT） ----
     axi_m.arvalid = (state == S_REQ_AR);
     axi_m.araddr  = addr_r;
     axi_m.arid    = TID_PREFIX;
@@ -163,14 +164,14 @@ module VX_cp_event_unit
     axi_m.arsize  = 3'd3;
     axi_m.arburst = 2'b01;
 
-    // ---- R (WAIT) ----
+    // ---- R（WAIT） ----
     axi_m.rready = (state == S_WAIT_R);
 
-    // Done pulse
+    // Done 脉冲
     done = (state == S_DONE);
   end
 
-  // Sanity / unused.
+  // 辅助 / 未使用信号
   `UNUSED_VAR (axi_m.bid)
   `UNUSED_VAR (axi_m.bresp)
   `UNUSED_VAR (axi_m.rid)

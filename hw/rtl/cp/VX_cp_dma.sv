@@ -1,40 +1,38 @@
-// Copyright © 2019-2023
-// Licensed under the Apache License, Version 2.0.
+// 版权所有 © 2019-2023
+// 根据 Apache 许可证 2.0 版授权。
 
 `include "VX_define.vh"
 
 // ============================================================================
-// VX_cp_dma — dual-port burst DMA engine for CMD_MEM_WRITE / CMD_MEM_READ /
-// CMD_MEM_COPY. Owned by the DMA resource arbiter.
+// VX_cp_dma —— 双端口突发 DMA 引擎，用于处理 CMD_MEM_WRITE / CMD_MEM_READ /
+// CMD_MEM_COPY 命令。由 DMA 资源仲裁器持有。
 //
-// Command encoding:
-//   arg0 = dst address
-//   arg1 = src address
-//   arg2 = transfer size in bytes (rounded up to a 64-byte multiple)
+// 命令编码：
+//   arg0 = 目标地址
+//   arg1 = 源地址
+//   arg2 = 传输字节数（向上取整到 64 字节的倍数）
 //
-// Dual port: XRT pins each kernel AXI master to exactly one memory resource
-// (an HBM/DDR bank or HOST[0]), so the CP carries two masters — axi_host for
-// host memory (the command ring lives there and it is one end of every
-// upload/download) and axi_dev for device memory. The opcode selects the
-// read-source and write-destination port:
-//   CMD_MEM_WRITE : src = host,   dst = device   (upload)
-//   CMD_MEM_READ  : src = device, dst = host     (download)
-//   CMD_MEM_COPY  : src = device, dst = device   (device-local copy)
+// 双端口：XRT 将每个内核的 AXI 主设备固定映射到一个内存资源
+// （一个 HBM/DDR 存储体或 HOST[0]），因此 CP 携带两个主设备 —— axi_host 用于
+// 主机内存（命令环驻留于此，并且是所有上传/下载的一端）和 axi_dev 用于设备内存。
+// 操作码选择读取源端口和写入目标端口：
+//   CMD_MEM_WRITE : 源 = host,   目标 = device   （上传）
+//   CMD_MEM_READ  : 源 = device, 目标 = host     （下载）
+//   CMD_MEM_COPY  : 源 = device, 目标 = device   （设备本地拷贝）
 //
-// Transfers are streamed in <=4 KB chunks; each chunk is one AXI INCR burst
-// (up to MAX_BURST 512-bit beats) so no burst crosses a 4 KB address
-// boundary. A chunk is read fully into buf_r, then written out — sequential,
-// not pipelined.
+// 传输以 <=4 KB 的块为单位流式进行；每个块是一个 AXI INCR 突发
+// （最多 MAX_BURST 个 512 位节拍），因此没有突发会跨越 4 KB 地址边界。
+// 一个块先完整读入 buf_r，然后写入 —— 顺序执行，非流水线。
 //
-// FSM:
-//   S_IDLE   : grant -> latch op/dst/src/size                 -> S_SETUP
-//   S_SETUP  : size 0 -> S_DONE; else size the chunk          -> S_REQ_AR
-//   S_REQ_AR : drive AR on the read port; arready             -> S_READ
-//   S_READ   : capture rdata beats into buf_r; last beat      -> S_REQ_AW
-//   S_REQ_AW : drive AW on the write port; awready            -> S_WRITE
-//   S_WRITE  : drive W beats from buf_r; last beat            -> S_WAIT_B
-//   S_WAIT_B : bvalid -> advance chunk                        -> S_SETUP
-//   S_DONE   : pulse `done` for one cycle                     -> S_IDLE
+// 状态机：
+//   S_IDLE   : 获得授权 -> 锁存操作码/目标/源/大小                 -> S_SETUP
+//   S_SETUP  : 大小为 0 -> S_DONE；否则计算当前块大小             -> S_REQ_AR
+//   S_REQ_AR : 在读端口驱动 AR；arready 有效                     -> S_READ
+//   S_READ   : 将 rdata 节拍捕获到 buf_r 中；最后一个节拍        -> S_REQ_AW
+//   S_REQ_AW : 在写端口驱动 AW；awready 有效                     -> S_WRITE
+//   S_WRITE  : 从 buf_r 驱动 W 节拍；最后一个节拍                -> S_WAIT_B
+//   S_WAIT_B : bvalid 有效 -> 推进当前块                         -> S_SETUP
+//   S_DONE   : 脉冲 `done` 一个周期                               -> S_IDLE
 // ============================================================================
 
 module VX_cp_dma
@@ -50,35 +48,35 @@ module VX_cp_dma
   input  cmd_t                      cmd,
   output logic                      done,
 
-  // Host-memory AXI master (command-ring side / upload source / download dst).
+  // 主机内存 AXI 主设备（命令环侧 / 上传源 / 下载目标）
   VX_mem_axi_if.master             axi_host,
-  // Device-memory AXI master.
+  // 设备内存 AXI 主设备
   VX_mem_axi_if.master             axi_dev
 );
 
-  localparam int MAX_BURST = 64;          // 64 x 64 B = 4 KB max per burst
-  localparam int BIDX_W    = 6;           // beat index 0..63
-  localparam int BCNT_W    = 7;           // chunk length 1..64
+  localparam int MAX_BURST = 64;          // 64 x 64 B = 每个突发最大 4 KB
+  localparam int BIDX_W    = 6;           // 节拍索引 0..63
+  localparam int BCNT_W    = 7;           // 块长度 1..64
 
   typedef enum logic [2:0] {
     S_IDLE, S_SETUP, S_REQ_AR, S_READ, S_REQ_AW, S_WRITE, S_WAIT_B, S_DONE
   } state_e;
 
   state_e               state;
-  logic [7:0]           op_r;             // latched opcode (host/dev routing)
+  logic [7:0]           op_r;             // 锁存的操作码（主机/设备路由）
   logic [63:0]          dst_r, src_r;
-  logic [63:0]          rem_beats;        // 64 B beats still to move
-  logic [BCNT_W-1:0]    chunk_beats;      // beats in the current chunk
+  logic [63:0]          rem_beats;        // 仍需传输的 64 B 节拍数
+  logic [BCNT_W-1:0]    chunk_beats;      // 当前块的节拍数
   logic [BIDX_W-1:0]    beat_idx;
   logic [CL_BITS-1:0]   buf_r [MAX_BURST];
 
-  // Beats from a 64 B-aligned address to the next 4 KB boundary. `cl_idx`
-  // is the cache-line index inside the 4 KB page (addr[11:6], 0..63).
+  // 从 64 B 对齐地址到下一个 4 KB 边界的节拍数。`cl_idx`
+  // 是 4 KB 页内的缓存行索引（addr[11:6]，0..63）。
   function automatic logic [BCNT_W-1:0] beats_to_4k(input logic [5:0] cl_idx);
     return BCNT_W'(MAX_BURST) - BCNT_W'({1'b0, cl_idx});
   endfunction
 
-  // Next chunk length = min(rem_beats, src 4K span, dst 4K span).
+  // 下一个块长度 = min(rem_beats, 源 4K 跨度, 目标 4K 跨度)
   logic [BCNT_W-1:0] next_chunk;
   always_comb begin
     logic [BCNT_W-1:0] s4k, d4k, lim;
@@ -91,14 +89,14 @@ module VX_cp_dma
       next_chunk = lim;
   end
 
-  // Read-source / write-destination port selection from the latched opcode.
-  wire rd_from_host = (cp_opcode_e'(op_r) == CMD_MEM_WRITE);  // upload: read host
-  wire wr_to_host   = (cp_opcode_e'(op_r) == CMD_MEM_READ);   // download: write host
+  // 从锁存的操作码选择读取源 / 写入目标端口
+  wire rd_from_host = (cp_opcode_e'(op_r) == CMD_MEM_WRITE);  // 上传：读取主机
+  wire wr_to_host   = (cp_opcode_e'(op_r) == CMD_MEM_READ);   // 下载：写入主机
 
-  // Last beat of the current chunk.
+  // 当前块的最后一个节拍
   wire last_beat = (BCNT_W'({1'b0, beat_idx}) == (chunk_beats - BCNT_W'(1)));
 
-  // ---- FSM ----
+  // ---- 状态机 ----
   always_ff @(posedge clk) begin
     if (reset) begin
       state       <= S_IDLE;
@@ -115,7 +113,7 @@ module VX_cp_dma
             op_r      <= cmd.hdr.opcode;
             dst_r     <= cmd.arg0;
             src_r     <= cmd.arg1;
-            // Round the byte count up to a whole cache line.
+            // 将字节计数向上取整到完整缓存行
             rem_beats <= (cmd.arg2 + 64'd63) >> 6;
             state     <= S_SETUP;
           end
@@ -177,14 +175,14 @@ module VX_cp_dma
     end
   end
 
-  // ---- Logical read channel ----
+  // ---- 逻辑读通道 ----
   wire               rd_arvalid = (state == S_REQ_AR);
   wire               rd_rready  = (state == S_READ);
   wire               rd_arready = rd_from_host ? axi_host.arready : axi_dev.arready;
   wire               rd_rvalid  = rd_from_host ? axi_host.rvalid  : axi_dev.rvalid;
   wire [CL_BITS-1:0] rd_rdata   = rd_from_host ? axi_host.rdata   : axi_dev.rdata;
 
-  // ---- Logical write channel ----
+  // ---- 逻辑写通道 ----
   wire               wr_awvalid = (state == S_REQ_AW);
   wire               wr_wvalid  = (state == S_WRITE);
   wire               wr_bready  = (state == S_WAIT_B);
@@ -194,14 +192,14 @@ module VX_cp_dma
 
   wire [7:0]         burst_len  = 8'({1'b0, chunk_beats - BCNT_W'(1)});
 
-  // ---- Drive both AXI masters; only the routed port asserts valid ----
+  // ---- 驱动两个 AXI 主设备；只有路由端口有效时断言 valid ----
   always_comb begin
     // ----- axi_host -----
     axi_host.arvalid = rd_arvalid &  rd_from_host;
     axi_host.araddr  = src_r;
     axi_host.arid    = TID_PREFIX;
     axi_host.arlen   = burst_len;
-    axi_host.arsize  = 3'd6;                 // 64 bytes per beat
+    axi_host.arsize  = 3'd6;                 // 每个节拍 64 字节
     axi_host.arburst = 2'b01;                // INCR
     axi_host.rready  = rd_rready  &  rd_from_host;
 
@@ -241,7 +239,7 @@ module VX_cp_dma
     done = (state == S_DONE);
   end
 
-  // Sanity / unused.
+  // 辅助 / 未使用信号
   `UNUSED_VAR (cmd.hdr.flags)
   `UNUSED_VAR (cmd.hdr.reserved)
   `UNUSED_VAR (cmd.profile_slot)
