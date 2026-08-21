@@ -1,7 +1,7 @@
-// Copyright © 2019-2023
-// Licensed under the Apache License, Version 2.0.
+// 版权所有 © 2019-2023
+// 根据 Apache 许可证 2.0 版授权。
 
-// Verilator unit test for VX_cp_dma.
+// VX_cp_dma 的 Verilator 单元测试。
 
 #include "vl_simulator.h"
 #include "VVX_cp_dma_top.h"
@@ -31,8 +31,8 @@ void   sim_trace_enable(bool e) { trace_en = e; }
     } \
 } while (0)
 
-// cmd_t packer: opcode in MSB word (index 8), arg0/1/2 in words [6..7],
-// [4..5], [2..3] respectively.
+// cmd_t 打包规则：opcode 位于最高有效字（索引 8），arg0/1/2 分别位于
+// 字 [6..7]、[4..5]、[2..3]。
 static void pack_cmd(uint32_t out_words[9],
                      uint8_t opcode, uint8_t flags,
                      uint64_t arg0, uint64_t arg1, uint64_t arg2) {
@@ -356,7 +356,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 9; ++i) sim->cmd_packed[i] = 0;
     tick = sim.reset(tick);
 
-    // Preserve the original aligned device-to-device smoke coverage.
+    // 保留原有的对齐设备到设备拷贝冒烟测试覆盖。
     {
         uint8_t pattern[64];
         for (int i = 0; i < 64; ++i) pattern[i] = (uint8_t)(0xA0 + i);

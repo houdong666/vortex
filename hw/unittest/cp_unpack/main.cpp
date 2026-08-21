@@ -342,6 +342,25 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::printf("PASSED — 7 scenarios\n");
+    // ----- 测试 8：20 + 20 + 12 + 12 = 64B，缓存行恰好放满 -----
+    std::memset(cl, 0, CL_BYTES);
+    {
+        unsigned off = 0;
+        off = emit_cmd(cl, off, OP_DCR_WRITE, 0, 0x10, 0x11, 0, 0);
+        off = emit_cmd(cl, off, OP_DCR_WRITE, 0, 0x20, 0x21, 0, 0);
+        off = emit_cmd(cl, off, OP_LAUNCH, 0, 0x30, 0, 0, 0);
+        off = emit_cmd(cl, off, OP_LAUNCH, 0, 0x40, 0, 0, 0);
+        EXPECT(off == CL_BYTES, "T8: commands should exactly fill one line");
+    }
+    {
+        auto cmds = walk_line(top, cl);
+        EXPECT(cmds.size() == 4, "T8: exact-full line should yield 4 cmds");
+        EXPECT(cmds[0].opcode == OP_DCR_WRITE, "T8: command 0 opcode");
+        EXPECT(cmds[1].opcode == OP_DCR_WRITE, "T8: command 1 opcode");
+        EXPECT(cmds[2].opcode == OP_LAUNCH, "T8: command 2 opcode");
+        EXPECT(cmds[3].opcode == OP_LAUNCH, "T8: command 3 opcode");
+    }
+
+    std::printf("PASSED — 8 scenarios\n");
     return 0;
 }

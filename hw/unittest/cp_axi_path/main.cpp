@@ -174,6 +174,7 @@ struct AxiSlave {
     static constexpr uint64_t MEM_BASE = 0x1000;
     static constexpr int      MEM_SIZE = 4096;
     uint8_t mem[MEM_SIZE] = {0};
+    std::vector<uint64_t> ar_addresses;
 
     // R-side state: a request that's been ACCEPTED is "in flight"; the
     // response appears on the NEXT cycle.
@@ -254,6 +255,7 @@ struct AxiSlave {
             r_inflight = true;
             r_addr     = top->m_araddr;
             r_id       = top->m_arid;
+            ar_addresses.push_back(r_addr);
         } else if (r_inflight && top->m_rvalid && top->m_rready) {
             // R handshake completed; clear the in-flight read.
             r_inflight = false;
@@ -390,7 +392,54 @@ int main(int argc, char** argv) {
         EXPECT(sim->head_out == 128, "T2: head should advance to 128");
     }
 
-    // ----- Test 3: completion writes retire_seqnum to cmpl_addr -----
+    // ----- 测试 3：小 ring 连续读取跨越回绕边界 -----
+    {
+        const uint64_t expected_addr[4] = {
+            AxiSlave::MEM_BASE + 128,
+            AxiSlave::MEM_BASE + 192,
+            AxiSlave::MEM_BASE,
+            AxiSlave::MEM_BASE + 64,
+        };
+        for (int i = 0; i < 4; ++i) {
+            uint8_t cl[64] = {0};
+            for (int j = 0; j < 3; ++j) {
+                emit_cmd(cl, j * 20, OP_DCR_WRITE, 0,
+                         0x100ull + i * 3 + j,
+                         0x5000ull + i * 3 + j, 0);
+            }
+            slave.mem_write_cl(expected_addr[i], cl);
+        }
+
+        const size_t ar_start = slave.ar_addresses.size();
+        uint32_t s[13];
+        pack_state(s, AxiSlave::MEM_BASE, 0x00FF,
+                   0, AxiSlave::MEM_BASE + 0x300,
+                   /*tail=*/384, /*enabled=*/true);
+        for (int i = 0; i < 13; ++i) sim->state_in_packed[i] = s[i];
+
+        for (int i = 0; i < 12; ++i) {
+            bool got = false;
+            for (int c = 0; c < 50 && !got; ++c) {
+                cycle(sim, slave, tick);
+                got = sim->cmd_out_valid;
+            }
+            EXPECT(got, "T3: wrapped command was not emitted");
+            EXPECT(cmd_opcode(sim.operator->()) == OP_DCR_WRITE,
+                   "T3: wrapped packed opcode");
+            sim->cmd_out_ready = 1;
+            cycle(sim, slave, tick);
+            sim->cmd_out_ready = 0;
+        }
+        for (int c = 0; c < 8; ++c) cycle(sim, slave, tick);
+        EXPECT(sim->head_out == 384, "T3: head should cross wrap to 384");
+        EXPECT(slave.ar_addresses.size() == ar_start + 4,
+               "T3: expected exactly four wrapped reads");
+        for (int i = 0; i < 4; ++i)
+            EXPECT(slave.ar_addresses[ar_start + i] == expected_addr[i],
+                   "T3: wrapped AXI address mismatch");
+    }
+
+    // ----- 测试 4：completion 将 retire_seqnum 写入 cmpl_addr -----
     {
         // Drive cpe_state with enabled=0 to keep fetch idle.
         uint32_t s[13];
@@ -411,9 +460,9 @@ int main(int argc, char** argv) {
             cycle(sim, slave, tick);
             if (slave.mem_read64(AxiSlave::MEM_BASE + 0x200) == 42) wrote = true;
         }
-        EXPECT(wrote, "T3: completion did not write seqnum to cmpl_addr");
+        EXPECT(wrote, "T4: completion did not write seqnum to cmpl_addr");
     }
 
-    std::printf("PASSED — 3 scenarios\n");
+    std::printf("PASSED — 4 scenarios\n");
     return 0;
 }

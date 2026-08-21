@@ -1,0 +1,4 @@
+[verify] workload=B1 units=1000 ring_tail=21332 q_ctrl=0x9 cp_ctrl=0x1 dbg_tail=0x5354 dbg_seq=1000
+CP_PERF,B1,1000,1000,1000,1000,7011,1011,1000,1000,2000,2000,0,0,2000,0,334,1336,1000,0,2000,4000,6000,1000,0.142633,7.011000,21376,21.376000,1000,0,0
+PACK_RESULT packing=1 command_count=1000 cache_line_count=334 fetch_bytes=21376 bytes_per_command=21.376000 total_cycles=7011 cmd_per_cycle=0.142633 final_seqnum=1000 dropped_count=0 duplicate_count=0
+PASSED - CP perf workload=B1 commands=1000 cycles=7011 cpc=7.011

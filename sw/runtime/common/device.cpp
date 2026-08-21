@@ -334,15 +334,37 @@ vx_result_t Device::cp_init() {
 }
 
 vx_result_t Device::cp_ring_append_(const void* cl) {
-    // Caller holds cp_mu_. Write one CL into the ring at the current tail —
-    // a plain memcpy through the ring's CP-visible host pointer — then bump
-    // tail + reserve the seqnum slot. No doorbell, no poll.
+    // 调用者持有 cp_mu_。写入一条完整缓存行后只推进 tail；seqnum 按命令计数。
     const uint64_t ring_off = cp_tail_ & (CP_RING_SIZE - 1);
     if (ring_off + CP_CL_BYTES > CP_RING_SIZE)
         return VX_ERR_INVALID_VALUE;  // mid-CL ring wrap not yet supported
     std::memcpy(static_cast<uint8_t*>(cp_ring_.host_ptr) + ring_off,
                 cl, CP_CL_BYTES);
-    cp_tail_           += CP_CL_BYTES;
+    cp_tail_ += CP_CL_BYTES;
+    return VX_SUCCESS;
+}
+
+vx_result_t Device::cp_line_flush_() {
+    if (cp_pending_used_ == 0)
+        return VX_SUCCESS;
+    auto r = cp_ring_append_(cp_pending_line_.data());
+    if (r != VX_SUCCESS)
+        return r;
+    cp_pending_line_.fill(0);
+    cp_pending_used_ = 0;
+    return VX_SUCCESS;
+}
+
+vx_result_t Device::cp_command_append_(const void* cmd, std::size_t cmd_size) {
+    if (!cmd || cmd_size < 4 || cmd_size > CP_CL_BYTES)
+        return VX_ERR_INVALID_VALUE;
+    if (cp_pending_used_ + cmd_size > CP_CL_BYTES) {
+        auto r = cp_line_flush_();
+        if (r != VX_SUCCESS)
+            return r;
+    }
+    std::memcpy(cp_pending_line_.data() + cp_pending_used_, cmd, cmd_size);
+    cp_pending_used_ += cmd_size;
     cp_expected_seqnum_ += 1;
     return VX_SUCCESS;
 }
@@ -357,14 +379,21 @@ void Device::cp_batch_begin() {
 
 vx_result_t Device::cp_batch_end() {
     auto* p = platform();
-    const uint64_t target = cp_batch_target_;
     cp_in_batch_ = false;
+
+    // 发布 doorbell 前写出最后一条未满缓存行。
+    auto r = cp_line_flush_();
+    const uint64_t target = cp_batch_target_;
+    if (r != VX_SUCCESS) {
+        cp_mu_.unlock();
+        return r;
+    }
 
     // Commit the staged tail once (the single doorbell for the whole batch),
     // while still holding cp_mu_ from cp_batch_begin. Release fence first so
     // the CP cannot read a stale ring entry (see cp_submit_cl_).
     std::atomic_thread_fence(std::memory_order_release);
-    auto r = p->cp_reg_write(CP_Q_TAIL_LO, uint32_t(cp_tail_ & 0xFFFFFFFFu));
+    r = p->cp_reg_write(CP_Q_TAIL_LO, uint32_t(cp_tail_ & 0xFFFFFFFFu));
     if (r == VX_SUCCESS)
         r = p->cp_reg_write(CP_Q_TAIL_HI, uint32_t(cp_tail_ >> 32));
     cp_mu_.unlock();                     // release the batch lock before polling
@@ -390,13 +419,13 @@ vx_result_t Device::cp_batch_end() {
     return drain_cout();
 }
 
-vx_result_t Device::cp_submit_cl_(const void* cl) {
+vx_result_t Device::cp_submit_cl_(const void* cmd, std::size_t cmd_size) {
     auto* p = platform();
 
     // Batch mode: append only — cp_mu_ is already held for the batch, and
     // the single doorbell + poll happen in cp_batch_end.
     if (cp_in_batch_) {
-        auto r = cp_ring_append_(cl);
+        auto r = cp_command_append_(cmd, cmd_size);
         if (r == VX_SUCCESS) cp_batch_target_ = cp_expected_seqnum_;
         return r;
     }
@@ -408,8 +437,10 @@ vx_result_t Device::cp_submit_cl_(const void* cl) {
         // unblock a stalled WAIT at the ring head.
         std::lock_guard<std::mutex> g(cp_mu_);
 
-        // 1) Write the CL into the ring and reserve its seqnum.
-        auto r = cp_ring_append_(cl);
+        // 同步提交不能留下待发布命令：加入构建器后立即写出缓存行。
+        auto r = cp_command_append_(cmd, cmd_size);
+        if (r != VX_SUCCESS) return r;
+        r = cp_line_flush_();
         if (r != VX_SUCCESS) return r;
         target = cp_expected_seqnum_;
 
@@ -496,7 +527,7 @@ vx_result_t Device::cp_submit_dcr_write(uint32_t addr, uint32_t value) {
     p32[0] = CP_OPCODE_DCR_WR;
     p32[1] = addr;
     p32[3] = value;
-    return cp_submit_cl_(cl);
+    return cp_submit_cl_(cl, 20);
 }
 
 vx_result_t Device::cp_submit_launch() {
@@ -505,7 +536,7 @@ vx_result_t Device::cp_submit_launch() {
     //   bytes 4..11  arg0    unused by VX_cp_launch
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_LAUNCH;
-    auto r = cp_submit_cl_(cl);
+    auto r = cp_submit_cl_(cl, 12);
     if (r != VX_SUCCESS) return r;
     // Cache coherence: post an explicit cache flush right after the launch
     // (ACQUIRE_MEM model) so the host observes coherent kernel results.
@@ -530,7 +561,7 @@ vx_result_t Device::cp_submit_launch_qmd(uint64_t qmd_addr) {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_LAUNCH_QMD;
     std::memcpy(cl + 4, &qmd_addr, sizeof(qmd_addr));
-    auto r = cp_submit_cl_(cl);
+    auto r = cp_submit_cl_(cl, 12);
     if (r != VX_SUCCESS) return r;
     r = cp_submit_cache_flush();
     if (r != VX_SUCCESS) return r;
@@ -549,7 +580,7 @@ vx_result_t Device::cp_submit_draw(uint64_t desc_addr) {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_DRAW;
     std::memcpy(cl + 4, &desc_addr, sizeof(desc_addr));
-    auto r = cp_submit_cl_(cl);
+    auto r = cp_submit_cl_(cl, 12);
     if (r != VX_SUCCESS) return r;
     if (cp_in_batch_) return VX_SUCCESS;
     return drain_cout();
@@ -569,7 +600,7 @@ vx_result_t Device::cp_submit_cache_flush() {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_CACHE_FLUSH;
     std::memcpy(cl + 4, &cp_num_cores_, sizeof(cp_num_cores_));
-    return cp_submit_cl_(cl);
+    return cp_submit_cl_(cl, 12);
 }
 
 vx_result_t Device::cp_submit_dcr_read(uint32_t addr, uint32_t tag,
@@ -585,7 +616,7 @@ vx_result_t Device::cp_submit_dcr_read(uint32_t addr, uint32_t tag,
     p32[0] = CP_OPCODE_DCR_RD;
     p32[1] = addr;
     p32[3] = tag;
-    auto r = cp_submit_cl_(cl);
+    auto r = cp_submit_cl_(cl, 20);
     if (r != VX_SUCCESS) return r;
     // Pick up the response from the CP regfile: VX_cp_dcr_proxy latches
     // it on Q_LAST_DCR_RSP at the same offset as the engine's retire.
@@ -619,7 +650,7 @@ vx_result_t Device::cp_submit_mem_(uint8_t opcode, uint64_t arg0,
     std::memcpy(cl + 4,  &arg0, sizeof(arg0));
     std::memcpy(cl + 12, &arg1, sizeof(arg1));
     std::memcpy(cl + 20, &arg2, sizeof(arg2));
-    return cp_submit_cl_(cl);
+    return cp_submit_cl_(cl, 28);
 }
 
 vx_result_t Device::cp_submit_mem_copy(uint64_t dst, uint64_t src,

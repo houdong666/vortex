@@ -1,20 +1,17 @@
-// Copyright © 2019-2023
-// Licensed under the Apache License, Version 2.0.
+// 版权所有 © 2019-2023
+// 根据 Apache 许可证 2.0 版授权。
 
 `include "VX_define.vh"
 
 // ============================================================================
-// VX_cp_engine_top — verilator-friendly wrapper around VX_cp_engine.
+// VX_cp_engine_top —— 便于 Verilator 驱动的 VX_cp_engine 包装模块。
 //
-// VX_cp_engine talks to the four resource arbiters through SystemVerilog
-// interfaces, which can't be driven directly from C++ harnesses. This
-// wrapper instantiates the four bid interfaces locally, exposes them as
-// flat packed ports the harness reads/writes, and connects them through
-// modports to the engine.
+// VX_cp_engine 通过 SystemVerilog 接口连接四个资源仲裁器，而 C++ 测试台
+// 无法直接驱动这些接口。本包装模块在内部实例化四个竞标接口，将其展开为
+// C++ 测试台可读写的扁平端口，再通过 modport 连接到引擎。
 //
-// The CPE state mirror is reduced to a single `state_prio` input — the
-// only queue-state field the engine FSM consumes (it tags the arbiter
-// bids). The wrapper also exposes FSM and seqnum taps for unit-test checks.
+// CPE 状态镜像精简为 `state_prio` 输入；这是引擎 FSM 唯一使用的队列状态
+// 字段，用于标记仲裁竞标。包装模块还导出 FSM 和 seqnum 观测点供单测检查。
 // ============================================================================
 
 module VX_cp_engine_top
@@ -26,15 +23,15 @@ module VX_cp_engine_top
   input  wire        clk,
   input  wire        reset,
 
-  // CPE state mirror — only `prio` matters to the engine's bid lines.
+  // CPE 状态镜像——引擎竞标线只使用 `prio`。
   input  wire [1:0]  state_prio,
 
-  // Command stream input (packed cmd_t).
+  // 命令流输入（打包后的 cmd_t）。
   input  wire                          cmd_in_valid,
   input  wire [$bits(cmd_t)-1:0]       cmd_in_packed,
   output wire                          cmd_in_ready,
 
-  // Per-resource bid lines (flat).
+  // 各资源的扁平竞标信号。
   output wire                          bid_kmu_valid,
   output wire [1:0]                    bid_kmu_prio,
   output wire [$bits(cmd_t)-1:0]       bid_kmu_cmd,
@@ -55,43 +52,41 @@ module VX_cp_engine_top
   output wire [$bits(cmd_t)-1:0]       bid_event_cmd,
   input  wire                          bid_event_grant,
 
-  // Resource done pulses (harness drives these to simulate the resource
-  // modules finishing). For backwards-compatible tests that still treat
-  // grant as done, the harness can simply tie these to the corresponding
-  // bid_*_grant inputs delayed by one cycle.
+  // 资源完成脉冲，由测试台驱动以模拟资源模块执行完毕。若旧测试仍把授权
+  // 视为完成，可直接把这些信号连接到延迟一周期的相应 bid_*_grant 输入。
   input  wire                          kmu_done_i,
   input  wire                          dma_done_i,
   input  wire                          dcr_done_i,
   input  wire                          event_done_i,
 
-  // Retirement.
+  // 退役信号。
   output wire                          retire_evt,
   output wire [63:0]                   retire_seqnum,
   output wire [63:0]                   seqnum_out,
   output wire [2:0]                    engine_fsm,
   output wire                          nop_fast_path,
 
-  // Profiling pulses.
+  // 性能分析脉冲。
   output wire                          submit_evt,
   output wire                          start_evt,
   output wire                          end_evt,
   output wire [63:0]                   profile_slot
 );
 
-  // ---- Wrap cmd_in_packed back into cmd_t for the engine ----------------
+  // ---- 将 cmd_in_packed 转回引擎使用的 cmd_t ----------------------------
   cmd_t cmd_in_typed;
   assign cmd_in_typed = cmd_t'(cmd_in_packed);
 
-  // ---- Engine retired-seqnum telemetry -----------------------------------
+  // ---- 引擎退役序号观测信号 ----------------------------------------------
   wire [63:0] seqnum_out_w;
 
-  // ---- Bid interfaces ---------------------------------------------------
+  // ---- 竞标接口 ---------------------------------------------------------
   VX_cp_engine_bid_if bid_kmu_if   ();
   VX_cp_engine_bid_if bid_dma_if   ();
   VX_cp_engine_bid_if bid_dcr_if   ();
   VX_cp_engine_bid_if bid_event_if ();
 
-  // Drive engine grants from the harness, surface engine outputs to harness.
+  // 测试台驱动引擎授权信号，并读取引擎输出。
   assign bid_kmu_if.grant   = bid_kmu_grant;
   assign bid_dma_if.grant   = bid_dma_grant;
   assign bid_dcr_if.grant   = bid_dcr_grant;
@@ -113,7 +108,7 @@ module VX_cp_engine_top
   assign bid_event_prio  = bid_event_if.priority_;
   assign bid_event_cmd   = bid_event_if.cmd;
 
-  // ---- DUT --------------------------------------------------------------
+  // ---- 被测模块 ---------------------------------------------------------
   logic cmd_in_ready_w;
   assign cmd_in_ready = cmd_in_ready_w;
 

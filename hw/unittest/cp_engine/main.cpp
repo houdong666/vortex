@@ -1,32 +1,32 @@
-// Copyright © 2019-2023
-// Licensed under the Apache License, Version 2.0.
+// 版权所有 © 2019-2023
+// 根据 Apache 许可证 2.0 版授权。
 
 // ============================================================================
-// Verilator unit test for VX_cp_engine.
+// VX_cp_engine 的 Verilator 单元测试。
 //
-// Drives synthetic cmd_t values into the engine and verifies the FSM:
+// 向引擎输入构造的 cmd_t，并验证 FSM 路径：
 //
-//   - IDLE -> RETIRE               for CMD_NOP when fast path is enabled
-//   - IDLE -> DECODE -> RETIRE     for CMD_NOP baseline / CMD_FENCE
-//   - IDLE -> DECODE -> BID -> WAIT_DONE -> RETIRE for the resource opcodes
+//   - 快路径开启时，CMD_NOP：IDLE -> RETIRE
+//   - 基线 CMD_NOP / CMD_FENCE：IDLE -> DECODE -> RETIRE
+//   - 资源类命令：IDLE -> DECODE -> BID -> WAIT_DONE -> RETIRE
 //
-// Per opcode → resource classification (cmd:[7:0] header.opcode):
+// 各操作码的资源分类（cmd:[7:0] 为 header.opcode）：
 //
-//   0x00 NOP            -> no bid, retires immediately
+//   0x00 NOP            -> 不竞标，立即退役
 //   0x01 MEM_WRITE      -> bid_dma
 //   0x02 MEM_READ       -> bid_dma
 //   0x03 MEM_COPY       -> bid_dma
 //   0x04 DCR_WRITE      -> bid_dcr
 //   0x05 DCR_READ       -> bid_dcr
 //   0x06 LAUNCH         -> bid_kmu
-//   0x07 FENCE          -> no bid, retires immediately
+//   0x07 FENCE          -> 不竞标，立即退役
 //   0x08 EVENT_SIGNAL   -> bid EVENT
 //   0x09 EVENT_WAIT     -> bid EVENT
 //
-// Also asserts:
-//   - retire_seqnum monotonically increments by 1 per retired command
-//   - profiling pulses (submit/start/end) fire exactly when F_PROFILE is set
-//   - state_prio propagates into the bid line priority field
+// 另外检查：
+//   - 每退役一条命令，retire_seqnum 严格递增 1
+//   - 仅在设置 F_PROFILE 时产生 submit/start/end 性能分析脉冲
+//   - state_prio 正确传播到竞标线的优先级字段
 // ============================================================================
 
 #include "vl_simulator.h"
@@ -51,9 +51,8 @@ double sc_time_stamp() { return timestamp; }
 bool   sim_trace_enabled() { return trace_en; }
 void   sim_trace_enable(bool e) { trace_en = e; }
 
-// cmd_t is a SystemVerilog packed struct. By the language rules, the first
-// member declared sits in the most-significant bits. So the bit layout
-// across cmd_in_packed[287:0] is:
+// cmd_t 是 SystemVerilog packed struct；按语言规则，第一个声明的成员位于
+// 最高有效位，因此 cmd_in_packed[287:0] 的布局如下：
 //
 //   [287:256]  hdr  =  reserved[15:0] | flags[7:0] | opcode[7:0]
 //   [255:192]  arg0
@@ -61,9 +60,8 @@ void   sim_trace_enable(bool e) { trace_en = e; }
 //   [127:64]   arg2
 //   [63:0]     profile_slot
 //
-// Verilator exposes the 288-bit signal as a VlWide<9> array of uint32_t
-// (LSB word at index 0). So profile_slot lands in words[0..1] and the
-// header lands in words[8].
+// Verilator 将 288 位信号导出为 uint32_t 的 VlWide<9> 数组，索引 0 是
+// 最低有效字。因此 profile_slot 位于 words[0..1]，命令头位于 words[8]。
 
 enum CmdOp : uint8_t {
     OP_NOP        = 0x00,
@@ -93,7 +91,7 @@ static void pack_cmd(uint32_t out_words[9],
                      uint64_t arg0, uint64_t arg1, uint64_t arg2,
                      uint64_t profile_slot) {
     for (int i = 0; i < 9; ++i) out_words[i] = 0;
-    // [63:0] profile_slot (last field of cmd_t)
+    // [63:0] profile_slot（cmd_t 的最后一个字段）
     out_words[0]  = static_cast<uint32_t>(profile_slot & 0xffffffffu);
     out_words[1]  = static_cast<uint32_t>(profile_slot >> 32);
     // [127:64] arg2
@@ -126,26 +124,24 @@ static void set_cmd(T* top, uint8_t opcode, uint8_t flags = 0,
     } \
 } while (0)
 
-// Drive inputs, evaluate combinational (sample outputs for the current
-// cycle), then advance one clock edge so FF state updates take effect for
-// the next call.
+// 驱动输入并计算组合逻辑，采样当前周期输出；随后推进一个时钟边沿，使触发器
+// 状态更新在下一次调用时生效。
 template <typename T>
 static void cycle(vl_simulator<T>& sim, uint64_t& tick) {
     sim->eval();
     tick = sim.step(tick, 2);
 }
 
-// Drive a single command into the engine and run the FSM to completion.
-// `expect_*_bid` say which resource line should fire during the BID state
-// (or zero of them for skip-opcodes). Verifies seqnum monotonicity and
-// profiling pulses. Returns the new expected seqnum.
+// 向引擎提交一条命令并运行 FSM 直至完成。`expect_*_bid` 指明 BID 状态下
+// 应拉高的资源竞标线；跳过资源的操作码全部为零。同时验证 seqnum 单调性和
+// 性能分析脉冲，返回新的期望 seqnum。
 template <typename T>
 static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
                             uint8_t opcode, uint8_t flags,
                             bool expect_kmu, bool expect_dma,
                             bool expect_dcr, bool expect_event,
                             uint64_t prior_seqnum) {
-    // ----- Pre-condition: engine in IDLE -----
+    // ----- 前置条件：引擎处于 IDLE -----
     sim->cmd_in_valid = 0;
     set_cmd(sim.operator->(), 0);
     sim->bid_kmu_grant   = 0;
@@ -155,7 +151,7 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     sim->eval();
     EXPECT(sim->cmd_in_ready == 1, "engine not in IDLE before cmd");
 
-    // ----- Cycle 1: present command and capture it from IDLE -----
+    // ----- 周期 1：给出命令并在 IDLE 中锁存 -----
     sim->cmd_in_valid = 1;
     set_cmd(sim.operator->(), opcode, flags, /*arg0=*/0xCAFEBABEull,
             /*arg1=*/0, /*arg2=*/0, /*profile_slot=*/0xDEADBEEFull);
@@ -167,8 +163,8 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     sim->cmd_in_valid = 0;
     set_cmd(sim.operator->(), 0);
 
-    // Baseline commands report submit in DECODE. A fast-path profiled NOP
-    // reports it on the acceptance cycle instead.
+    // 基线命令在 DECODE 状态报告 submit；带性能分析标记的快路径 NOP 则在
+    // 接收命令的周期报告。
     sim->eval();
     bool submit_at_decode = sim->submit_evt != 0;
     EXPECT((submit_at_accept || submit_at_decode) == prof,
@@ -185,8 +181,8 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     }
 
     if (any_bid) {
-        // ----- Cycle 3: BID -----
-        // The expected bid line is asserted; others are not.
+        // ----- 周期 3：BID -----
+        // 仅期望的竞标线拉高。
         sim->eval();
         if (expect_kmu) {
             EXPECT(sim->bid_kmu_valid   == 1, "expected bid_kmu_valid high");
@@ -210,14 +206,14 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
             EXPECT(sim->bid_event_valid == 1, "expected bid_event_valid high");
         }
 
-        // Grant immediately; FSM transitions to WAIT_DONE at edge.
+        // 立即授权；FSM 在时钟边沿转入 WAIT_DONE。
         if (expect_kmu)   sim->bid_kmu_grant   = 1;
         if (expect_dma)   sim->bid_dma_grant   = 1;
         if (expect_dcr)   sim->bid_dcr_grant   = 1;
         if (expect_event) sim->bid_event_grant = 1;
         sim->eval();
 
-        // start_evt pulses iff F_PROFILE && (cur_res granted).
+        // 仅当设置 F_PROFILE 且当前资源获授权时产生 start_evt 脉冲。
         EXPECT((sim->start_evt != 0) == prof, "start_evt mismatch");
         cycle(sim, tick);
 
@@ -226,9 +222,8 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
         sim->bid_dcr_grant   = 0;
         sim->bid_event_grant = 0;
 
-        // ----- Cycle 4: WAIT_DONE -> pulse done -> RETIRE -----
-        // Engine waits for the resource's done pulse before retiring.
-        // Simulate a one-cycle done pulse here.
+        // ----- 周期 4：WAIT_DONE -> 完成脉冲 -> RETIRE -----
+        // 引擎等待资源的 done 脉冲后才退役，此处模拟一个周期的完成脉冲。
         if (expect_kmu)   sim->kmu_done_i   = 1;
         if (expect_dma)   sim->dma_done_i   = 1;
         if (expect_dcr)   sim->dcr_done_i   = 1;
@@ -240,7 +235,7 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
         sim->event_done_i = 0;
     }
 
-    // ----- RETIRE cycle: retire_evt high, seqnum still old value -----
+    // ----- RETIRE 周期：retire_evt 拉高，seqnum 仍为旧值 -----
     sim->eval();
     EXPECT(sim->retire_evt == 1, "retire_evt did not fire");
     EXPECT(sim->retire_seqnum == prior_seqnum, "seqnum should not yet have advanced");
@@ -250,7 +245,7 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     }
     cycle(sim, tick);
 
-    // After RETIRE, FSM is IDLE and seqnum has incremented.
+    // RETIRE 结束后 FSM 返回 IDLE，seqnum 已递增。
     sim->eval();
     EXPECT(sim->cmd_in_ready == 1, "engine did not return to IDLE");
     EXPECT(sim->retire_seqnum == prior_seqnum + 1, "seqnum did not increment");

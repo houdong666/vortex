@@ -809,6 +809,18 @@ Improvement = (Baseline - New) / Baseline × 100%
 
 本轮按“仅`cp_engine` Unit Test层”的首版范围实现。`VX_cp_engine`新增参数`ENABLE_NOP_FAST_PATH`，默认关闭；单测wrapper默认打开，基线通过`NOP_FAST_PATH=0`生成。`S_DECODE`保留，只有`CMD_NOP`走快路径。
 
+验证场景：
+
+| 场景 | 验证内容 | PASS 标准 |
+|---|---|---|
+| NOP Baseline | `IDLE -> DECODE -> RETIRE` | CPC=3，DECODE 次数=N |
+| NOP Fast Path | `IDLE -> RETIRE` | CPC=2，DECODE 次数=0 |
+| N=100/1000/10000 | 连续命令压力和 seqnum | retire=N、seqnum=N、无丢失/重复 |
+| 资源分类 Smoke | KMU、DMA、DCR、EVENT 及无资源命令 | 13 条命令正确分类并退役 |
+| Profile | NOP/LAUNCH 的事件与 profile 数据 | submit/start/end 和 profile_slot 正确 |
+| Priority | priority=3 的 LAUNCH | KMU bid 携带 priority=3 |
+| 默认关闭与 PPA | 原路径兼容、面积和 Fmax | 功能通过，并据 PPA 决定是否默认启用 |
+
 从`build/`目录复现：
 ```bash
 ../configure --xlen=32 --tooldir=/home/houdong/vortex/build/tools
@@ -928,6 +940,22 @@ Improvement = (3.0 - 2.0) / 3.0 × 100% = 33.33%
 **本实验完成标志**
 
 > 能够证明一条 64B CL 中可以安全承载多条 Command，并且前端流量下降、seqnum 正确、无命令丢失或重复。
+
+**本次执行结果（2026-08-21）**
+
+已完成 Runtime Command Line Builder、按 Command 计数的 seqnum 修正，以及恰好放满、空间不足、多 CL 和 Ring wrap 边界验证。1000 条 DCR_WRITE 从 1000 CL / 64000 B 降至 334 CL / 21376 B，取指流量下降 66.60%；最终 seqnum 为 1000，drop/duplicate 均为 0。当前 DCR 场景受执行路径限制，Total Cycles 均为 7011，因此流量优化尚未转化为吞吐提升。完整报告见 `docs/experiments/exp05_command_packing.md`，逐步复现命令见 `docs/experiments/exp05_commands.md`。
+
+验证场景：
+
+| 场景 | 验证内容 | PASS 标准 |
+|---|---|---|
+| 空行与单命令 | 零填充、普通/Profile LAUNCH | 命令数量、长度和字段正确 |
+| 混合长度 Packing | DCR_WRITE+MEM_COPY、多条 Profile NOP | 顺序、参数和 profile_slot 正确 |
+| 空间不足 | 偏移 56 处放置无法容纳的 MEM_COPY | 拒绝跨缓存行命令 |
+| 恰好放满 | 20+20+12+12=64 B | 四条命令全部解析，无伪命令 |
+| 1000 条 DCR 对照 | Baseline 与 Packed | 1000 CL 对 334 CL，seqnum 均为 1000 |
+| Ring wrap Packing | 256 B Ring、4 CL、每行 3 条 DCR | 4 次读取、12 条命令、head=384 |
+| Completion 与回归 | seqnum 写回、DMA/Engine/Runtime | 写回值正确，相关测试和编译全部 PASS |
 
 ---
 ### 实验6：Fetch Prefetch

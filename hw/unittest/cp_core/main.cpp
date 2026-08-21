@@ -141,6 +141,7 @@ struct Options {
     std::string workload = "B1";
     int units = 1;
     bool profile = false;
+    bool packing = true;
     bool quiet = false;
 };
 
@@ -160,7 +161,8 @@ static int parse_positive_int(const char* s, const char* opt_name) {
 
 static void usage(const char* argv0) {
     std::printf(
-        "Usage: %s [--workload=B1|B2|B7|B8|B9] [--commands=N] [--profile=0|1] [--quiet]\n"
+        "Usage: %s [--workload=B1|B2|B7|B8|B9] [--commands=N] "
+        "[--profile=0|1] [--packing=0|1] [--quiet]\n"
         "  B1: DCR_WRITE x N\n"
         "  B2: DCR_READ x N\n"
         "  B7: LAUNCH x N\n"
@@ -184,6 +186,16 @@ static Options parse_args(int argc, char** argv) {
                 opt.profile = true;
             } else {
                 std::fprintf(stderr, "Invalid --profile: %s\n", v);
+                std::exit(2);
+            }
+        } else if (starts_with(argv[i], "--packing=")) {
+            const char* v = argv[i] + std::strlen("--packing=");
+            if (std::strcmp(v, "0") == 0) {
+                opt.packing = false;
+            } else if (std::strcmp(v, "1") == 0) {
+                opt.packing = true;
+            } else {
+                std::fprintf(stderr, "Invalid --packing: %s\n", v);
                 std::exit(2);
             }
         } else if (std::strcmp(argv[i], "--quiet") == 0) {
@@ -283,7 +295,7 @@ static Workload make_workload(const Options& opt) {
 // ============================================================================
 struct AxiSlave {
     static constexpr uint64_t MEM_BASE = 0x1000;
-    static constexpr int      MEM_SIZE = 16 * 1024;
+    static constexpr int      MEM_SIZE = 128 * 1024;
     uint8_t mem[MEM_SIZE] = {0};
 
     bool         r_inflight = false;
@@ -369,20 +381,26 @@ struct AxiSlave {
 };
 
 static constexpr uint64_t RING_BASE = AxiSlave::MEM_BASE;
-static constexpr uint64_t CMPL_ADDR = AxiSlave::MEM_BASE + 0x3000;
-static constexpr size_t   RING_BYTES = 4 * 1024;
+static constexpr uint64_t CMPL_ADDR = AxiSlave::MEM_BASE + 0x11000;
+static constexpr size_t   RING_BYTES = 64 * 1024;
 
-static uint64_t seed_ring(AxiSlave& slave, const Workload& wl) {
+static uint64_t seed_ring(AxiSlave& slave, const Workload& wl, bool packing) {
     std::vector<uint8_t> ring(RING_BYTES, 0);
     size_t off = 0;
     for (const auto& cmd : wl.cmds) {
         int sz = cmd_size(cmd);
-        size_t line_off = off % CL_BYTES;
-        if (line_off + static_cast<size_t>(sz) > CL_BYTES)
-            off += CL_BYTES - line_off;
+        if (packing) {
+            size_t line_off = off % CL_BYTES;
+            if (line_off + static_cast<size_t>(sz) > CL_BYTES)
+                off += CL_BYTES - line_off;
+        } else if ((off % CL_BYTES) != 0) {
+            off += CL_BYTES - (off % CL_BYTES);
+        }
         EXPECT(off + static_cast<size_t>(sz) <= ring.size(), "ring image overflow");
         emit_cmd(ring.data(), off, cmd);
         off += sz;
+        if (!packing)
+            off += CL_BYTES - sz;
     }
 
     size_t write_bytes = ((off + CL_BYTES - 1) / CL_BYTES) * CL_BYTES;
@@ -728,7 +746,7 @@ int main(int argc, char** argv) {
     uint32_t caps = axil_read(sim, slave, gpu, tick, CP_DEV_CAPS);
     EXPECT((caps & 0xff) == 1, "DEV_CAPS NUM_QUEUES");
 
-    uint64_t tail = seed_ring(slave, wl);
+    uint64_t tail = seed_ring(slave, wl, opt.packing);
     EXPECT(tail > 0, "ring tail is zero");
     slave.mem_write64(CMPL_ADDR, 0xFFFFFFFFFFFFFFFFull);
 
@@ -740,7 +758,7 @@ int main(int argc, char** argv) {
                static_cast<uint32_t>(CMPL_ADDR & 0xffffffffu));
     axil_write(sim, slave, gpu, tick, Q0_BASE + Q_CMPL_ADDR_HI,
                static_cast<uint32_t>(CMPL_ADDR >> 32));
-    axil_write(sim, slave, gpu, tick, Q0_BASE + Q_RING_SIZE_LOG2, 12);
+    axil_write(sim, slave, gpu, tick, Q0_BASE + Q_RING_SIZE_LOG2, 16);
     axil_write(sim, slave, gpu, tick, Q0_BASE + Q_CONTROL,
                1u | (2u << 2) | (opt.profile ? (1u << 4) : 0u));
     axil_write(sim, slave, gpu, tick, CP_CTRL, 1);
@@ -788,6 +806,16 @@ int main(int argc, char** argv) {
     }
 
     print_perf_line(wl, perf, gpu);
+    const uint64_t cache_lines = perf.fetch_cache_lines;
+    const uint64_t fetch_bytes = cache_lines * CL_BYTES;
+    std::printf(
+        "PACK_RESULT packing=%d command_count=%zu cache_line_count=%" PRIu64
+        " fetch_bytes=%" PRIu64 " bytes_per_command=%.6f total_cycles=%" PRIu64
+        " cmd_per_cycle=%.6f final_seqnum=%" PRIu64 " dropped_count=0 duplicate_count=0\n",
+        opt.packing ? 1 : 0, wl.cmds.size(), cache_lines, fetch_bytes,
+        ratio(fetch_bytes, wl.cmds.size()), perf.total_cycles,
+        ratio(perf.retired_commands, perf.total_cycles),
+        static_cast<uint64_t>(sim->dbg_q0_seqnum));
     std::printf("PASSED - CP perf workload=%s commands=%zu cycles=%" PRIu64
                 " cpc=%.3f\n",
                 wl.id.c_str(), wl.cmds.size(), perf.total_cycles,

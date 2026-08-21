@@ -1,6 +1,6 @@
 
 // 版权 © 2019-2023
-// 根据 Apache License, Version 2.0 授权许可。
+// 根据 Apache 许可证 2.0 版授权。
 
 `include "VX_define.vh"
 

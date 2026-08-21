@@ -22,6 +22,7 @@
 #include <mem_alloc.h>  // MemoryAllocator — device-memory allocator (common core)
 #include <vm.h>         // VMManager — virtual memory (empty when VM disabled)
 
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -338,15 +339,18 @@ private:
     // Called from Device::open() after the platform is ready.
     vx_result_t cp_init();
 
-    // Push one pre-built CL into the ring + commit Q_TAIL + wait. Used by
-    // cp_submit_dcr_write / cp_submit_launch — they just build the CL.
-    // When a batch is open (cp_in_batch_) it appends only; the single
-    // doorbell + poll are deferred to cp_batch_end.
-    vx_result_t cp_submit_cl_(const void* cl);
+    // 将一条紧凑命令加入当前缓存行。批处理期间尽量复用当前行；同步提交则在
+    // 加入后立即写出并等待。cmd_size 是命令的线上字节数。
+    vx_result_t cp_submit_cl_(const void* cmd, std::size_t cmd_size);
 
-    // Append one CL at the current tail and reserve its seqnum (bump
-    // cp_tail_ + cp_expected_seqnum_). Caller must hold cp_mu_ (directly in
-    // the non-batch path, or via cp_batch_begin). No doorbell, no poll.
+    // 将一条命令加入缓存行构建器。空间不足时先写出旧行，再创建新行。
+    // 每成功加入一条命令，cp_expected_seqnum_ 递增一次。
+    vx_result_t cp_command_append_(const void* cmd, std::size_t cmd_size);
+
+    // 写出构建器中尚未提交的缓存行；空行不执行任何操作。
+    vx_result_t cp_line_flush_();
+
+    // 在当前 tail 写入一条完整缓存行并推进 cp_tail_。调用者必须持有 cp_mu_。
     vx_result_t cp_ring_append_(const void* cl);
 
     // Build + submit a CMD_MEM_* descriptor (opcode, dst, src, size).
@@ -412,6 +416,8 @@ private:
     HostMem                        cp_cmpl_;
     uint64_t                       cp_tail_            = 0;
     uint64_t                       cp_expected_seqnum_ = 0;
+    std::array<uint8_t, 64>        cp_pending_line_{};
+    std::size_t                    cp_pending_used_    = 0;
     uint64_t                       cp_num_cores_       = 0; // cached VX_CAPS_NUM_CORES, used for CMD_CACHE_FLUSH
     std::mutex                     cp_mu_;             // serialize ring writes
     // Batched-submit state. cp_in_batch_ is set between cp_batch_begin and

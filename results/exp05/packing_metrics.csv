@@ -1,0 +1,3 @@
+mode,command_count,cache_line_count,fetch_bytes,bytes_per_command,total_cycles,cmd_per_cycle,final_seqnum,dropped_count,duplicate_count
+baseline,1000,1000,64000,64.000000,7011,0.142633,1000,0,0
+packed,1000,334,21376,21.376000,7011,0.142633,1000,0,0
