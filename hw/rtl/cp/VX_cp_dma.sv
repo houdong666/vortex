@@ -10,7 +10,7 @@
 // 命令编码：
 //   arg0 = 目标地址
 //   arg1 = 源地址
-//   arg2 = 传输字节数（向上取整到 64 字节的倍数）
+//   arg2 = 传输字节数（最后一个节拍通过 WSTRB 精确限定有效字节）
 //
 // 双端口：XRT 将每个内核的 AXI 主设备固定映射到一个内存资源
 // （一个 HBM/DDR 存储体或 HOST[0]），因此 CP 携带两个主设备 —— axi_host 用于
@@ -57,6 +57,7 @@ module VX_cp_dma
   localparam int MAX_BURST = 64;          // 64 x 64 B = 每个突发最大 4 KB
   localparam int BIDX_W    = 6;           // 节拍索引 0..63
   localparam int BCNT_W    = 7;           // 块长度 1..64
+  localparam int STRB_W    = CL_BITS / 8;
 
   typedef enum logic [2:0] {
     S_IDLE, S_SETUP, S_REQ_AR, S_READ, S_REQ_AW, S_WRITE, S_WAIT_B, S_DONE
@@ -65,6 +66,7 @@ module VX_cp_dma
   state_e               state;
   logic [7:0]           op_r;             // 锁存的操作码（主机/设备路由）
   logic [63:0]          dst_r, src_r;
+  logic [63:0]          bytes_rem;        // 仍需传输的实际字节数
   logic [63:0]          rem_beats;        // 仍需传输的 64 B 节拍数
   logic [BCNT_W-1:0]    chunk_beats;      // 当前块的节拍数
   logic [BIDX_W-1:0]    beat_idx;
@@ -96,6 +98,31 @@ module VX_cp_dma
   // 当前块的最后一个节拍
   wire last_beat = (BCNT_W'({1'b0, beat_idx}) == (chunk_beats - BCNT_W'(1)));
 
+  wire [63:0] chunk_bytes = 64'({1'b0, chunk_beats}) << 6;
+  wire        final_chunk = rem_beats <= 64'({1'b0, chunk_beats});
+  wire [6:0]  tail_bytes  = (bytes_rem[5:0] == 0)
+                          ? 7'd64
+                          : {1'b0, bytes_rem[5:0]};
+
+  function automatic logic [STRB_W-1:0] bytes_to_wstrb(
+    input logic [6:0] bytes
+  );
+    begin
+      if (bytes == 7'd64) begin
+        bytes_to_wstrb = '1;
+      end else begin
+        bytes_to_wstrb = '0;
+        for (int i = 0; i < STRB_W; ++i) begin
+          if (bytes > 7'(i))
+            bytes_to_wstrb[i] = 1'b1;
+        end
+      end
+    end
+  endfunction
+
+  wire [6:0]  write_bytes = (final_chunk && last_beat) ? tail_bytes : 7'd64;
+  wire [STRB_W-1:0] write_wstrb = bytes_to_wstrb(write_bytes);
+
   // ---- 状态机 ----
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -103,6 +130,7 @@ module VX_cp_dma
       op_r        <= '0;
       dst_r       <= '0;
       src_r       <= '0;
+      bytes_rem   <= '0;
       rem_beats   <= '0;
       chunk_beats <= '0;
       beat_idx    <= '0;
@@ -113,7 +141,7 @@ module VX_cp_dma
             op_r      <= cmd.hdr.opcode;
             dst_r     <= cmd.arg0;
             src_r     <= cmd.arg1;
-            // 将字节计数向上取整到完整缓存行
+            bytes_rem <= cmd.arg2;
             rem_beats <= (cmd.arg2 + 64'd63) >> 6;
             state     <= S_SETUP;
           end
@@ -161,8 +189,11 @@ module VX_cp_dma
         end
         S_WAIT_B: begin
           if (wr_bvalid && wr_bready) begin
-            src_r     <= src_r + (64'({1'b0, chunk_beats}) << 6);
-            dst_r     <= dst_r + (64'({1'b0, chunk_beats}) << 6);
+            src_r     <= src_r + chunk_bytes;
+            dst_r     <= dst_r + chunk_bytes;
+            bytes_rem <= (bytes_rem > chunk_bytes)
+                       ? bytes_rem - chunk_bytes
+                       : 64'd0;
             rem_beats <= rem_beats - 64'({1'b0, chunk_beats});
             state     <= S_SETUP;
           end
@@ -211,7 +242,7 @@ module VX_cp_dma
     axi_host.awburst = 2'b01;
     axi_host.wvalid  = wr_wvalid  &  wr_to_host;
     axi_host.wdata   = buf_r[beat_idx];
-    axi_host.wstrb   = '1;
+    axi_host.wstrb   = write_wstrb;
     axi_host.wlast   = last_beat;
     axi_host.bready  = wr_bready  &  wr_to_host;
 
@@ -232,7 +263,7 @@ module VX_cp_dma
     axi_dev.awburst  = 2'b01;
     axi_dev.wvalid   = wr_wvalid  & ~wr_to_host;
     axi_dev.wdata    = buf_r[beat_idx];
-    axi_dev.wstrb    = '1;
+    axi_dev.wstrb    = write_wstrb;
     axi_dev.wlast    = last_beat;
     axi_dev.bready   = wr_bready  & ~wr_to_host;
 

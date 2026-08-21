@@ -14,11 +14,14 @@
 //
 // The CPE state mirror is reduced to a single `state_prio` input — the
 // only queue-state field the engine FSM consumes (it tags the arbiter
-// bids). The engine's `seqnum_out` telemetry output is left unobserved.
+// bids). The wrapper also exposes FSM and seqnum taps for unit-test checks.
 // ============================================================================
 
 module VX_cp_engine_top
   import VX_cp_pkg::*;
+#(
+  parameter bit ENABLE_NOP_FAST_PATH = 1'b1
+)
 (
   input  wire        clk,
   input  wire        reset,
@@ -64,6 +67,9 @@ module VX_cp_engine_top
   // Retirement.
   output wire                          retire_evt,
   output wire [63:0]                   retire_seqnum,
+  output wire [63:0]                   seqnum_out,
+  output wire [2:0]                    engine_fsm,
+  output wire                          nop_fast_path,
 
   // Profiling pulses.
   output wire                          submit_evt,
@@ -76,9 +82,8 @@ module VX_cp_engine_top
   cmd_t cmd_in_typed;
   assign cmd_in_typed = cmd_t'(cmd_in_packed);
 
-  // ---- Engine retired-seqnum telemetry (unobserved by the harness) ------
+  // ---- Engine retired-seqnum telemetry -----------------------------------
   wire [63:0] seqnum_out_w;
-  `UNUSED_VAR (seqnum_out_w)
 
   // ---- Bid interfaces ---------------------------------------------------
   VX_cp_engine_bid_if bid_kmu_if   ();
@@ -112,7 +117,10 @@ module VX_cp_engine_top
   logic cmd_in_ready_w;
   assign cmd_in_ready = cmd_in_ready_w;
 
-  VX_cp_engine #(.QID(0)) u_engine (
+  VX_cp_engine #(
+    .QID(0),
+    .ENABLE_NOP_FAST_PATH(ENABLE_NOP_FAST_PATH)
+  ) u_engine (
     .clk           (clk),
     .reset         (reset),
     .prio_in       (state_prio),
@@ -136,5 +144,9 @@ module VX_cp_engine_top
     .end_evt       (end_evt),
     .profile_slot  (profile_slot)
   );
+
+  assign seqnum_out   = seqnum_out_w;
+  assign engine_fsm   = u_engine.fsm;
+  assign nop_fast_path = ENABLE_NOP_FAST_PATH;
 
 endmodule : VX_cp_engine_top

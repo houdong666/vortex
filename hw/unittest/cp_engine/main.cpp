@@ -6,7 +6,8 @@
 //
 // Drives synthetic cmd_t values into the engine and verifies the FSM:
 //
-//   - IDLE -> DECODE -> RETIRE     for CMD_NOP / CMD_FENCE
+//   - IDLE -> RETIRE               for CMD_NOP when fast path is enabled
+//   - IDLE -> DECODE -> RETIRE     for CMD_NOP baseline / CMD_FENCE
 //   - IDLE -> DECODE -> BID -> WAIT_DONE -> RETIRE for the resource opcodes
 //
 // Per opcode → resource classification (cmd:[7:0] header.opcode):
@@ -34,6 +35,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <vector>
 
 #ifndef TRACE_START_TIME
 #define TRACE_START_TIME 0ull
@@ -74,6 +76,14 @@ enum CmdOp : uint8_t {
     OP_FENCE      = 0x07,
     OP_EVT_SIG    = 0x08,
     OP_EVT_WAIT   = 0x09,
+};
+
+enum EngineState : uint8_t {
+    ENG_IDLE = 0,
+    ENG_DECODE = 1,
+    ENG_BID = 2,
+    ENG_WAIT_DONE = 3,
+    ENG_RETIRE = 4
 };
 
 static constexpr uint8_t F_PROFILE_BIT = 0;
@@ -145,23 +155,34 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     sim->eval();
     EXPECT(sim->cmd_in_ready == 1, "engine not in IDLE before cmd");
 
-    // ----- Cycle 1: present command, IDLE captures, FSM -> DECODE -----
+    // ----- Cycle 1: present command and capture it from IDLE -----
     sim->cmd_in_valid = 1;
     set_cmd(sim.operator->(), opcode, flags, /*arg0=*/0xCAFEBABEull,
             /*arg1=*/0, /*arg2=*/0, /*profile_slot=*/0xDEADBEEFull);
+    sim->eval();
+    bool prof = (flags & (1u << F_PROFILE_BIT)) != 0;
+    bool submit_at_accept = sim->submit_evt != 0;
     cycle(sim, tick);
 
     sim->cmd_in_valid = 0;
     set_cmd(sim.operator->(), 0);
 
-    // ----- Cycle 2: DECODE -----
-    // submit_evt should pulse iff F_PROFILE is set.
+    // Baseline commands report submit in DECODE. A fast-path profiled NOP
+    // reports it on the acceptance cycle instead.
     sim->eval();
-    bool prof = (flags & (1u << F_PROFILE_BIT)) != 0;
-    EXPECT((sim->submit_evt != 0) == prof, "submit_evt mismatch for profiled NOP/skip");
-    cycle(sim, tick);
+    bool submit_at_decode = sim->submit_evt != 0;
+    EXPECT((submit_at_accept || submit_at_decode) == prof,
+           "submit_evt missing for profiled command");
+    EXPECT(!(submit_at_accept && submit_at_decode),
+           "submit_evt pulsed more than once");
 
     bool any_bid = expect_kmu || expect_dma || expect_dcr || expect_event;
+
+    const bool fast_nop = opcode == OP_NOP && sim->nop_fast_path;
+    if (!fast_nop) {
+        // ----- DECODE -----
+        cycle(sim, tick);
+    }
 
     if (any_bid) {
         // ----- Cycle 3: BID -----
@@ -233,15 +254,149 @@ static uint64_t run_one_cmd(vl_simulator<T>& sim, uint64_t& tick,
     sim->eval();
     EXPECT(sim->cmd_in_ready == 1, "engine did not return to IDLE");
     EXPECT(sim->retire_seqnum == prior_seqnum + 1, "seqnum did not increment");
+    EXPECT(sim->seqnum_out == prior_seqnum + 1, "seqnum_out did not increment");
     EXPECT(sim->retire_evt == 0, "retire_evt should not stick");
 
     return prior_seqnum + 1;
+}
+
+struct NopMetrics {
+    uint64_t command_count = 0;
+    uint64_t retire_count = 0;
+    uint64_t final_seqnum = 0;
+    uint64_t duplicate_count = 0;
+    uint64_t dropped_count = 0;
+    uint64_t total_cycles = 0;
+    uint64_t decode_cycles = 0;
+    uint64_t retire_cycles = 0;
+};
+
+template <typename T>
+static NopMetrics run_nop_benchmark(vl_simulator<T>& sim, uint64_t& tick,
+                                    uint64_t command_count) {
+    NopMetrics result;
+    result.command_count = command_count;
+
+    sim->cmd_in_valid = 0;
+    set_cmd(sim.operator->(), 0);
+    sim->bid_kmu_grant = 0;
+    sim->bid_dma_grant = 0;
+    sim->bid_dcr_grant = 0;
+    sim->bid_event_grant = 0;
+    sim->kmu_done_i = 0;
+    sim->dma_done_i = 0;
+    sim->dcr_done_i = 0;
+    sim->event_done_i = 0;
+    tick = sim.reset(tick);
+    sim->eval();
+    EXPECT(sim->seqnum_out == 0, "NOP benchmark did not reset seqnum");
+
+    std::vector<uint8_t> seen(command_count, 0);
+    uint64_t submitted = 0;
+    bool valid_held = false;
+    const uint64_t cycle_limit = command_count * 5 + 20;
+
+    for (uint64_t guard = 0; guard < cycle_limit; ++guard) {
+        if (!valid_held && submitted < command_count) {
+            sim->cmd_in_valid = 1;
+            set_cmd(sim.operator->(), OP_NOP);
+            valid_held = true;
+        }
+
+        sim->eval();
+        switch (sim->engine_fsm) {
+        case ENG_DECODE:
+            ++result.decode_cycles;
+            break;
+        case ENG_RETIRE:
+            ++result.retire_cycles;
+            break;
+        default:
+            break;
+        }
+
+        const bool accepted = sim->cmd_in_valid && sim->cmd_in_ready;
+        const bool retired = sim->retire_evt != 0;
+        if (accepted)
+            ++submitted;
+
+        if (retired) {
+            const uint64_t seqnum = sim->retire_seqnum;
+            ++result.retire_count;
+            if (seqnum < command_count) {
+                if (seen[seqnum]) {
+                    ++result.duplicate_count;
+                } else {
+                    seen[seqnum] = 1;
+                }
+            } else {
+                ++result.duplicate_count;
+            }
+        }
+
+        ++result.total_cycles;
+        cycle(sim, tick);
+
+        if (accepted) {
+            sim->cmd_in_valid = 0;
+            set_cmd(sim.operator->(), 0);
+            valid_held = false;
+        }
+
+        if (submitted == command_count
+            && result.retire_count == command_count) {
+            sim->eval();
+            break;
+        }
+    }
+
+    EXPECT(submitted == command_count, "NOP benchmark dropped a command");
+    EXPECT(result.retire_count == command_count,
+           "NOP benchmark did not retire all commands");
+
+    uint64_t unique_retired = 0;
+    for (uint8_t entry : seen)
+        unique_retired += entry != 0;
+    result.dropped_count = command_count - unique_retired;
+    result.final_seqnum = sim->seqnum_out;
+
+    EXPECT(result.final_seqnum == command_count,
+           "NOP benchmark final seqnum mismatch");
+    EXPECT(result.duplicate_count == 0,
+           "NOP benchmark observed duplicate retire");
+    EXPECT(result.dropped_count == 0,
+           "NOP benchmark observed dropped command");
+    EXPECT(sim->engine_fsm == ENG_IDLE,
+           "NOP benchmark did not return to IDLE");
+    return result;
+}
+
+static uint64_t parse_nop_count(int argc, char** argv) {
+    for (int i = 1; i < argc; ++i) {
+        constexpr const char* prefix = "--nop-count=";
+        if (std::strncmp(argv[i], prefix, std::strlen(prefix)) == 0) {
+            char* end = nullptr;
+            const char* value = argv[i] + std::strlen(prefix);
+            uint64_t count = std::strtoull(value, &end, 10);
+            if (*value == '\0' || *end != '\0' || count == 0) {
+                std::fprintf(stderr, "Invalid --nop-count: %s\n", value);
+                std::exit(2);
+            }
+            return count;
+        }
+        if (std::strcmp(argv[i], "--help") == 0) {
+            std::printf("Usage: %s [--nop-count=N]\n", argv[0]);
+            std::exit(0);
+        }
+    }
+    return 0;
 }
 
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     vl_simulator<VVX_cp_engine_top> sim;
     uint64_t tick = 0;
+    const uint64_t only_nop_count = parse_nop_count(argc, argv);
 
     sim->state_prio   = 0;
     sim->cmd_in_valid = 0;
@@ -256,66 +411,107 @@ int main(int argc, char** argv) {
     sim->event_done_i = 0;
     tick = sim.reset(tick);
 
-    uint64_t seq = 0;
+    std::printf("ENGINE_CONFIG nop_fast_path=%d\n",
+                sim->nop_fast_path ? 1 : 0);
 
-    // ----- NOP retires without any bid -----
-    seq = run_one_cmd(sim, tick, OP_NOP, 0,
-                      /*kmu=*/false, /*dma=*/false, /*dcr=*/false, /*event=*/false, seq);
+    if (only_nop_count == 0) {
+        uint64_t seq = 0;
 
-    // ----- LAUNCH bids KMU -----
-    seq = run_one_cmd(sim, tick, OP_LAUNCH, 0,
-                      /*kmu=*/true, /*dma=*/false, /*dcr=*/false, /*event=*/false, seq);
+        seq = run_one_cmd(sim, tick, OP_NOP, 0,
+                          false, false, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_LAUNCH, 0,
+                          true, false, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_DCR_WRITE, 0,
+                          false, false, true, false, seq);
+        seq = run_one_cmd(sim, tick, OP_DCR_READ, 0,
+                          false, false, true, false, seq);
+        seq = run_one_cmd(sim, tick, OP_MEM_WRITE, 0,
+                          false, true, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_MEM_READ, 0,
+                          false, true, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_MEM_COPY, 0,
+                          false, true, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_FENCE, 0,
+                          false, false, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_EVT_SIG, 0,
+                          false, false, false, true, seq);
+        seq = run_one_cmd(sim, tick, OP_EVT_WAIT, 0,
+                          false, false, false, true, seq);
+        seq = run_one_cmd(sim, tick, OP_NOP, (1u << F_PROFILE_BIT),
+                          false, false, false, false, seq);
+        seq = run_one_cmd(sim, tick, OP_LAUNCH, (1u << F_PROFILE_BIT),
+                          true, false, false, false, seq);
 
-    // ----- DCR_WRITE bids DCR -----
-    seq = run_one_cmd(sim, tick, OP_DCR_WRITE, 0,
-                      /*kmu=*/false, /*dma=*/false, /*dcr=*/true, /*event=*/false, seq);
+        sim->state_prio = 3;
+        sim->cmd_in_valid = 1;
+        set_cmd(sim.operator->(), OP_LAUNCH);
+        cycle(sim, tick);
+        sim->cmd_in_valid = 0;
+        set_cmd(sim.operator->(), 0);
+        cycle(sim, tick);
+        sim->eval();
+        EXPECT(sim->bid_kmu_valid == 1, "prio test: bid_kmu_valid high in BID");
+        EXPECT(sim->bid_kmu_prio == 3, "state_prio did not propagate");
+        sim->bid_kmu_grant = 1;
+        cycle(sim, tick);
+        sim->bid_kmu_grant = 0;
+        sim->kmu_done_i = 1;
+        cycle(sim, tick);
+        sim->kmu_done_i = 0;
+        cycle(sim, tick);
+        ++seq;
 
-    // ----- DCR_READ bids DCR -----
-    seq = run_one_cmd(sim, tick, OP_DCR_READ, 0,
-                      /*kmu=*/false, /*dma=*/false, /*dcr=*/true, /*event=*/false, seq);
+        std::printf("SMOKE_RESULT commands_retired=%lu\n",
+                    (unsigned long)seq);
+    }
 
-    // ----- MEM_WRITE / MEM_READ / MEM_COPY all bid DMA -----
-    seq = run_one_cmd(sim, tick, OP_MEM_WRITE, 0,
-                      /*kmu=*/false, /*dma=*/true, /*dcr=*/false, /*event=*/false, seq);
-    seq = run_one_cmd(sim, tick, OP_MEM_READ, 0,
-                      /*kmu=*/false, /*dma=*/true, /*dcr=*/false, /*event=*/false, seq);
-    seq = run_one_cmd(sim, tick, OP_MEM_COPY, 0,
-                      /*kmu=*/false, /*dma=*/true, /*dcr=*/false, /*event=*/false, seq);
+    const uint64_t counts[] = {100, 1000, 10000};
+    if (only_nop_count != 0) {
+        const NopMetrics metrics =
+            run_nop_benchmark(sim, tick, only_nop_count);
+        const double cpc = static_cast<double>(metrics.total_cycles)
+                         / metrics.command_count;
+        const double throughput =
+            static_cast<double>(metrics.command_count) / metrics.total_cycles;
+        std::printf(
+            "NOP_RESULT command_count=%lu retire_count=%lu final_seqnum=%lu "
+            "duplicate_count=%lu dropped_count=%lu total_cycles=%lu "
+            "cycles_per_command=%.6f cmd_per_cycle=%.6f decode_cycles=%lu "
+            "retire_cycles=%lu\n",
+            (unsigned long)metrics.command_count,
+            (unsigned long)metrics.retire_count,
+            (unsigned long)metrics.final_seqnum,
+            (unsigned long)metrics.duplicate_count,
+            (unsigned long)metrics.dropped_count,
+            (unsigned long)metrics.total_cycles,
+            cpc,
+            throughput,
+            (unsigned long)metrics.decode_cycles,
+            (unsigned long)metrics.retire_cycles);
+    } else {
+        for (uint64_t count : counts) {
+            const NopMetrics metrics = run_nop_benchmark(sim, tick, count);
+            const double cpc = static_cast<double>(metrics.total_cycles)
+                             / metrics.command_count;
+            const double throughput =
+                static_cast<double>(metrics.command_count) / metrics.total_cycles;
+            std::printf(
+                "NOP_RESULT command_count=%lu retire_count=%lu final_seqnum=%lu "
+                "duplicate_count=%lu dropped_count=%lu total_cycles=%lu "
+                "cycles_per_command=%.6f cmd_per_cycle=%.6f decode_cycles=%lu "
+                "retire_cycles=%lu\n",
+                (unsigned long)metrics.command_count,
+                (unsigned long)metrics.retire_count,
+                (unsigned long)metrics.final_seqnum,
+                (unsigned long)metrics.duplicate_count,
+                (unsigned long)metrics.dropped_count,
+                (unsigned long)metrics.total_cycles,
+                cpc,
+                throughput,
+                (unsigned long)metrics.decode_cycles,
+                (unsigned long)metrics.retire_cycles);
+        }
+    }
 
-    // ----- FENCE skips (no resource); EVENT_SIGNAL / EVENT_WAIT bid EVENT -----
-    seq = run_one_cmd(sim, tick, OP_FENCE,    0, false, false, false, false, seq);
-    seq = run_one_cmd(sim, tick, OP_EVT_SIG,  0, false, false, false, true,  seq);
-    seq = run_one_cmd(sim, tick, OP_EVT_WAIT, 0, false, false, false, true,  seq);
-
-    // ----- Profiled NOP fires submit/end pulses (no bid → no start_evt) -----
-    seq = run_one_cmd(sim, tick, OP_NOP, (1u << F_PROFILE_BIT),
-                      false, false, false, false, seq);
-
-    // ----- Profiled LAUNCH fires submit/start/end pulses -----
-    seq = run_one_cmd(sim, tick, OP_LAUNCH, (1u << F_PROFILE_BIT),
-                      true, false, false, false, seq);
-
-    // ----- Priority propagation: set state_prio=3, drive a LAUNCH, check
-    //       bid_kmu_prio reads back as 3 during BID. -----
-    sim->state_prio = 3;
-    sim->cmd_in_valid = 1;
-    set_cmd(sim.operator->(), OP_LAUNCH);
-    cycle(sim, tick);                   // IDLE -> DECODE
-    sim->cmd_in_valid = 0;
-    set_cmd(sim.operator->(), 0);
-    cycle(sim, tick);                   // DECODE -> BID
-    sim->eval();
-    EXPECT(sim->bid_kmu_valid == 1, "prio test: bid_kmu_valid high in BID");
-    EXPECT(sim->bid_kmu_prio  == 3, "state_prio did not propagate");
-    sim->bid_kmu_grant = 1;
-    cycle(sim, tick);                   // BID -> WAIT_DONE
-    sim->bid_kmu_grant = 0;
-    sim->kmu_done_i = 1;                // pulse done
-    cycle(sim, tick);                   // WAIT_DONE -> RETIRE
-    sim->kmu_done_i = 0;
-    cycle(sim, tick);                   // RETIRE -> IDLE
-    ++seq;
-
-    std::printf("PASSED — %lu commands retired\n", (unsigned long)seq);
     return 0;
 }

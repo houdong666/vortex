@@ -29,7 +29,8 @@
 module VX_cp_engine
   import VX_cp_pkg::*;
 #(
-  parameter int QID = 0
+  parameter int QID = 0,
+  parameter bit ENABLE_NOP_FAST_PATH = 1'b0
 )(
   input  wire clk,
   input  wire reset,
@@ -133,7 +134,12 @@ module VX_cp_engine
         S_IDLE: begin
           if (cmd_in_valid) begin
             cur_cmd <= cmd_in;
-            fsm     <= S_DECODE;
+            if (ENABLE_NOP_FAST_PATH
+                && (cmd_in.hdr.opcode == CMD_NOP)) begin
+              fsm <= S_RETIRE;
+            end else begin
+              fsm <= S_DECODE;
+            end
           end
         end
         S_DECODE: begin
@@ -207,7 +213,11 @@ module VX_cp_engine
     retire_evt    = (fsm == S_RETIRE);
     retire_seqnum = seqnum_r;
 
-    submit_evt   = (fsm == S_DECODE) && cur_cmd.hdr.flags[F_PROFILE];
+    submit_evt   = (((fsm == S_DECODE) && cur_cmd.hdr.flags[F_PROFILE])
+                 || ((fsm == S_IDLE) && cmd_in_valid
+                     && ENABLE_NOP_FAST_PATH
+                     && (cmd_in.hdr.opcode == CMD_NOP)
+                     && cmd_in.hdr.flags[F_PROFILE]));
     // end_evt 与退役握手的触发周期对齐（每条命令一个脉冲），
     // 而不是与多周期的 S_RETIRE 状态对齐，这样性能分析单元
     // 能对每条退役的命令恰好计数一次。

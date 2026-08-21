@@ -593,7 +593,7 @@ env -u DEBUG OBJCACHE= make -C hw/unittest/cp_core
 ---
 ### 实验3：DMA Byte-Exact Correctness（正确性修复）
 
-**背景**：当前`VX_cp_dma`对最后一个AXI Beat的`WSTRB`生成不完全符合实际有效字节数，非64B对齐传输可能产生越界写。**这是Correctness问题，不是Performance问题。**
+**背景**：原版`VX_cp_dma`把传输字节数向上取整到64B，但最后一个AXI Beat的`WSTRB`始终为全1，非64B倍数传输会把无效字节写入目标区域。**这是Correctness问题，不是Performance问题。**
 
 **测试长度（必须全测）**：
 ```text
@@ -603,12 +603,14 @@ env -u DEBUG OBJCACHE= make -C hw/unittest/cp_core
 
 **Guard Region方法**：
 1. 初始化Device memory为 `AA AA AA AA ...`
-2. 假设目标 `offset=100, size=65`
+2. 在一个64B对齐的DMA目标地址中设置前后各100B Guard；实验示例仍为 `size=65`
 3. 执行 `MEM_WRITE`
 4. 验证：
-   - `byte 0~99` 保持 AA
-   - `byte 100~164` 完全等于Source
-   - `byte 165~` 保持 AA
+   - Payload 区域完全等于Source
+   - Payload 前100B保持 AA
+   - Payload 后100B保持 AA
+
+> 注意：当前`VX_cp_dma`按64B缓存行发起AXI Beat，源地址和目标地址必须按64B对齐。指导书原文把`offset=100`写成了DMA目标地址，这与当前RTL的地址合同不相符；本实验将“100”保留为Guard长度，用64B对齐的DMA基址隔离`WSTRB`尾Beat问题。未对齐地址拆分属于后续独立功能，不在本实验修复范围内。
 
 **PASS标准**：Payload Match = 100%，Before/After Guard unchanged。哪怕1字节被错误覆盖即为FAIL。
 
@@ -648,6 +650,73 @@ env -u DEBUG OBJCACHE= make -C hw/unittest/cp_core
    - 原版失败 case
    - 修复后同一 case PASS
    - 全长度 Regression PASS
+
+**实验3执行记录（2026年8月20日）**
+
+修改文件：
+```text
+hw/rtl/cp/VX_cp_dma.sv
+hw/unittest/cp_dma/main.cpp
+```
+
+测试台现在同时建模`axi_host`和`axi_dev`，执行真实的`CMD_MEM_WRITE`，并按每一位`WSTRB`更新Device memory。每个长度输出：
+```text
+DMA_RESULT size=<N> payload_match=<0|1> before_guard_match=<0|1> after_guard_match=<0|1> last_wstrb=<mask> write_beats=<count>
+```
+
+修复前基线：
+- `size=1,2,3,4,7,8,15,16,31,32,63,65,66,127,129,255,257,4095,4097`均出现`after_guard_match=0`。
+- `size=64,128,256,4096`通过，因为这些长度没有尾部无效字节。
+- `size=65`的最后一个Beat仍发送`wstrb=0xffffffffffffffff`，实际写入128B，导致Payload之后的Guard被覆盖。
+
+修复内容：
+- 新增实际字节计数`bytes_rem`。
+- 对最终Chunk的最终Beat按有效字节数生成低位连续`WSTRB`；例如`65B`的最后一个Beat为`0x1`，`4095B`为`0x7fffffffffffffff`。
+- 保留中间Beat全1掩码，并对Chunk完成后的字节计数做饱和减法。
+
+修复后结果：
+- 2个原有`MEM_COPY`场景通过。
+- 23个规定长度全部通过。
+- 所有长度的`payload_match=1`、`before_guard_match=1`、`after_guard_match=1`。
+- 目标区域之外意外写入字节数为0。
+
+结果文件：
+```text
+results/exp03/dma_boundary_before.log
+results/exp03/dma_boundary_after.log
+results/exp03/dma_boundary_before.vcd
+```
+
+**补充说明（DMA 与 RingBuffer 冲突判定）**
+
+- 本次实验3的`cp_dma`现场只建模了`axi_host`/`axi_dev`两个端口，没有实例化`cp_core`的命令ring，因此它只能证明DMA尾拍越界，不能直接证明“冲掉命令”。
+- `CMD_MEM_WRITE` 的正常路径是 host→device；ringbuffer 走的是 host 侧取指链路。判断是否真正冲突时，不能只看目标地址数值是否落在`[Ring_Base, Ring_Base + 64KB)`，还要确认同一内存域和实际写入区间是否相交。
+- 详细分析与现场总结见：[`docs/experiments/exp03_dma_ring_conflict.md`](docs/experiments/exp03_dma_ring_conflict.md)。
+
+**遇到的问题与处理**
+
+- 原有`cp_dma`测试台只有64B对齐的`MEM_COPY`，无法暴露尾部写越界；已扩展为双端口`MEM_WRITE`边界测试。
+- 修复前切换测试版本时，Verilator严格警告模式会把未使用的临时掩码信号视为编译错误；已整理基线版本并成功生成仿真日志和VCD。
+- 指导书原文的`offset=100`与当前DMA的64B地址对齐合同不一致；已在本节明确修正为“64B对齐DMA地址 + 前后各100B Guard”，避免把未对齐地址支持混入本实验。
+- 先前对“是否一定冲掉命令”的判断需要更严格限定：当前实验3的现场未包含ringbuffer，不能把DMA越界直接等同于命令被覆盖。
+
+**复现方法**
+
+从仓库的`build`目录执行：
+```bash
+cd /home/houdong/vortex/build
+../configure --xlen=32 --tooldir=/home/houdong/vortex/build/tools
+env -u DEBUG OBJCACHE= make -C hw/unittest/cp_dma clean run
+```
+
+生成修复后VCD：
+```bash
+cd /home/houdong/vortex/build
+VCD_FILE=/home/houdong/vortex/results/exp03/dma_boundary_after.vcd \
+  env -u DEBUG OBJCACHE= make -C hw/unittest/cp_dma clean run DEBUG=0
+```
+
+修复前对照日志和波形已保存在`results/exp03/`，无需修改RTL即可直接查看。
 
 **本实验完成标志**
 
@@ -735,6 +804,39 @@ Improvement = (Baseline - New) / Baseline × 100%
 **本实验完成标志**
 
 > 能够用波形和 CPC 数据共同证明 Fast Path 确实减少了 Engine 固定开销，同时未破坏 retire/seqnum 语义。
+
+**实验4执行记录（2026年8月21日）**
+
+本轮按“仅`cp_engine` Unit Test层”的首版范围实现。`VX_cp_engine`新增参数`ENABLE_NOP_FAST_PATH`，默认关闭；单测wrapper默认打开，基线通过`NOP_FAST_PATH=0`生成。`S_DECODE`保留，只有`CMD_NOP`走快路径。
+
+从`build/`目录复现：
+```bash
+../configure --xlen=32 --tooldir=/home/houdong/vortex/build/tools
+env -u DEBUG OBJCACHE= make -C hw/unittest/cp_engine clean run NOP_FAST_PATH=1
+env -u DEBUG OBJCACHE= make -C hw/unittest/cp_engine clean run NOP_FAST_PATH=0
+```
+
+正确性与性能结果：
+
+| 配置 | N | retire_count | final_seqnum | duplicate | dropped | Total Cycles | CPC | Cmd/Cycle | DECODE cycles |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Baseline | 100 | 100 | 100 | 0 | 0 | 300 | 3.000000 | 0.333333 | 100 |
+| Baseline | 1000 | 1000 | 1000 | 0 | 0 | 3000 | 3.000000 | 0.333333 | 1000 |
+| Baseline | 10000 | 10000 | 10000 | 0 | 0 | 30000 | 3.000000 | 0.333333 | 10000 |
+| Fast Path | 100 | 100 | 100 | 0 | 0 | 200 | 2.000000 | 0.500000 | 0 |
+| Fast Path | 1000 | 1000 | 1000 | 0 | 0 | 2000 | 2.000000 | 0.500000 | 0 |
+| Fast Path | 10000 | 10000 | 10000 | 0 | 0 | 20000 | 2.000000 | 0.500000 | 0 |
+
+因此：
+```text
+Improvement = (3.0 - 2.0) / 3.0 × 100% = 33.33%
+```
+
+波形文件：
+- `results/exp04/nop_baseline.vcd`：`IDLE → DECODE → RETIRE`
+- `results/exp04/nop_fastpath.vcd`：`IDLE → RETIRE`
+
+后续已用本地 Yosys 0.9 + ABC + OpenSTA 2.7.0 补充综合。FPGA xc7 代理结果为 Baseline 211 estimated LCs / 359 FDRE，Fast Path 220 estimated LCs / 359 FDRE。NanGate 15 nm typical、400 MHz 共同映射目标下，面积分别为 2703.092 / 2698.304 um^2，Fmax 代理分别为 389.35 / 364.30 MHz，下降 6.43%。因此最终结论为：**功能 Accept，默认集成 Reject**。保留参数化实验实现，但`ENABLE_NOP_FAST_PATH`继续默认关闭。完整报告见`docs/experiments/exp04_engine_fast_path.md`，逐步命令见`docs/experiments/exp04_commands.md`。
 
 ---
 ### 实验5：Command Packing

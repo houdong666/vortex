@@ -1,0 +1,38 @@
+
+23. Printing statistics.
+
+=== VX_cp_engine_top ===
+
+   Number of wires:               2425
+   Number of wire bits:           7660
+   Number of public wires:          77
+   Number of public wire bits:    4042
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1518
+     AND2_X1                        24
+     AND3_X1                         9
+     AND4_X1                         6
+     AOI211_X1                       7
+     AOI21_X1                      343
+     AOI22_X1                        3
+     DFF_X1                        359
+     INV_X1                        309
+     NAND2_X1                       17
+     NAND3_X1                       17
+     NAND4_X1                       17
+     NOR2_X1                        23
+     NOR3_X1                        27
+     NOR4_X1                        16
+     OAI211_X1                       1
+     OAI21_X1                      326
+     OAI222_X1                       1
+     OR2_X1                          6
+     OR3_X1                          2
+     OR4_X1                          1
+     XNOR2_X1                        1
+     XOR2_X1                         3
+
+   Chip area for module '\VX_cp_engine_top': 2703.092000
+

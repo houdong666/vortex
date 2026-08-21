@@ -1,0 +1,1506 @@
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2019  Clifford Wolf <clifford@clifford.at>           |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.9 (git sha1 1979e0b)
+
+
+-- Running command `read_verilog -defer results/exp04/ppa/fastpath/cp_engine_input.v; synth_xilinx -flatten -family xc7 -top VX_cp_engine_top; stat' --
+
+1. Executing Verilog-2005 frontend: results/exp04/ppa/fastpath/cp_engine_input.v
+Parsing Verilog input from `results/exp04/ppa/fastpath/cp_engine_input.v' to AST representation.
+Storing AST representation for module `$abstract\VX_cp_engine_top'.
+Successfully finished Verilog frontend.
+
+2. Executing SYNTH_XILINX pass.
+
+2.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_sim.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_sim.v' to AST representation.
+Generating RTLIL representation for module `\VCC'.
+Generating RTLIL representation for module `\GND'.
+Generating RTLIL representation for module `\IBUF'.
+Generating RTLIL representation for module `\OBUF'.
+Generating RTLIL representation for module `\BUFG'.
+Generating RTLIL representation for module `\BUFGCTRL'.
+Generating RTLIL representation for module `\BUFHCE'.
+Generating RTLIL representation for module `\INV'.
+Generating RTLIL representation for module `\LUT1'.
+Generating RTLIL representation for module `\LUT2'.
+Generating RTLIL representation for module `\LUT3'.
+Generating RTLIL representation for module `\LUT4'.
+Generating RTLIL representation for module `\LUT5'.
+Generating RTLIL representation for module `\LUT6'.
+Generating RTLIL representation for module `\LUT6_2'.
+Generating RTLIL representation for module `\MUXCY'.
+Generating RTLIL representation for module `\MUXF7'.
+Generating RTLIL representation for module `\MUXF8'.
+Generating RTLIL representation for module `\XORCY'.
+Generating RTLIL representation for module `\CARRY4'.
+Generating RTLIL representation for module `\FDRE'.
+Generating RTLIL representation for module `\FDSE'.
+Generating RTLIL representation for module `\FDCE'.
+Generating RTLIL representation for module `\FDPE'.
+Generating RTLIL representation for module `\FDRE_1'.
+Generating RTLIL representation for module `\FDSE_1'.
+Generating RTLIL representation for module `\FDCE_1'.
+Generating RTLIL representation for module `\FDPE_1'.
+Generating RTLIL representation for module `\RAM32X1D'.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM128X1D'.
+Generating RTLIL representation for module `\SRL16E'.
+Generating RTLIL representation for module `\SRLC32E'.
+Successfully finished Verilog frontend.
+
+2.2. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_xtra.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_xtra.v' to AST representation.
+Generating RTLIL representation for module `\BSCANE2'.
+Generating RTLIL representation for module `\BUFGCE'.
+Generating RTLIL representation for module `\BUFGCE_1'.
+Generating RTLIL representation for module `\BUFGMUX'.
+Generating RTLIL representation for module `\BUFGMUX_1'.
+Generating RTLIL representation for module `\BUFGMUX_CTRL'.
+Generating RTLIL representation for module `\BUFH'.
+Generating RTLIL representation for module `\BUFIO'.
+Generating RTLIL representation for module `\BUFMR'.
+Generating RTLIL representation for module `\BUFMRCE'.
+Generating RTLIL representation for module `\BUFR'.
+Generating RTLIL representation for module `\CAPTUREE2'.
+Generating RTLIL representation for module `\CFGLUT5'.
+Generating RTLIL representation for module `\DCIRESET'.
+Generating RTLIL representation for module `\DNA_PORT'.
+Generating RTLIL representation for module `\DSP48E1'.
+Generating RTLIL representation for module `\EFUSE_USR'.
+Generating RTLIL representation for module `\FIFO18E1'.
+Generating RTLIL representation for module `\FIFO36E1'.
+Generating RTLIL representation for module `\FRAME_ECCE2'.
+Generating RTLIL representation for module `\GTHE2_CHANNEL'.
+Generating RTLIL representation for module `\GTHE2_COMMON'.
+Generating RTLIL representation for module `\GTPE2_CHANNEL'.
+Generating RTLIL representation for module `\GTPE2_COMMON'.
+Generating RTLIL representation for module `\GTXE2_CHANNEL'.
+Generating RTLIL representation for module `\GTXE2_COMMON'.
+Generating RTLIL representation for module `\IBUF_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_GTE2'.
+Generating RTLIL representation for module `\IBUFDS_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\ICAPE2'.
+Generating RTLIL representation for module `\IDDR'.
+Generating RTLIL representation for module `\IDDR_2CLK'.
+Generating RTLIL representation for module `\IDELAYCTRL'.
+Generating RTLIL representation for module `\IDELAYE2'.
+Generating RTLIL representation for module `\IN_FIFO'.
+Generating RTLIL representation for module `\IOBUF'.
+Generating RTLIL representation for module `\IOBUF_DCIEN'.
+Generating RTLIL representation for module `\IOBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDS'.
+Generating RTLIL representation for module `\IOBUFDS_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\ISERDESE2'.
+Generating RTLIL representation for module `\KEEPER'.
+Generating RTLIL representation for module `\LDCE'.
+Generating RTLIL representation for module `\LDPE'.
+Generating RTLIL representation for module `\MMCME2_ADV'.
+Generating RTLIL representation for module `\MMCME2_BASE'.
+Generating RTLIL representation for module `\OBUFDS'.
+Generating RTLIL representation for module `\OBUFT'.
+Generating RTLIL representation for module `\OBUFTDS'.
+Generating RTLIL representation for module `\ODDR'.
+Generating RTLIL representation for module `\ODELAYE2'.
+Generating RTLIL representation for module `\OSERDESE2'.
+Generating RTLIL representation for module `\OUT_FIFO'.
+Generating RTLIL representation for module `\PHASER_IN'.
+Generating RTLIL representation for module `\PHASER_IN_PHY'.
+Generating RTLIL representation for module `\PHASER_OUT'.
+Generating RTLIL representation for module `\PHASER_OUT_PHY'.
+Generating RTLIL representation for module `\PHASER_REF'.
+Generating RTLIL representation for module `\PHY_CONTROL'.
+Generating RTLIL representation for module `\PLLE2_ADV'.
+Generating RTLIL representation for module `\PLLE2_BASE'.
+Generating RTLIL representation for module `\PS7'.
+Generating RTLIL representation for module `\PULLDOWN'.
+Generating RTLIL representation for module `\PULLUP'.
+Generating RTLIL representation for module `\RAM128X1S'.
+Generating RTLIL representation for module `\RAM256X1S'.
+Generating RTLIL representation for module `\RAM32M'.
+Generating RTLIL representation for module `\RAM32X1S'.
+Generating RTLIL representation for module `\RAM32X1S_1'.
+Generating RTLIL representation for module `\RAM32X2S'.
+Generating RTLIL representation for module `\RAM64M'.
+Replacing existing blackbox module `\RAM64X1D' at /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_xtra.v:3741.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM64X1S'.
+Generating RTLIL representation for module `\RAM64X1S_1'.
+Generating RTLIL representation for module `\RAM64X2S'.
+Generating RTLIL representation for module `\ROM128X1'.
+Generating RTLIL representation for module `\ROM256X1'.
+Generating RTLIL representation for module `\ROM32X1'.
+Generating RTLIL representation for module `\ROM64X1'.
+Generating RTLIL representation for module `\STARTUPE2'.
+Generating RTLIL representation for module `\USR_ACCESSE2'.
+Generating RTLIL representation for module `\XADC'.
+Successfully finished Verilog frontend.
+
+2.3. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/brams_bb.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/brams_bb.v' to AST representation.
+Generating RTLIL representation for module `\RAMB18E1'.
+Generating RTLIL representation for module `\RAMB36E1'.
+Successfully finished Verilog frontend.
+
+2.4. Executing HIERARCHY pass (managing design hierarchy).
+
+2.5. Executing AST frontend in derive mode using pre-parsed AST for module `\VX_cp_engine_top'.
+Generating RTLIL representation for module `\VX_cp_engine_top'.
+
+2.5.1. Analyzing design hierarchy..
+Top module:  \VX_cp_engine_top
+
+2.5.2. Analyzing design hierarchy..
+Top module:  \VX_cp_engine_top
+Removing unused module `$abstract\VX_cp_engine_top'.
+Removed 1 unused modules.
+
+2.6. Executing PROC pass (convert processes to netlists).
+
+2.6.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+Cleaned up 1 empty switch.
+
+2.6.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 2 dead cases from process $proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3 in module VX_cp_engine_top.
+Marked 7 switch rules as full_case in process $proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3 in module VX_cp_engine_top.
+Removed a total of 2 dead cases.
+
+2.6.3. Executing PROC_INIT pass (extract init attributes).
+
+2.6.4. Executing PROC_ARST pass (detect async resets in processes).
+
+2.6.5. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:489$65'.
+     1/1: $0\u_engine._sv2v_0[0:0]
+Creating decoders for process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+     1/18: $0\u_engine.profile_slot[63:0]
+     2/18: $0\u_engine.end_evt[0:0]
+     3/18: $0\u_engine.submit_evt[0:0]
+     4/18: $0\u_engine.retire_seqnum[63:0]
+     5/18: $0\u_engine.retire_evt[0:0]
+     6/18: $0\bid_event_if.cmd[287:0]
+     7/18: $0\bid_event_if.priority_[1:0]
+     8/18: $0\bid_event_if.valid[0:0]
+     9/18: $0\bid_dcr_if.cmd[287:0]
+    10/18: $0\bid_dcr_if.priority_[1:0]
+    11/18: $0\bid_dcr_if.valid[0:0]
+    12/18: $0\bid_dma_if.cmd[287:0]
+    13/18: $0\bid_dma_if.priority_[1:0]
+    14/18: $0\bid_dma_if.valid[0:0]
+    15/18: $0\bid_kmu_if.cmd[287:0]
+    16/18: $0\bid_kmu_if.priority_[1:0]
+    17/18: $0\bid_kmu_if.valid[0:0]
+    18/18: $0\u_engine.cmd_in_ready[0:0]
+Creating decoders for process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+     1/28: $3$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\u_engine.classify[1:0]$21
+     2/28: $3$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\skip[0:0]$22
+     3/28: $2$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\skip[0:0]$18
+     4/28: $2$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\op[7:0]$17
+     5/28: $2$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\u_engine.classify[1:0]$16
+     6/28: $2$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\inp[7:0]$15
+     7/28: $2$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\sv2v_cast_8[7:0]$14
+     8/28: $2\u_engine.sv2v_autoblock_1.skip_flag[0:0]
+     9/28: $2\u_engine.sv2v_autoblock_1.res[1:0]
+    10/28: $1$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\skip[0:0]$13
+    11/28: $1$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\op[7:0]$12
+    12/28: $1$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\u_engine.classify[1:0]$11
+    13/28: $1$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\inp[7:0]$10
+    14/28: $1$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\sv2v_cast_8[7:0]$9
+    15/28: $1\u_engine.sv2v_autoblock_1.skip_flag[0:0]
+    16/28: $1\u_engine.sv2v_autoblock_1.res[1:0]
+    17/28: $0$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\skip[0:0]$8
+    18/28: $0$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\op[7:0]$7
+    19/28: $0$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\u_engine.classify[1:0]$6
+    20/28: $0$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\inp[7:0]$5
+    21/28: $0$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\sv2v_cast_8[7:0]$4
+    22/28: $0\u_engine.sv2v_autoblock_1.skip_flag[0:0]
+    23/28: $0\u_engine.sv2v_autoblock_1.res[1:0]
+    24/28: $0\u_engine.seqnum_r[63:0]
+    25/28: $0\u_engine.no_resource[0:0]
+    26/28: $0\u_engine.cur_res[1:0]
+    27/28: $0\u_engine.cur_cmd[287:0]
+    28/28: $0\u_engine.fsm[2:0]
+
+2.6.6. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\VX_cp_engine_top.\u_engine._sv2v_0' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:489$65'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_kmu_if.valid' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_kmu_if.priority_' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_kmu_if.cmd' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dma_if.valid' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dma_if.priority_' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dma_if.cmd' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dcr_if.valid' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dcr_if.priority_' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_dcr_if.cmd' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_event_if.valid' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_event_if.priority_' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\bid_event_if.cmd' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.cmd_in_ready' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.retire_evt' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.retire_seqnum' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.submit_evt' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.end_evt' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+No latch inferred for signal `\VX_cp_engine_top.\u_engine.profile_slot' from process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+
+2.6.7. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\VX_cp_engine_top.\u_engine.fsm' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$263' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.cur_cmd' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$264' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.cur_res' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$265' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.no_resource' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$266' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.seqnum_r' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$267' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.sv2v_autoblock_1.res' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$268' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.\u_engine.sv2v_autoblock_1.skip_flag' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$269' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\sv2v_cast_8' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$270' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.$func$\sv2v_cast_8$results/exp04/ppa/fastpath/cp_engine_input.v:371$1$\inp' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$271' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\u_engine.classify' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$272' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\op' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$273' with positive edge clock.
+Creating register for signal `\VX_cp_engine_top.$func$\u_engine.classify$results/exp04/ppa/fastpath/cp_engine_input.v:371$2$\skip' using process `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+  created $dff cell `$procdff$274' with positive edge clock.
+
+2.6.8. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:489$65'.
+Removing empty process `VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:445$24'.
+Found and cleaned up 17 empty switches in `\VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+Removing empty process `VX_cp_engine_top.$proc$results/exp04/ppa/fastpath/cp_engine_input.v:335$3'.
+Cleaned up 17 empty switches.
+
+2.7. Executing FLATTEN pass (flatten design).
+No more expansions possible.
+
+2.8. Executing SYNTH pass.
+
+2.8.1. Executing PROC pass (convert processes to netlists).
+
+2.8.1.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+2.8.1.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+2.8.1.3. Executing PROC_INIT pass (extract init attributes).
+
+2.8.1.4. Executing PROC_ARST pass (detect async resets in processes).
+
+2.8.1.5. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+2.8.1.6. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+2.8.1.7. Executing PROC_DFF pass (convert process syncs to FFs).
+
+2.8.1.8. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+2.8.2. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~15 debug messages>
+
+2.8.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 39 unused cells and 135 unused wires.
+<suppressed ~43 debug messages>
+
+2.8.4. Executing CHECK pass (checking for obvious problems).
+checking module VX_cp_engine_top..
+found and reported 0 problems.
+
+2.8.5. Executing OPT pass (performing simple optimizations).
+
+2.8.5.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.8.5.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+<suppressed ~117 debug messages>
+Removed a total of 39 cells.
+
+2.8.5.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$75.
+    dead port 1/2 on $mux $procmux$78.
+Removed 2 multiplexer ports.
+<suppressed ~5 debug messages>
+
+2.8.5.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+    New input vector for $reduce_or cell $procmux$74_ANY: { $procmux$74_CMP [0] $procmux$74_CMP [1] $procmux$74_CMP [2] }
+    New input vector for $reduce_or cell $procmux$73_ANY: { $procmux$73_CMP [0] $procmux$73_CMP [1] $procmux$73_CMP [2] }
+    New input vector for $reduce_or cell $procmux$72_ANY: { $procmux$72_CMP [0] $procmux$72_CMP [1] }
+    New ctrl vector for $pmux cell $procmux$220: { \cmd_in_ready $eq$results/exp04/ppa/fastpath/cp_engine_input.v:479$39_Y $eq$results/exp04/ppa/fastpath/cp_engine_input.v:451$26_Y $procmux$235_CMP }
+    New ctrl vector for $pmux cell $procmux$85: $auto$opt_reduce.cc:132:opt_mux$276
+    New input vector for $reduce_or cell $auto$opt_reduce.cc:126:opt_mux$275: { $procmux$72_CMP [0] $procmux$72_CMP [1] $procmux$73_CMP [0] $procmux$73_CMP [1] $procmux$73_CMP [2] $procmux$74_CMP [0] $procmux$74_CMP [1] $procmux$74_CMP [2] $procmux$89_CMP }
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 6 changes.
+
+2.8.5.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.8.5.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.5.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 0 unused cells and 36 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.5.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.8.5.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.8.5.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+2.8.5.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 0 changes.
+
+2.8.5.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.8.5.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.5.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.8.5.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.8.5.16. Finished OPT passes. (There is nothing left to do.)
+
+2.8.6. Executing WREDUCE pass (reducing word size of cells).
+Removed top 63 bits (of 64) from port B of cell VX_cp_engine_top.$add$results/exp04/ppa/fastpath/cp_engine_input.v:434$23 ($add).
+Removed top 1 bits (of 3) from port B of cell VX_cp_engine_top.$eq$results/exp04/ppa/fastpath/cp_engine_input.v:451$26 ($eq).
+Removed top 1 bits (of 2) from port B of cell VX_cp_engine_top.$eq$results/exp04/ppa/fastpath/cp_engine_input.v:457$30 ($eq).
+Removed top 2 bits (of 3) from port B of cell VX_cp_engine_top.$eq$results/exp04/ppa/fastpath/cp_engine_input.v:479$39 ($eq).
+Removed top 4 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$72_CMP1 ($eq).
+Removed top 4 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$72_CMP0 ($eq).
+Removed top 7 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$73_CMP0 ($eq).
+Removed top 6 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$73_CMP1 ($eq).
+Removed top 6 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$73_CMP2 ($eq).
+Removed top 5 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$74_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$74_CMP1 ($eq).
+Removed top 4 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$74_CMP2 ($eq).
+Removed top 5 bits (of 8) from port B of cell VX_cp_engine_top.$procmux$89_CMP0 ($eq).
+Removed cell VX_cp_engine_top.$procmux$90 ($mux).
+Removed cell VX_cp_engine_top.$procmux$93 ($mux).
+Removed top 1 bits (of 3) from port B of cell VX_cp_engine_top.$procmux$235_CMP0 ($eq).
+
+2.8.7. Executing PEEPOPT pass (run peephole optimizers).
+
+2.8.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.9. Executing TECHMAP pass (map to technology primitives).
+
+2.8.9.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/cmp2lut.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/cmp2lut.v' to AST representation.
+Generating RTLIL representation for module `\_90_lut_cmp_'.
+Successfully finished Verilog frontend.
+
+2.8.9.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~260 debug messages>
+
+2.8.10. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module VX_cp_engine_top:
+  creating $macc model for $add$results/exp04/ppa/fastpath/cp_engine_input.v:434$23 ($add).
+  creating $alu model for $macc $add$results/exp04/ppa/fastpath/cp_engine_input.v:434$23.
+  creating $alu cell for $add$results/exp04/ppa/fastpath/cp_engine_input.v:434$23: $auto$alumacc.cc:474:replace_alu$277
+  created 1 $alu and 0 $macc cells.
+
+2.8.11. Executing SHARE pass (SAT-based resource sharing).
+
+2.8.12. Executing OPT pass (performing simple optimizations).
+
+2.8.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~1 debug messages>
+
+2.8.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.8.12.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$85.
+    dead port 2/2 on $mux $procmux$85.
+Removed 2 multiplexer ports.
+<suppressed ~4 debug messages>
+
+2.8.12.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 0 changes.
+
+2.8.12.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.8.12.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.12.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.12.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.8.12.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.8.12.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~4 debug messages>
+
+2.8.12.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 0 changes.
+
+2.8.12.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.8.12.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.12.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.8.12.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.8.12.16. Finished OPT passes. (There is nothing left to do.)
+
+2.8.13. Executing FSM pass (extract and optimize FSM).
+
+2.8.13.1. Executing FSM_DETECT pass (finding FSMs in design).
+Found FSM state register VX_cp_engine_top.u_engine.cur_res.
+Not marking VX_cp_engine_top.u_engine.fsm as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+2.8.13.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+Extracting FSM `\u_engine.cur_res' from module `\VX_cp_engine_top'.
+  found $dff cell for state register: $procdff$265
+  root of input selection tree: $0\u_engine.cur_res[1:0]
+  found reset state: 2'00 (guessed from mux tree)
+  found ctrl input: \reset
+  found ctrl input: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:479$39_Y
+  found ctrl input: $procmux$72_CTRL
+  found ctrl input: $procmux$73_CTRL
+  found ctrl input: $procmux$74_CTRL
+  found state code: 2'00
+  found state code: 2'11
+  found state code: 2'01
+  found state code: 2'10
+  found ctrl output: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:451$27_Y
+  found ctrl output: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:457$30_Y
+  found ctrl output: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:463$33_Y
+  found ctrl output: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:469$36_Y
+  ctrl inputs: { $procmux$74_CTRL $procmux$73_CTRL $procmux$72_CTRL $eq$results/exp04/ppa/fastpath/cp_engine_input.v:479$39_Y \reset }
+  ctrl outputs: { $eq$results/exp04/ppa/fastpath/cp_engine_input.v:469$36_Y $eq$results/exp04/ppa/fastpath/cp_engine_input.v:463$33_Y $eq$results/exp04/ppa/fastpath/cp_engine_input.v:457$30_Y $eq$results/exp04/ppa/fastpath/cp_engine_input.v:451$27_Y $0\u_engine.cur_res[1:0] }
+  transition:       2'00 5'---00 ->       2'00 6'000100
+  transition:       2'00 5'00010 ->       2'00 6'000100
+  transition:       2'00 5'1--10 ->       2'10 6'000110
+  transition:       2'00 5'-1-10 ->       2'01 6'000101
+  transition:       2'00 5'--110 ->       2'11 6'000111
+  transition:       2'00 5'----1 ->       2'00 6'000100
+  transition:       2'10 5'---00 ->       2'10 6'010010
+  transition:       2'10 5'00010 ->       2'00 6'010000
+  transition:       2'10 5'1--10 ->       2'10 6'010010
+  transition:       2'10 5'-1-10 ->       2'01 6'010001
+  transition:       2'10 5'--110 ->       2'11 6'010011
+  transition:       2'10 5'----1 ->       2'00 6'010000
+  transition:       2'01 5'---00 ->       2'01 6'001001
+  transition:       2'01 5'00010 ->       2'00 6'001000
+  transition:       2'01 5'1--10 ->       2'10 6'001010
+  transition:       2'01 5'-1-10 ->       2'01 6'001001
+  transition:       2'01 5'--110 ->       2'11 6'001011
+  transition:       2'01 5'----1 ->       2'00 6'001000
+  transition:       2'11 5'---00 ->       2'11 6'100011
+  transition:       2'11 5'00010 ->       2'00 6'100000
+  transition:       2'11 5'1--10 ->       2'10 6'100010
+  transition:       2'11 5'-1-10 ->       2'01 6'100001
+  transition:       2'11 5'--110 ->       2'11 6'100011
+  transition:       2'11 5'----1 ->       2'00 6'100000
+
+2.8.13.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\u_engine.cur_res$280' from module `\VX_cp_engine_top'.
+
+2.8.13.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 8 unused cells and 8 unused wires.
+<suppressed ~9 debug messages>
+
+2.8.13.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\u_engine.cur_res$280' from module `\VX_cp_engine_top'.
+  Removing unused output signal $0\u_engine.cur_res[1:0] [0].
+  Removing unused output signal $0\u_engine.cur_res[1:0] [1].
+
+2.8.13.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+Recoding FSM `$fsm$\u_engine.cur_res$280' from module `\VX_cp_engine_top' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> ---1
+  10 -> --1-
+  01 -> -1--
+  11 -> 1---
+
+2.8.13.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+FSM `$fsm$\u_engine.cur_res$280' from module `\VX_cp_engine_top':
+-------------------------------------
+
+  Information on FSM $fsm$\u_engine.cur_res$280 (\u_engine.cur_res):
+
+  Number of input signals:    5
+  Number of output signals:   4
+  Number of state bits:       4
+
+  Input signals:
+    0: \reset
+    1: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:479$39_Y
+    2: $procmux$72_CTRL
+    3: $procmux$73_CTRL
+    4: $procmux$74_CTRL
+
+  Output signals:
+    0: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:451$27_Y
+    1: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:457$30_Y
+    2: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:463$33_Y
+    3: $eq$results/exp04/ppa/fastpath/cp_engine_input.v:469$36_Y
+
+  State encoding:
+    0:     4'---1  <RESET STATE>
+    1:     4'--1-
+    2:     4'-1--
+    3:     4'1---
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 5'---00   ->     0 4'0001
+      1:     0 5'00010   ->     0 4'0001
+      2:     0 5'----1   ->     0 4'0001
+      3:     0 5'1--10   ->     1 4'0001
+      4:     0 5'-1-10   ->     2 4'0001
+      5:     0 5'--110   ->     3 4'0001
+      6:     1 5'00010   ->     0 4'0100
+      7:     1 5'----1   ->     0 4'0100
+      8:     1 5'---00   ->     1 4'0100
+      9:     1 5'1--10   ->     1 4'0100
+     10:     1 5'-1-10   ->     2 4'0100
+     11:     1 5'--110   ->     3 4'0100
+     12:     2 5'00010   ->     0 4'0010
+     13:     2 5'----1   ->     0 4'0010
+     14:     2 5'1--10   ->     1 4'0010
+     15:     2 5'---00   ->     2 4'0010
+     16:     2 5'-1-10   ->     2 4'0010
+     17:     2 5'--110   ->     3 4'0010
+     18:     3 5'00010   ->     0 4'1000
+     19:     3 5'----1   ->     0 4'1000
+     20:     3 5'1--10   ->     1 4'1000
+     21:     3 5'-1-10   ->     2 4'1000
+     22:     3 5'---00   ->     3 4'1000
+     23:     3 5'--110   ->     3 4'1000
+
+-------------------------------------
+
+2.8.13.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+Mapping FSM `$fsm$\u_engine.cur_res$280' from module `\VX_cp_engine_top'.
+
+2.8.14. Executing OPT pass (performing simple optimizations).
+
+2.8.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~5 debug messages>
+
+2.8.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+<suppressed ~9 debug messages>
+Removed a total of 3 cells.
+
+2.8.14.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.14.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 0 unused cells and 11 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.14.5. Finished fast OPT passes.
+
+2.8.15. Executing MEMORY pass.
+
+2.8.15.1. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+2.8.15.2. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.8.15.3. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+2.8.15.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.8.15.5. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+2.8.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.9. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+2.10. Executing TECHMAP pass (map to technology primitives).
+
+2.10.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/brams_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/brams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__XILINX_RAMB36_SDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB18_SDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB36_TDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB18_TDP'.
+Successfully finished Verilog frontend.
+
+2.10.2. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.11. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+2.12. Executing TECHMAP pass (map to technology primitives).
+
+2.12.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/drams_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/drams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__XILINX_RAM32X1D'.
+Generating RTLIL representation for module `\$__XILINX_RAM64X1D'.
+Generating RTLIL representation for module `\$__XILINX_RAM128X1D'.
+Successfully finished Verilog frontend.
+
+2.12.2. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.13. Executing PMUX2SHIFTX pass.
+Inspecting $pmux cell VX_cp_engine_top/$procmux$220.
+  data width: 3 (next power-of-2 = 4, log2 = 2)
+  checking ctrl signal \u_engine.fsm
+    best permutation: \u_engine.fsm
+    best xor mask: 3'000
+      0: 3'011 -> 3'011 -> 3'011: $procmux$224_Y
+      1: 3'010 -> 3'010 -> 3'010: $procmux$238_Y
+      2: 3'001 -> 3'001 -> 3'001: $procmux$251_Y
+      3: 3'000 -> 3'000 -> 3'000: $procmux$257_Y
+    choices: 4
+    min choice: 0
+    max choice: 3
+    range density: 100%
+    absolute density: 100%
+    full density: 50%
+    update to full case.
+    new min choice: 0
+    new max choice: 7
+    full case: true
+    created $shiftx cell $auto$pmux2shiftx.cc:720:execute$325.
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~2 debug messages>
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.14.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.14.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 1 unused cells and 2 unused wires.
+<suppressed ~2 debug messages>
+
+2.14.5. Finished fast OPT passes.
+
+2.15. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).
+
+2.16. Executing DFFSR2DFF pass (mapping DFFSR cells to simpler FFs).
+
+2.17. Executing DFF2DFFE pass (transform $dff to $dffe where applicable).
+Transforming FF to FF+Enable cells in module VX_cp_engine_top:
+  created $dffe cell $auto$dff2dffe.cc:215:handle_dff_cell$332 for $0\u_engine.cur_cmd[287:0] -> \u_engine.cur_cmd.
+  removing now obsolete cell $procdff$264.
+  created $dffe cell $auto$dff2dffe.cc:215:handle_dff_cell$335 for $0\u_engine.seqnum_r[63:0] -> \u_engine.seqnum_r.
+  removing now obsolete cell $procdff$267.
+
+2.18. Executing OPT pass (performing simple optimizations).
+
+2.18.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~5 debug messages>
+
+2.18.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.18.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~7 debug messages>
+
+2.18.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+    New input vector for $reduce_or cell $auto$fsm_map.cc:144:implement_pattern_cache$319: { $auto$fsm_map.cc:118:implement_pattern_cache$315 $auto$fsm_map.cc:74:implement_pattern_cache$317 }
+    New input vector for $reduce_or cell $auto$fsm_map.cc:144:implement_pattern_cache$305: { $auto$fsm_map.cc:118:implement_pattern_cache$301 $auto$fsm_map.cc:74:implement_pattern_cache$303 }
+    New input vector for $reduce_or cell $auto$fsm_map.cc:144:implement_pattern_cache$298: { \reset $auto$fsm_map.cc:118:implement_pattern_cache$292 $auto$fsm_map.cc:74:implement_pattern_cache$294 }
+    New input vector for $reduce_and cell $auto$dff2dffe.cc:176:make_patterns_logic$331: { $auto$dff2dffe.cc:158:make_patterns_logic$326 $auto$dff2dffe.cc:158:make_patterns_logic$328 }
+    Consolidated identical input bits for $mux cell $procmux$251:
+      Old ports: A=3'100, B=3'010, Y=$procmux$251_Y
+      New ports: A=2'10, B=2'01, Y=$procmux$251_Y [2:1]
+      New connections: $procmux$251_Y [0] = 1'0
+    Consolidated identical input bits for $mux cell $procmux$255:
+      Old ports: A=3'001, B=3'100, Y=$procmux$255_Y
+      New ports: A=2'01, B=2'10, Y={ $procmux$255_Y [2] $procmux$255_Y [0] }
+      New connections: $procmux$255_Y [1] = 1'0
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 6 changes.
+
+2.18.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.18.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.18.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+2.18.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.18.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.18.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_engine_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~7 debug messages>
+
+2.18.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_engine_top.
+Performed a total of 0 changes.
+
+2.18.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+Removed a total of 0 cells.
+
+2.18.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.18.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+
+2.18.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+
+2.18.16. Finished OPT passes. (There is nothing left to do.)
+
+2.19. Executing SIMPLEMAP pass (map simple cells to gate primitives).
+Mapping VX_cp_engine_top.$auto$dff2dffe.cc:215:handle_dff_cell$332 ($dffe).
+Mapping VX_cp_engine_top.$auto$dff2dffe.cc:215:handle_dff_cell$335 ($dffe).
+Mapping VX_cp_engine_top.$auto$fsm_map.cc:172:map_fsm$287 ($dff).
+Mapping VX_cp_engine_top.$procdff$263 ($dff).
+
+2.20. Executing SHREGMAP pass (map shift registers).
+Converted 0 dff cells into 0 shift registers.
+
+2.21. Executing TECHMAP pass (map to technology primitives).
+
+2.21.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+2.21.2. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/arith_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/arith_map.v' to AST representation.
+Generating RTLIL representation for module `\_80_xilinx_lcu'.
+Generating RTLIL representation for module `\_80_xilinx_alu'.
+Successfully finished Verilog frontend.
+
+2.21.3. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $ne.
+Using template $paramod\_90_pmux\WIDTH=3\S_WIDTH=4 for cells of type $pmux.
+Using template $paramod$constmap:26e7763a894effb852b76d2947fbb2110e8cbdba$paramod$d5b65193936b487072829d62d1ad26c178b310c1\_90_shift_shiftx for cells of type $shiftx.
+Using template $paramod$82a1fbc178653b3a8123b8a20511cf023f5f9c22\_80_xilinx_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $pos.
+No more expansions possible.
+<suppressed ~270 debug messages>
+
+2.22. Executing OPT pass (performing simple optimizations).
+
+2.22.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_engine_top.
+<suppressed ~293 debug messages>
+
+2.22.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_engine_top'.
+<suppressed ~258 debug messages>
+Removed a total of 86 cells.
+
+2.22.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.22.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_engine_top..
+Removed 87 unused cells and 111 unused wires.
+<suppressed ~88 debug messages>
+
+2.22.5. Finished fast OPT passes.
+
+2.23. Executing TECHMAP pass (map to technology primitives).
+
+2.23.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+2.23.2. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `\_90_dff_nn0_to_np0'.
+Generating RTLIL representation for module `\_90_dff_pn0_to_pp0'.
+Generating RTLIL representation for module `\_90_dff_nn1_to_np1'.
+Generating RTLIL representation for module `\_90_dff_pn1_to_pp1'.
+Generating RTLIL representation for module `\$__SHREG_'.
+Generating RTLIL representation for module `\$__XILINX_SHREG_'.
+Successfully finished Verilog frontend.
+
+2.23.3. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.24. Executing ABC pass (technology mapping using ABC).
+
+2.24.1. Extracting gate netlist of module `\VX_cp_engine_top' to `<abc-temp-dir>/input.blif'..
+Extracted 581 gates and 962 wires to a netlist network with 379 inputs and 371 outputs.
+
+2.24.1.1. Executing ABC.
+Running ABC command: berkeley-abc -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lut <abc-temp-dir>/lutdefs.txt 
+ABC: + strash 
+ABC: + ifraig 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + retime 
+ABC: + strash 
+ABC: + dch -f 
+ABC: + if 
+ABC: + mfs2 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+2.24.1.2. Re-integrating ABC results.
+ABC RESULTS:              $lut cells:      770
+ABC RESULTS:        internal signals:      212
+ABC RESULTS:           input signals:      379
+ABC RESULTS:          output signals:      371
+Removing temp directory.
+Removed 0 unused cells and 800 unused wires.
+
+2.25. Executing SHREGMAP pass (map shift registers).
+Converted 0 dff cells into 0 shift registers.
+
+2.26. Executing TECHMAP pass (map to technology primitives).
+
+2.26.1. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/lut_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/lut_map.v' to AST representation.
+Generating RTLIL representation for module `\$lut'.
+Successfully finished Verilog frontend.
+
+2.26.2. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/ff_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/ff_map.v' to AST representation.
+Generating RTLIL representation for module `\$_DFF_N_'.
+Generating RTLIL representation for module `\$_DFF_P_'.
+Generating RTLIL representation for module `\$_DFFE_NP_'.
+Generating RTLIL representation for module `\$_DFFE_PP_'.
+Generating RTLIL representation for module `\$_DFF_NN0_'.
+Generating RTLIL representation for module `\$_DFF_NP0_'.
+Generating RTLIL representation for module `\$_DFF_PN0_'.
+Generating RTLIL representation for module `\$_DFF_PP0_'.
+Generating RTLIL representation for module `\$_DFF_NN1_'.
+Generating RTLIL representation for module `\$_DFF_NP1_'.
+Generating RTLIL representation for module `\$_DFF_PN1_'.
+Generating RTLIL representation for module `\$_DFF_PP1_'.
+Successfully finished Verilog frontend.
+
+2.26.3. Executing Verilog-2005 frontend: /home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/home/houdong/vortex/build/tools/yosys-local/root/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `\_90_dff_nn0_to_np0'.
+Generating RTLIL representation for module `\_90_dff_pn0_to_pp0'.
+Generating RTLIL representation for module `\_90_dff_nn1_to_np1'.
+Generating RTLIL representation for module `\_90_dff_pn1_to_pp1'.
+Generating RTLIL representation for module `\$__SHREG_'.
+Generating RTLIL representation for module `\$__XILINX_SHREG_'.
+Successfully finished Verilog frontend.
+
+2.26.4. Continuing TECHMAP pass.
+Using template $paramod\$lut\WIDTH=2\LUT=4'0100 for cells of type $lut.
+Using template \$_DFFE_PP_ for cells of type $_DFFE_PP_.
+Using template $paramod$e9086332fa48a79ae52d1846d98a910e90c5b366\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'00010000 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=4\LUT=16'1111110011111010 for cells of type $lut.
+Using template \$_DFF_P_ for cells of type $_DFF_P_.
+Using template $paramod$b5cd238a527d851ba52055b76f8b8313ff4d0a1d\$lut for cells of type $lut.
+Using template $paramod$b13d8c738b9fbca0e873436f5871f3305d7e9852\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=5\LUT=4456688 for cells of type $lut.
+Using template $paramod$e4410f6068ac195e7117d07a11f0b8cdeea2c9e5\$lut for cells of type $lut.
+Using template $paramod$cfbe27551dacf39aab09da1174277499fab9f786\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=2\LUT=4'1000 for cells of type $lut.
+Using template $paramod$cc0ce92dcdc769fa20c5e45d28f7b70da9709992\$lut for cells of type $lut.
+Using template $paramod$ccce4f3946ebc1c1bbc18bd1adc9add9d368a18e\$lut for cells of type $lut.
+Using template $paramod$8819e548b99f79e8f992910eb04b9fb97a7f2d69\$lut for cells of type $lut.
+Using template $paramod$82843c3a552e295b1d4bdb604f309a7b27ef3c30\$lut for cells of type $lut.
+Using template $paramod$03b9fe0373513877e6532c8e8705831dc0a53ca3\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=2\LUT=4'0001 for cells of type $lut.
+Using template $paramod$9b260d495bf77e1d2bddab804fffe472b4d681d6\$lut for cells of type $lut.
+Using template $paramod$50f34d9833ba61f0c4fa348351c779462ad49211\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=4\LUT=16'0000000100000000 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=2\LUT=4'1110 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=1\LUT=2'01 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'01000000 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=5\LUT=32'11111111100000001000000010000000 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'00000001 for cells of type $lut.
+No more expansions possible.
+<suppressed ~1008 debug messages>
+
+2.27. Executing DFFINIT pass (set INIT param on FF cells).
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$694.INIT (port=Q, net=\u_engine.fsm [2]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$599.INIT (port=Q, net=\u_engine.cur_cmd [263]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$692.INIT (port=Q, net=\u_engine.fsm [0]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$688.INIT (port=Q, net=\u_engine.cur_res [0]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$623.INIT (port=Q, net=\u_engine.cur_cmd [287]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$624.INIT (port=Q, net=\u_engine.seqnum_r [0]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$625.INIT (port=Q, net=\u_engine.seqnum_r [1]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$626.INIT (port=Q, net=\u_engine.seqnum_r [2]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$627.INIT (port=Q, net=\u_engine.seqnum_r [3]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$628.INIT (port=Q, net=\u_engine.seqnum_r [4]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$629.INIT (port=Q, net=\u_engine.seqnum_r [5]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$630.INIT (port=Q, net=\u_engine.seqnum_r [6]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$631.INIT (port=Q, net=\u_engine.seqnum_r [7]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$632.INIT (port=Q, net=\u_engine.seqnum_r [8]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$633.INIT (port=Q, net=\u_engine.seqnum_r [9]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$634.INIT (port=Q, net=\u_engine.seqnum_r [10]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$635.INIT (port=Q, net=\u_engine.seqnum_r [11]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$636.INIT (port=Q, net=\u_engine.seqnum_r [12]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$637.INIT (port=Q, net=\u_engine.seqnum_r [13]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$638.INIT (port=Q, net=\u_engine.seqnum_r [14]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$639.INIT (port=Q, net=\u_engine.seqnum_r [15]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$640.INIT (port=Q, net=\u_engine.seqnum_r [16]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$641.INIT (port=Q, net=\u_engine.seqnum_r [17]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$642.INIT (port=Q, net=\u_engine.seqnum_r [18]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$643.INIT (port=Q, net=\u_engine.seqnum_r [19]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$644.INIT (port=Q, net=\u_engine.seqnum_r [20]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$645.INIT (port=Q, net=\u_engine.seqnum_r [21]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$646.INIT (port=Q, net=\u_engine.seqnum_r [22]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$647.INIT (port=Q, net=\u_engine.seqnum_r [23]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$648.INIT (port=Q, net=\u_engine.seqnum_r [24]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$649.INIT (port=Q, net=\u_engine.seqnum_r [25]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$650.INIT (port=Q, net=\u_engine.seqnum_r [26]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$651.INIT (port=Q, net=\u_engine.seqnum_r [27]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$652.INIT (port=Q, net=\u_engine.seqnum_r [28]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$653.INIT (port=Q, net=\u_engine.seqnum_r [29]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$654.INIT (port=Q, net=\u_engine.seqnum_r [30]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$655.INIT (port=Q, net=\u_engine.seqnum_r [31]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$656.INIT (port=Q, net=\u_engine.seqnum_r [32]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$657.INIT (port=Q, net=\u_engine.seqnum_r [33]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$658.INIT (port=Q, net=\u_engine.seqnum_r [34]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$659.INIT (port=Q, net=\u_engine.seqnum_r [35]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$660.INIT (port=Q, net=\u_engine.seqnum_r [36]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$661.INIT (port=Q, net=\u_engine.seqnum_r [37]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$662.INIT (port=Q, net=\u_engine.seqnum_r [38]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$663.INIT (port=Q, net=\u_engine.seqnum_r [39]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$664.INIT (port=Q, net=\u_engine.seqnum_r [40]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$665.INIT (port=Q, net=\u_engine.seqnum_r [41]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$666.INIT (port=Q, net=\u_engine.seqnum_r [42]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$667.INIT (port=Q, net=\u_engine.seqnum_r [43]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$668.INIT (port=Q, net=\u_engine.seqnum_r [44]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$669.INIT (port=Q, net=\u_engine.seqnum_r [45]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$670.INIT (port=Q, net=\u_engine.seqnum_r [46]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$671.INIT (port=Q, net=\u_engine.seqnum_r [47]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$672.INIT (port=Q, net=\u_engine.seqnum_r [48]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$673.INIT (port=Q, net=\u_engine.seqnum_r [49]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$674.INIT (port=Q, net=\u_engine.seqnum_r [50]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$675.INIT (port=Q, net=\u_engine.seqnum_r [51]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$676.INIT (port=Q, net=\u_engine.seqnum_r [52]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$677.INIT (port=Q, net=\u_engine.seqnum_r [53]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$678.INIT (port=Q, net=\u_engine.seqnum_r [54]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$679.INIT (port=Q, net=\u_engine.seqnum_r [55]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$680.INIT (port=Q, net=\u_engine.seqnum_r [56]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$681.INIT (port=Q, net=\u_engine.seqnum_r [57]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$682.INIT (port=Q, net=\u_engine.seqnum_r [58]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$683.INIT (port=Q, net=\u_engine.seqnum_r [59]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$684.INIT (port=Q, net=\u_engine.seqnum_r [60]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$685.INIT (port=Q, net=\u_engine.seqnum_r [61]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$686.INIT (port=Q, net=\u_engine.seqnum_r [62]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$368.INIT (port=Q, net=\u_engine.cur_cmd [32]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$393.INIT (port=Q, net=\u_engine.cur_cmd [57]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$423.INIT (port=Q, net=\u_engine.cur_cmd [87]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$391.INIT (port=Q, net=\u_engine.cur_cmd [55]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$547.INIT (port=Q, net=\u_engine.cur_cmd [211]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$406.INIT (port=Q, net=\u_engine.cur_cmd [70]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$339.INIT (port=Q, net=\u_engine.cur_cmd [3]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$338.INIT (port=Q, net=\u_engine.cur_cmd [2]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$411.INIT (port=Q, net=\u_engine.cur_cmd [75]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$337.INIT (port=Q, net=\u_engine.cur_cmd [1]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$336.INIT (port=Q, net=\u_engine.cur_cmd [0]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$370.INIT (port=Q, net=\u_engine.cur_cmd [34]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$346.INIT (port=Q, net=\u_engine.cur_cmd [10]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$348.INIT (port=Q, net=\u_engine.cur_cmd [12]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$480.INIT (port=Q, net=\u_engine.cur_cmd [144]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$404.INIT (port=Q, net=\u_engine.cur_cmd [68]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$394.INIT (port=Q, net=\u_engine.cur_cmd [58]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$395.INIT (port=Q, net=\u_engine.cur_cmd [59]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$403.INIT (port=Q, net=\u_engine.cur_cmd [67]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$351.INIT (port=Q, net=\u_engine.cur_cmd [15]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$402.INIT (port=Q, net=\u_engine.cur_cmd [66]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$354.INIT (port=Q, net=\u_engine.cur_cmd [18]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$548.INIT (port=Q, net=\u_engine.cur_cmd [212]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$389.INIT (port=Q, net=\u_engine.cur_cmd [53]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$385.INIT (port=Q, net=\u_engine.cur_cmd [49]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$401.INIT (port=Q, net=\u_engine.cur_cmd [65]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$350.INIT (port=Q, net=\u_engine.cur_cmd [14]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$415.INIT (port=Q, net=\u_engine.cur_cmd [79]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$400.INIT (port=Q, net=\u_engine.cur_cmd [64]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$414.INIT (port=Q, net=\u_engine.cur_cmd [78]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$506.INIT (port=Q, net=\u_engine.cur_cmd [170]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$476.INIT (port=Q, net=\u_engine.cur_cmd [140]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$372.INIT (port=Q, net=\u_engine.cur_cmd [36]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$347.INIT (port=Q, net=\u_engine.cur_cmd [11]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$374.INIT (port=Q, net=\u_engine.cur_cmd [38]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$373.INIT (port=Q, net=\u_engine.cur_cmd [37]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$376.INIT (port=Q, net=\u_engine.cur_cmd [40]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$349.INIT (port=Q, net=\u_engine.cur_cmd [13]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$371.INIT (port=Q, net=\u_engine.cur_cmd [35]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$478.INIT (port=Q, net=\u_engine.cur_cmd [142]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$377.INIT (port=Q, net=\u_engine.cur_cmd [41]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$375.INIT (port=Q, net=\u_engine.cur_cmd [39]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$362.INIT (port=Q, net=\u_engine.cur_cmd [26]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$408.INIT (port=Q, net=\u_engine.cur_cmd [72]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$410.INIT (port=Q, net=\u_engine.cur_cmd [74]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$382.INIT (port=Q, net=\u_engine.cur_cmd [46]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$344.INIT (port=Q, net=\u_engine.cur_cmd [8]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$412.INIT (port=Q, net=\u_engine.cur_cmd [76]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$413.INIT (port=Q, net=\u_engine.cur_cmd [77]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$365.INIT (port=Q, net=\u_engine.cur_cmd [29]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$363.INIT (port=Q, net=\u_engine.cur_cmd [27]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$416.INIT (port=Q, net=\u_engine.cur_cmd [80]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$417.INIT (port=Q, net=\u_engine.cur_cmd [81]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$418.INIT (port=Q, net=\u_engine.cur_cmd [82]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$579.INIT (port=Q, net=\u_engine.cur_cmd [243]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$343.INIT (port=Q, net=\u_engine.cur_cmd [7]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$431.INIT (port=Q, net=\u_engine.cur_cmd [95]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$580.INIT (port=Q, net=\u_engine.cur_cmd [244]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$353.INIT (port=Q, net=\u_engine.cur_cmd [17]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$396.INIT (port=Q, net=\u_engine.cur_cmd [60]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$397.INIT (port=Q, net=\u_engine.cur_cmd [61]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$398.INIT (port=Q, net=\u_engine.cur_cmd [62]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$482.INIT (port=Q, net=\u_engine.cur_cmd [146]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$484.INIT (port=Q, net=\u_engine.cur_cmd [148]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$485.INIT (port=Q, net=\u_engine.cur_cmd [149]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$486.INIT (port=Q, net=\u_engine.cur_cmd [150]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$488.INIT (port=Q, net=\u_engine.cur_cmd [152]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$489.INIT (port=Q, net=\u_engine.cur_cmd [153]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$491.INIT (port=Q, net=\u_engine.cur_cmd [155]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$529.INIT (port=Q, net=\u_engine.cur_cmd [193]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$379.INIT (port=Q, net=\u_engine.cur_cmd [43]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$380.INIT (port=Q, net=\u_engine.cur_cmd [44]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$409.INIT (port=Q, net=\u_engine.cur_cmd [73]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$407.INIT (port=Q, net=\u_engine.cur_cmd [71]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$381.INIT (port=Q, net=\u_engine.cur_cmd [45]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$383.INIT (port=Q, net=\u_engine.cur_cmd [47]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$384.INIT (port=Q, net=\u_engine.cur_cmd [48]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$360.INIT (port=Q, net=\u_engine.cur_cmd [24]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$386.INIT (port=Q, net=\u_engine.cur_cmd [50]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$387.INIT (port=Q, net=\u_engine.cur_cmd [51]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$388.INIT (port=Q, net=\u_engine.cur_cmd [52]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$359.INIT (port=Q, net=\u_engine.cur_cmd [23]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$390.INIT (port=Q, net=\u_engine.cur_cmd [54]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$420.INIT (port=Q, net=\u_engine.cur_cmd [84]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$422.INIT (port=Q, net=\u_engine.cur_cmd [86]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$424.INIT (port=Q, net=\u_engine.cur_cmd [88]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$342.INIT (port=Q, net=\u_engine.cur_cmd [6]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$421.INIT (port=Q, net=\u_engine.cur_cmd [85]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$425.INIT (port=Q, net=\u_engine.cur_cmd [89]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$358.INIT (port=Q, net=\u_engine.cur_cmd [22]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$427.INIT (port=Q, net=\u_engine.cur_cmd [91]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$549.INIT (port=Q, net=\u_engine.cur_cmd [213]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$550.INIT (port=Q, net=\u_engine.cur_cmd [214]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$392.INIT (port=Q, net=\u_engine.cur_cmd [56]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$434.INIT (port=Q, net=\u_engine.cur_cmd [98]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$345.INIT (port=Q, net=\u_engine.cur_cmd [9]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$433.INIT (port=Q, net=\u_engine.cur_cmd [97]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$430.INIT (port=Q, net=\u_engine.cur_cmd [94]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$435.INIT (port=Q, net=\u_engine.cur_cmd [99]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$551.INIT (port=Q, net=\u_engine.cur_cmd [215]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$437.INIT (port=Q, net=\u_engine.cur_cmd [101]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$552.INIT (port=Q, net=\u_engine.cur_cmd [216]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$439.INIT (port=Q, net=\u_engine.cur_cmd [103]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$553.INIT (port=Q, net=\u_engine.cur_cmd [217]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$441.INIT (port=Q, net=\u_engine.cur_cmd [105]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$554.INIT (port=Q, net=\u_engine.cur_cmd [218]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$443.INIT (port=Q, net=\u_engine.cur_cmd [107]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$555.INIT (port=Q, net=\u_engine.cur_cmd [219]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$445.INIT (port=Q, net=\u_engine.cur_cmd [109]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$556.INIT (port=Q, net=\u_engine.cur_cmd [220]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$561.INIT (port=Q, net=\u_engine.cur_cmd [225]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$558.INIT (port=Q, net=\u_engine.cur_cmd [222]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$449.INIT (port=Q, net=\u_engine.cur_cmd [113]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$559.INIT (port=Q, net=\u_engine.cur_cmd [223]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$560.INIT (port=Q, net=\u_engine.cur_cmd [224]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$446.INIT (port=Q, net=\u_engine.cur_cmd [110]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$453.INIT (port=Q, net=\u_engine.cur_cmd [117]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$562.INIT (port=Q, net=\u_engine.cur_cmd [226]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$455.INIT (port=Q, net=\u_engine.cur_cmd [119]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$563.INIT (port=Q, net=\u_engine.cur_cmd [227]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$457.INIT (port=Q, net=\u_engine.cur_cmd [121]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$564.INIT (port=Q, net=\u_engine.cur_cmd [228]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$565.INIT (port=Q, net=\u_engine.cur_cmd [229]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$566.INIT (port=Q, net=\u_engine.cur_cmd [230]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$461.INIT (port=Q, net=\u_engine.cur_cmd [125]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$568.INIT (port=Q, net=\u_engine.cur_cmd [232]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$463.INIT (port=Q, net=\u_engine.cur_cmd [127]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$569.INIT (port=Q, net=\u_engine.cur_cmd [233]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$465.INIT (port=Q, net=\u_engine.cur_cmd [129]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$570.INIT (port=Q, net=\u_engine.cur_cmd [234]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$571.INIT (port=Q, net=\u_engine.cur_cmd [235]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$572.INIT (port=Q, net=\u_engine.cur_cmd [236]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$469.INIT (port=Q, net=\u_engine.cur_cmd [133]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$574.INIT (port=Q, net=\u_engine.cur_cmd [238]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$471.INIT (port=Q, net=\u_engine.cur_cmd [135]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$575.INIT (port=Q, net=\u_engine.cur_cmd [239]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$473.INIT (port=Q, net=\u_engine.cur_cmd [137]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$576.INIT (port=Q, net=\u_engine.cur_cmd [240]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$577.INIT (port=Q, net=\u_engine.cur_cmd [241]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$578.INIT (port=Q, net=\u_engine.cur_cmd [242]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$477.INIT (port=Q, net=\u_engine.cur_cmd [141]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$369.INIT (port=Q, net=\u_engine.cur_cmd [33]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$479.INIT (port=Q, net=\u_engine.cur_cmd [143]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$378.INIT (port=Q, net=\u_engine.cur_cmd [42]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$585.INIT (port=Q, net=\u_engine.cur_cmd [249]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$352.INIT (port=Q, net=\u_engine.cur_cmd [16]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$483.INIT (port=Q, net=\u_engine.cur_cmd [147]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$581.INIT (port=Q, net=\u_engine.cur_cmd [245]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$364.INIT (port=Q, net=\u_engine.cur_cmd [28]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$582.INIT (port=Q, net=\u_engine.cur_cmd [246]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$487.INIT (port=Q, net=\u_engine.cur_cmd [151]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$356.INIT (port=Q, net=\u_engine.cur_cmd [20]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$357.INIT (port=Q, net=\u_engine.cur_cmd [21]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$355.INIT (port=Q, net=\u_engine.cur_cmd [19]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$492.INIT (port=Q, net=\u_engine.cur_cmd [156]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$490.INIT (port=Q, net=\u_engine.cur_cmd [154]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$493.INIT (port=Q, net=\u_engine.cur_cmd [157]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$494.INIT (port=Q, net=\u_engine.cur_cmd [158]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$495.INIT (port=Q, net=\u_engine.cur_cmd [159]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$496.INIT (port=Q, net=\u_engine.cur_cmd [160]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$497.INIT (port=Q, net=\u_engine.cur_cmd [161]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$498.INIT (port=Q, net=\u_engine.cur_cmd [162]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$499.INIT (port=Q, net=\u_engine.cur_cmd [163]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$500.INIT (port=Q, net=\u_engine.cur_cmd [164]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$501.INIT (port=Q, net=\u_engine.cur_cmd [165]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$502.INIT (port=Q, net=\u_engine.cur_cmd [166]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$503.INIT (port=Q, net=\u_engine.cur_cmd [167]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$504.INIT (port=Q, net=\u_engine.cur_cmd [168]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$505.INIT (port=Q, net=\u_engine.cur_cmd [169]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$508.INIT (port=Q, net=\u_engine.cur_cmd [172]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$507.INIT (port=Q, net=\u_engine.cur_cmd [171]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$510.INIT (port=Q, net=\u_engine.cur_cmd [174]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$509.INIT (port=Q, net=\u_engine.cur_cmd [173]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$584.INIT (port=Q, net=\u_engine.cur_cmd [248]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$583.INIT (port=Q, net=\u_engine.cur_cmd [247]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$512.INIT (port=Q, net=\u_engine.cur_cmd [176]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$513.INIT (port=Q, net=\u_engine.cur_cmd [177]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$514.INIT (port=Q, net=\u_engine.cur_cmd [178]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$515.INIT (port=Q, net=\u_engine.cur_cmd [179]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$516.INIT (port=Q, net=\u_engine.cur_cmd [180]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$519.INIT (port=Q, net=\u_engine.cur_cmd [183]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$518.INIT (port=Q, net=\u_engine.cur_cmd [182]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$525.INIT (port=Q, net=\u_engine.cur_cmd [189]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$520.INIT (port=Q, net=\u_engine.cur_cmd [184]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$521.INIT (port=Q, net=\u_engine.cur_cmd [185]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$522.INIT (port=Q, net=\u_engine.cur_cmd [186]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$523.INIT (port=Q, net=\u_engine.cur_cmd [187]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$524.INIT (port=Q, net=\u_engine.cur_cmd [188]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$517.INIT (port=Q, net=\u_engine.cur_cmd [181]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$526.INIT (port=Q, net=\u_engine.cur_cmd [190]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$527.INIT (port=Q, net=\u_engine.cur_cmd [191]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$528.INIT (port=Q, net=\u_engine.cur_cmd [192]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$530.INIT (port=Q, net=\u_engine.cur_cmd [194]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$534.INIT (port=Q, net=\u_engine.cur_cmd [198]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$531.INIT (port=Q, net=\u_engine.cur_cmd [195]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$532.INIT (port=Q, net=\u_engine.cur_cmd [196]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$405.INIT (port=Q, net=\u_engine.cur_cmd [69]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$689.INIT (port=Q, net=\u_engine.cur_res [1]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$535.INIT (port=Q, net=\u_engine.cur_cmd [199]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$536.INIT (port=Q, net=\u_engine.cur_cmd [200]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$537.INIT (port=Q, net=\u_engine.cur_cmd [201]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$538.INIT (port=Q, net=\u_engine.cur_cmd [202]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$539.INIT (port=Q, net=\u_engine.cur_cmd [203]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$540.INIT (port=Q, net=\u_engine.cur_cmd [204]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$541.INIT (port=Q, net=\u_engine.cur_cmd [205]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$533.INIT (port=Q, net=\u_engine.cur_cmd [197]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$543.INIT (port=Q, net=\u_engine.cur_cmd [207]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$544.INIT (port=Q, net=\u_engine.cur_cmd [208]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$545.INIT (port=Q, net=\u_engine.cur_cmd [209]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$546.INIT (port=Q, net=\u_engine.cur_cmd [210]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$340.INIT (port=Q, net=\u_engine.cur_cmd [4]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$341.INIT (port=Q, net=\u_engine.cur_cmd [5]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$426.INIT (port=Q, net=\u_engine.cur_cmd [90]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$428.INIT (port=Q, net=\u_engine.cur_cmd [92]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$429.INIT (port=Q, net=\u_engine.cur_cmd [93]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$436.INIT (port=Q, net=\u_engine.cur_cmd [100]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$438.INIT (port=Q, net=\u_engine.cur_cmd [102]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$440.INIT (port=Q, net=\u_engine.cur_cmd [104]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$442.INIT (port=Q, net=\u_engine.cur_cmd [106]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$444.INIT (port=Q, net=\u_engine.cur_cmd [108]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$557.INIT (port=Q, net=\u_engine.cur_cmd [221]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$447.INIT (port=Q, net=\u_engine.cur_cmd [111]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$448.INIT (port=Q, net=\u_engine.cur_cmd [112]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$450.INIT (port=Q, net=\u_engine.cur_cmd [114]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$451.INIT (port=Q, net=\u_engine.cur_cmd [115]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$452.INIT (port=Q, net=\u_engine.cur_cmd [116]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$454.INIT (port=Q, net=\u_engine.cur_cmd [118]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$456.INIT (port=Q, net=\u_engine.cur_cmd [120]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$458.INIT (port=Q, net=\u_engine.cur_cmd [122]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$459.INIT (port=Q, net=\u_engine.cur_cmd [123]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$567.INIT (port=Q, net=\u_engine.cur_cmd [231]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$460.INIT (port=Q, net=\u_engine.cur_cmd [124]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$462.INIT (port=Q, net=\u_engine.cur_cmd [126]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$464.INIT (port=Q, net=\u_engine.cur_cmd [128]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$466.INIT (port=Q, net=\u_engine.cur_cmd [130]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$467.INIT (port=Q, net=\u_engine.cur_cmd [131]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$573.INIT (port=Q, net=\u_engine.cur_cmd [237]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$468.INIT (port=Q, net=\u_engine.cur_cmd [132]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$470.INIT (port=Q, net=\u_engine.cur_cmd [134]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$472.INIT (port=Q, net=\u_engine.cur_cmd [136]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$474.INIT (port=Q, net=\u_engine.cur_cmd [138]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$475.INIT (port=Q, net=\u_engine.cur_cmd [139]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$367.INIT (port=Q, net=\u_engine.cur_cmd [31]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$419.INIT (port=Q, net=\u_engine.cur_cmd [83]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$432.INIT (port=Q, net=\u_engine.cur_cmd [96]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$399.INIT (port=Q, net=\u_engine.cur_cmd [63]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$361.INIT (port=Q, net=\u_engine.cur_cmd [25]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$511.INIT (port=Q, net=\u_engine.cur_cmd [175]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$366.INIT (port=Q, net=\u_engine.cur_cmd [30]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$481.INIT (port=Q, net=\u_engine.cur_cmd [145]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$542.INIT (port=Q, net=\u_engine.cur_cmd [206]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$586.INIT (port=Q, net=\u_engine.cur_cmd [250]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$587.INIT (port=Q, net=\u_engine.cur_cmd [251]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$588.INIT (port=Q, net=\u_engine.cur_cmd [252]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$589.INIT (port=Q, net=\u_engine.cur_cmd [253]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$590.INIT (port=Q, net=\u_engine.cur_cmd [254]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$592.INIT (port=Q, net=\u_engine.cur_cmd [256]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$593.INIT (port=Q, net=\u_engine.cur_cmd [257]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$594.INIT (port=Q, net=\u_engine.cur_cmd [258]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$595.INIT (port=Q, net=\u_engine.cur_cmd [259]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$596.INIT (port=Q, net=\u_engine.cur_cmd [260]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$597.INIT (port=Q, net=\u_engine.cur_cmd [261]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$598.INIT (port=Q, net=\u_engine.cur_cmd [262]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$591.INIT (port=Q, net=\u_engine.cur_cmd [255]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$600.INIT (port=Q, net=\u_engine.cur_cmd [264]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$601.INIT (port=Q, net=\u_engine.cur_cmd [265]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$602.INIT (port=Q, net=\u_engine.cur_cmd [266]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$603.INIT (port=Q, net=\u_engine.cur_cmd [267]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$604.INIT (port=Q, net=\u_engine.cur_cmd [268]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$605.INIT (port=Q, net=\u_engine.cur_cmd [269]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$606.INIT (port=Q, net=\u_engine.cur_cmd [270]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$607.INIT (port=Q, net=\u_engine.cur_cmd [271]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$608.INIT (port=Q, net=\u_engine.cur_cmd [272]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$609.INIT (port=Q, net=\u_engine.cur_cmd [273]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$610.INIT (port=Q, net=\u_engine.cur_cmd [274]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$611.INIT (port=Q, net=\u_engine.cur_cmd [275]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$612.INIT (port=Q, net=\u_engine.cur_cmd [276]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$613.INIT (port=Q, net=\u_engine.cur_cmd [277]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$614.INIT (port=Q, net=\u_engine.cur_cmd [278]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$615.INIT (port=Q, net=\u_engine.cur_cmd [279]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$616.INIT (port=Q, net=\u_engine.cur_cmd [280]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$617.INIT (port=Q, net=\u_engine.cur_cmd [281]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$618.INIT (port=Q, net=\u_engine.cur_cmd [282]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$619.INIT (port=Q, net=\u_engine.cur_cmd [283]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$620.INIT (port=Q, net=\u_engine.cur_cmd [284]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$621.INIT (port=Q, net=\u_engine.cur_cmd [285]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$622.INIT (port=Q, net=\u_engine.cur_cmd [286]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$693.INIT (port=Q, net=\u_engine.fsm [1]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$690.INIT (port=Q, net=\u_engine.cur_res [2]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:420:simplemap_dff$691.INIT (port=Q, net=\u_engine.cur_res [3]) to 1'0.
+Setting VX_cp_engine_top.$auto$simplemap.cc:442:simplemap_dffe$687.INIT (port=Q, net=\u_engine.seqnum_r [63]) to 1'0.
+Removed 0 unused cells and 2199 unused wires.
+
+2.28. Executing HIERARCHY pass (managing design hierarchy).
+
+2.28.1. Analyzing design hierarchy..
+Top module:  \VX_cp_engine_top
+
+2.28.2. Analyzing design hierarchy..
+Top module:  \VX_cp_engine_top
+Removed 0 unused modules.
+
+2.29. Printing statistics.
+
+=== VX_cp_engine_top ===
+
+   Number of wires:                206
+   Number of wire bits:           4586
+   Number of public wires:          77
+   Number of public wire bits:    4042
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                911
+     FDRE                          359
+     LUT1                            1
+     LUT2                          362
+     LUT3                            5
+     LUT4                            2
+     LUT5                            2
+     LUT6                           33
+     MUXCY                          63
+     MUXF7                          14
+     MUXF8                           6
+     XORCY                          64
+
+   Estimated number of LCs:        220
+
+2.30. Executing CHECK pass (checking for obvious problems).
+checking module VX_cp_engine_top..
+found and reported 0 problems.
+
+3. Printing statistics.
+
+=== VX_cp_engine_top ===
+
+   Number of wires:                206
+   Number of wire bits:           4586
+   Number of public wires:          77
+   Number of public wire bits:    4042
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                911
+     FDRE                          359
+     LUT1                            1
+     LUT2                          362
+     LUT3                            5
+     LUT4                            2
+     LUT5                            2
+     LUT6                           33
+     MUXCY                          63
+     MUXF7                          14
+     MUXF8                           6
+     XORCY                          64
+
+End of script. Logfile hash: 925b081091
+CPU: user 0.74s system 0.32s, MEM: 219.18 MB total, 213.56 MB resident
+Yosys 0.9 (git sha1 1979e0b)
+Time spent: 52% 18x read_verilog (0 sec), 10% 15x opt_clean (0 sec), ...
