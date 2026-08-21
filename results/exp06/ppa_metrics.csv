@@ -1,0 +1,7 @@
+metric,baseline,prefetch,change_percent
+fpga_estimated_lcs,7915,7954,0.4927
+fpga_fdre,137,141,2.9197
+fpga_bram,0,0,0
+asic_cell_area_um2,33953.304,37645.650,10.874
+reg_to_reg_arrival_ns,19.146,19.597,2.3556
+fmax_proxy_mhz,51.08,49.92,-2.27

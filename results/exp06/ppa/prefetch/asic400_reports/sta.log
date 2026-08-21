@@ -1,0 +1,182 @@
+OpenSTA 2.0.17 GITDIR-NOT Copyright (c) 2019, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+read_liberty /home/houdong/vortex/hw/syn/libs/NangateOpenCellLibrary_typical.lib
+read_verilog results/exp06/ppa/prefetch/asic400_out/VX_cp_fetch_top_mapped.v
+link_design VX_cp_fetch_top
+read_sdc results/exp06/ppa/prefetch/asic400_out/VX_cp_fetch_top.resolved.sdc
+INFO: Using clock port: clk
+INFO: Found reset ports: _a0eea8c7a9630000_p_Port
+Error: run_sta.tcl, 70 invalid command name "report_units"
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                       2.50        0.00      1.25
+ext_clk                   2.50        0.00      1.25
+wns -60.17
+tns -13298.90
+Startpoint: _9514_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _9444_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ _9514_/CK (DFF_X1)
+   0.936    0.936 ^ _9514_/Q (DFF_X1)
+   0.378    1.314 v u_fetch.u_unpack/_26168_/ZN (NAND3_X1)
+  12.194   13.507 ^ u_fetch.u_unpack/_26198_/ZN (XNOR2_X1)
+  -0.556   12.951 v u_fetch.u_unpack/_26318_/ZN (NOR2_X1)
+   0.471   13.422 ^ u_fetch.u_unpack/_26319_/ZN (AOI211_X1)
+   0.019   13.442 v u_fetch.u_unpack/_26320_/ZN (OAI21_X1)
+   0.142   13.583 ^ u_fetch.u_unpack/_26321_/ZN (AOI21_X1)
+   0.025   13.608 v u_fetch.u_unpack/_26322_/ZN (OAI21_X1)
+   0.080   13.688 v u_fetch.u_unpack/_26323_/ZN (AND3_X1)
+   0.068   13.757 ^ u_fetch.u_unpack/_26324_/ZN (AOI21_X1)
+   0.043   13.800 v u_fetch.u_unpack/_27614_/ZN (OAI21_X1)
+   0.066   13.866 ^ u_fetch.u_unpack/_27615_/ZN (AOI21_X1)
+   0.031   13.897 v u_fetch.u_unpack/_27617_/ZN (XNOR2_X1)
+   3.157   17.054 ^ u_fetch.u_unpack/_27630_/ZN (OAI21_X1)
+  -0.023   17.031 v u_fetch.u_unpack/_27850_/ZN (NOR2_X1)
+   0.129   17.160 ^ u_fetch.u_unpack/_27863_/ZN (AOI21_X1)
+   0.041   17.201 ^ u_fetch.u_unpack/_27864_/ZN (OR2_X1)
+   0.767   17.968 ^ u_fetch.u_unpack/_27865_/ZN (OR2_X1)
+   0.257   18.225 v u_fetch.u_unpack/_27866_/ZN (INV_X1)
+   0.185   18.410 ^ _6701_/ZN (NOR2_X1)
+   0.079   18.489 ^ _7985_/ZN (AND3_X1)
+   0.058   18.547 ^ _7990_/ZN (AND3_X1)
+   0.044   18.591 ^ _7993_/ZN (AND2_X1)
+   0.063   18.655 ^ _7996_/ZN (AND2_X1)
+   0.078   18.733 ^ _8034_/ZN (AND4_X1)
+   0.058   18.790 ^ _8067_/ZN (AND3_X1)
+   0.058   18.849 ^ _8114_/ZN (AND4_X1)
+   0.043   18.892 ^ _8116_/ZN (AND2_X1)
+   0.043   18.935 ^ _8119_/ZN (AND2_X1)
+   0.054   18.989 ^ _8122_/ZN (AND2_X1)
+   0.069   19.057 ^ _8127_/ZN (AND3_X1)
+   0.058   19.115 ^ _8132_/ZN (AND3_X1)
+   0.044   19.158 ^ _8135_/ZN (AND2_X1)
+   0.043   19.202 ^ _8137_/ZN (AND2_X1)
+   0.043   19.245 ^ _8140_/ZN (AND2_X1)
+   0.043   19.289 ^ _8143_/ZN (AND2_X1)
+   0.043   19.332 ^ _8146_/ZN (AND2_X1)
+   0.043   19.375 ^ _8149_/ZN (AND2_X1)
+   0.054   19.429 ^ _8152_/ZN (AND2_X1)
+   0.065   19.494 ^ _8157_/ZN (AND3_X1)
+   0.019   19.514 v _8160_/ZN (NAND2_X1)
+   0.056   19.569 v _8163_/Z (XOR2_X1)
+   0.028   19.597 ^ _8164_/ZN (NOR2_X1)
+   0.000   19.597 ^ _9444_/D (DFF_X1)
+           19.597   data arrival time
+
+   2.500    2.500   clock clk (rise edge)
+   0.000    2.500   clock network delay (ideal)
+  -0.050    2.450   clock uncertainty
+   0.000    2.450   clock reconvergence pessimism
+            2.450 ^ _9444_/CK (DFF_X1)
+  -0.033    2.417   library setup time
+            2.417   data required time
+-----------------------------------------------------------
+            2.417   data required time
+          -19.597   data arrival time
+-----------------------------------------------------------
+          -17.180   slack (VIOLATED)
+
+
+Startpoint: _9516_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: cmd_out_packed[208] (output port clocked by ext_clk)
+Path Group: ext_clk
+Path Type: max
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ _9516_/CK (DFF_X1)
+   0.267    0.267 v _9516_/Q (DFF_X1)
+   0.386    0.653 ^ u_fetch.u_unpack/_26155_/ZN (INV_X1)
+   0.677    1.330 v u_fetch.u_unpack/_26194_/ZN (NOR2_X1)
+   6.429    7.759 ^ u_fetch.u_unpack/_27597_/ZN (NOR2_X1)
+  49.044   56.803 v u_fetch.u_unpack/_34369_/ZN (AOI21_X1)
+   5.508   62.311 ^ u_fetch.u_unpack/_45024_/ZN (NOR3_X1)
+   0.030   62.341 v u_fetch.u_unpack/_45034_/ZN (OAI33_X1)
+   0.185   62.526 ^ u_fetch.u_unpack/_45057_/ZN (AOI221_X1)
+   0.015   62.541 v u_fetch.u_unpack/_45058_/ZN (AOI21_X1)
+   0.000   62.541 v cmd_out_packed[208] (out)
+           62.541   data arrival time
+
+   2.500    2.500   clock ext_clk (rise edge)
+   0.000    2.500   clock network delay (ideal)
+   0.000    2.500   clock reconvergence pessimism
+  -0.125    2.375   output external delay
+            2.375   data required time
+-----------------------------------------------------------
+            2.375   data required time
+          -62.541   data arrival time
+-----------------------------------------------------------
+          -60.166   slack (VIOLATED)
+
+
+Startpoint: _9381_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _9381_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ _9381_/CK (DFF_X1)
+   0.079    0.079 v _9381_/Q (DFF_X1)
+   0.029    0.107 v _7977_/ZN (AND2_X1)
+   0.000    0.107 v _9381_/D (DFF_X1)
+            0.107   data arrival time
+
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.050    0.050   clock uncertainty
+   0.000    0.050   clock reconvergence pessimism
+            0.050 ^ _9381_/CK (DFF_X1)
+   0.002    0.052   library hold time
+            0.052   data required time
+-----------------------------------------------------------
+            0.052   data required time
+           -0.107   data arrival time
+-----------------------------------------------------------
+            0.056   slack (MET)
+
+
+Startpoint: _9381_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: head_out[0] (output port clocked by ext_clk)
+Path Group: ext_clk
+Path Type: min
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ _9381_/CK (DFF_X1)
+   0.079    0.079 v _9381_/Q (DFF_X1)
+   0.000    0.079 v head_out[0] (out)
+            0.079   data arrival time
+
+   0.000    0.000   clock ext_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000   clock reconvergence pessimism
+  -0.125   -0.125   output external delay
+           -0.125   data required time
+-----------------------------------------------------------
+           -0.125   data required time
+           -0.079   data arrival time
+-----------------------------------------------------------
+            0.204   slack (MET)
+
+
+INFO: SAIF_FILE not provided (or not found); power will be vectorless/default.
+Error: run_sta.tcl, 109 domain error: argument not in valid range
+STA done.
+Saving command history

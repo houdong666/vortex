@@ -19,7 +19,8 @@ module VX_cp_axi_path_top
 #(
   parameter int ADDR_W = 64,
   parameter int DATA_W = 512,
-  parameter int ID_W   = VX_CP_AXI_TID_WIDTH_C
+  parameter int ID_W   = VX_CP_AXI_TID_WIDTH_C,
+  parameter int PREFETCH_DEPTH = 2
 )(
   input  wire                       clk,
   input  wire                       reset,
@@ -193,7 +194,10 @@ module VX_cp_axi_path_top
   cmd_t cmd_typed;
   assign cmd_out_packed = cmd_typed;
 
-  VX_cp_fetch #(.QID(0)) u_fetch (
+  VX_cp_fetch #(
+    .QID            (0),
+    .PREFETCH_DEPTH (PREFETCH_DEPTH)
+  ) u_fetch (
     .clk           (clk),
     .reset         (reset),
     .state_in      (state_typed),

@@ -1056,6 +1056,21 @@ Host AXI → CL FIFO[0] → Unpack
 
 > 能够用“AXI latency 越大，Prefetch 收益越明显”的实验曲线证明 Prefetch 正在隐藏 Host Memory latency，而不是偶然降低周期数。
 
+**本次执行结果（2026年8月21日）**
+
+已完成 2-entry Cache-Line FIFO、独立 `fetch_head`、FIFO 读写指针/占用计数，以及最多两个有序 AXI 在途请求。测试环境覆盖 1、5、10、20、50、100-cycle 响应延迟。
+
+| AXI 延迟 | Baseline Cmd/Cycle | Prefetch Cmd/Cycle | 吞吐提升 |
+|---:|---:|---:|---:|
+| 1 | 0.500000 | 0.744186 | 48.84% |
+| 5 | 0.300000 | 0.592593 | 97.53% |
+| 10 | 0.200000 | 0.396694 | 98.35% |
+| 20 | 0.120000 | 0.238806 | 99.01% |
+| 50 | 0.054545 | 0.108844 | 99.54% |
+| 100 | 0.028571 | 0.057075 | 99.76% |
+
+六个点均为 64 次 AR、192 条有序命令、最终 head=4096，且无重复或丢失。Ring wrap 和 `cp_core` 1000 条 DCR 验证通过，最终 seqnum=1000。PPA 代理结果为 7915→7954 LCs、137→141 FF、BRAM 0→0、ASIC 面积 +10.87%、Fmax -2.27%。因此功能与性能 Accept，但默认集成暂缓，`VX_cp_fetch` 默认深度保持 1，实验显式使用深度 2。完整报告见 `docs/experiments/exp06_fetch_prefetch.md`，逐步命令见 `docs/experiments/exp06_commands.md`。
+
 ---
 ### 实验7：Priority-Aware Arbitration
 

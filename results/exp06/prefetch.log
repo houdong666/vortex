@@ -1,0 +1,6 @@
+PREFETCH_RESULT depth=2 latency=1 cache_lines=64 commands=192 ar_count=64 total_cycles=258 cmd_per_cycle=0.744186 final_head=4096 dropped_count=0 duplicate_count=0
+PREFETCH_RESULT depth=2 latency=5 cache_lines=64 commands=192 ar_count=64 total_cycles=324 cmd_per_cycle=0.592593 final_head=4096 dropped_count=0 duplicate_count=0
+PREFETCH_RESULT depth=2 latency=10 cache_lines=64 commands=192 ar_count=64 total_cycles=484 cmd_per_cycle=0.396694 final_head=4096 dropped_count=0 duplicate_count=0
+PREFETCH_RESULT depth=2 latency=20 cache_lines=64 commands=192 ar_count=64 total_cycles=804 cmd_per_cycle=0.238806 final_head=4096 dropped_count=0 duplicate_count=0
+PREFETCH_RESULT depth=2 latency=50 cache_lines=64 commands=192 ar_count=64 total_cycles=1764 cmd_per_cycle=0.108844 final_head=4096 dropped_count=0 duplicate_count=0
+PREFETCH_RESULT depth=2 latency=100 cache_lines=64 commands=192 ar_count=64 total_cycles=3364 cmd_per_cycle=0.057075 final_head=4096 dropped_count=0 duplicate_count=0

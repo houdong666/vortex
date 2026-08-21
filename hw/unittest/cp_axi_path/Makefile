@@ -25,4 +25,8 @@ RTL_INCLUDE += -I$(RTL_DIR)/interfaces -I$(RTL_DIR)/mem -I$(RTL_DIR)/fpu \
 
 TOP := VX_cp_axi_path_top
 
+PREFETCH_DEPTH ?= 2
+PARAMS += -GPREFETCH_DEPTH=$(PREFETCH_DEPTH)
+CXXFLAGS += -DTEST_PREFETCH_DEPTH=$(PREFETCH_DEPTH)
+
 include ../common.mk

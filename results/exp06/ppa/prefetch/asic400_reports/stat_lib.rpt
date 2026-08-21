@@ -1,0 +1,128 @@
+
+23. Printing statistics.
+
+=== VX_cp_fetch_top ===
+
+   Number of wires:               5982
+   Number of wire bits:          14667
+   Number of public wires:          77
+   Number of public wire bits:    6146
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3617
+     AND2_X1                        70
+     AND3_X1                        36
+     AND4_X1                        16
+     AOI211_X1                      28
+     AOI21_X1                      111
+     AOI221_X1                       3
+     AOI22_X1                       11
+     DFF_X1                       1165
+     INV_X1                        113
+     MUX2_X1                      1537
+     NAND2_X1                       52
+     NAND3_X1                       31
+     NAND4_X1                       21
+     NOR2_X1                       117
+     NOR3_X1                        39
+     NOR4_X1                        14
+     OAI211_X1                      15
+     OAI21_X1                      110
+     OAI221_X1                       3
+     OAI22_X1                       15
+     OR2_X1                         10
+     OR3_X1                          4
+     OR4_X1                          1
+     VX_cp_unpack                    1
+     XNOR2_X1                       55
+     XOR2_X1                        39
+
+   Area for cell type \VX_cp_unpack is unknown!
+
+   Chip area for module '\VX_cp_fetch_top': 9097.998000
+
+=== VX_cp_unpack ===
+
+   Number of wires:              25759
+   Number of wire bits:         586644
+   Number of public wires:           7
+   Number of public wire bits:     848
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              24164
+     AND2_X1                       266
+     AND3_X1                        77
+     AND4_X1                        23
+     AOI211_X1                    1514
+     AOI21_X1                     3574
+     AOI221_X1                     379
+     AOI222_X1                      36
+     AOI22_X1                      663
+     INV_X1                        439
+     MUX2_X1                      2579
+     NAND2_X1                     2210
+     NAND3_X1                      760
+     NAND4_X1                       70
+     NOR2_X1                      2715
+     NOR3_X1                       571
+     NOR4_X1                       119
+     OAI211_X1                    2273
+     OAI21_X1                     3722
+     OAI221_X1                     925
+     OAI222_X1                      12
+     OAI22_X1                      666
+     OAI33_X1                       83
+     OR2_X1                        329
+     OR3_X1                         63
+     OR4_X1                         27
+     XNOR2_X1                       64
+     XOR2_X1                         5
+
+   Chip area for module '\VX_cp_unpack': 28547.652000
+
+=== design hierarchy ===
+
+   VX_cp_fetch_top                   1
+     VX_cp_unpack                    1
+
+   Number of wires:              31741
+   Number of wire bits:         601311
+   Number of public wires:          84
+   Number of public wire bits:    6994
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              27780
+     AND2_X1                       336
+     AND3_X1                       113
+     AND4_X1                        39
+     AOI211_X1                    1542
+     AOI21_X1                     3685
+     AOI221_X1                     382
+     AOI222_X1                      36
+     AOI22_X1                      674
+     DFF_X1                       1165
+     INV_X1                        552
+     MUX2_X1                      4116
+     NAND2_X1                     2262
+     NAND3_X1                      791
+     NAND4_X1                       91
+     NOR2_X1                      2832
+     NOR3_X1                       610
+     NOR4_X1                       133
+     OAI211_X1                    2288
+     OAI21_X1                     3832
+     OAI221_X1                     928
+     OAI222_X1                      12
+     OAI22_X1                      681
+     OAI33_X1                       83
+     OR2_X1                        339
+     OR3_X1                         67
+     OR4_X1                         28
+     XNOR2_X1                      119
+     XOR2_X1                        44
+
+   Chip area for top module '\VX_cp_fetch_top': 37645.650000
+
