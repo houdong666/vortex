@@ -21,7 +21,8 @@ module VX_cp_core_top
   parameter int ADDR_W     = 64,
   parameter int DATA_W     = 512,
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C,
-  parameter int AXIL_AW    = 16
+  parameter int AXIL_AW    = 16,
+  parameter bit ENABLE_PRIORITY_ARBITRATION = 0
 )(
   input  wire                       clk,
   input  wire                       reset,
@@ -255,7 +256,8 @@ module VX_cp_core_top
     .ADDR_W     (ADDR_W),
     .DATA_W     (DATA_W),
     .ID_W       (ID_W),
-    .AXIL_AW    (AXIL_AW)
+    .AXIL_AW    (AXIL_AW),
+    .ENABLE_PRIORITY_ARBITRATION (ENABLE_PRIORITY_ARBITRATION)
   ) u_dut (
     .clk       (clk),
     .reset     (reset),

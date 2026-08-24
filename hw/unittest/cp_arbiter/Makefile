@@ -2,6 +2,7 @@ ROOT_DIR := $(realpath ../../..)
 include $(ROOT_DIR)/config.mk
 
 PROJECT := cp_arbiter
+PRIORITY_ARBITRATION ?= 1
 
 RTL_DIR := $(VORTEX_HOME)/hw/rtl
 DPI_DIR := $(VORTEX_HOME)/hw/dpi
@@ -10,6 +11,9 @@ SRC_DIR := $(VORTEX_HOME)/hw/unittest/$(PROJECT)
 
 CXXFLAGS := -I$(SRC_DIR) -I$(VORTEX_HOME)/hw/unittest/common -I$(SW_COMMON_DIR)
 CXXFLAGS += -I$(ROOT_DIR)/sw -I$(ROOT_DIR)/hw
+CXXFLAGS += -DPRIORITY_ARBITRATION=$(PRIORITY_ARBITRATION)
+
+PARAMS += -GENABLE_PRIORITY=$(PRIORITY_ARBITRATION)
 
 SRCS := $(SRC_DIR)/main.cpp
 

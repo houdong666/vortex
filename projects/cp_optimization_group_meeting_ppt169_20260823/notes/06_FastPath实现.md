@@ -1,1 +1,0 @@
-实验四处理的是 Engine 的固定控制开销。NOP 不需要申请任何共享资源，原来的 DECODE 状态对它实际上只产生一次无效跳转，所以我增加参数 ENABLE_NOP_FAST_PATH，在 IDLE 中识别 NOP 后直接进入 RETIRE。其他命令仍然经过原来的 DECODE、BID 和 WAIT DONE 路径，并且参数默认关闭，保证实验实现不会悄悄改变整机默认时序。

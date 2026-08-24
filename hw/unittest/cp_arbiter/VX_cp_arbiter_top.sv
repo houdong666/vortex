@@ -15,14 +15,17 @@
 module VX_cp_arbiter_top
   import VX_cp_pkg::*;
 #(
-  parameter int N = 4
+  parameter int N = 4,
+  parameter bit ENABLE_PRIORITY = 1
 )(
   input  wire             clk,
   input  wire             reset,
 
   input  wire [N-1:0]     bid_valid,        // packed: bit i = bidder i valid
   input  wire [2*N-1:0]   bid_priority,     // packed: 2 bits per bidder
-  output wire [N-1:0]     bid_grant         // packed: bit i = bidder i granted
+  output wire [N-1:0]     bid_grant,        // packed: bit i = bidder i granted
+  output wire [$clog2(N)-1:0] rr_pointer,
+  output wire [$clog2(N)-1:0] selected_queue
 );
 
   // Unpacked arrays for the DUT.
@@ -38,12 +41,17 @@ module VX_cp_arbiter_top
     end
   endgenerate
 
-  VX_cp_arbiter #(.N(N)) u_arb (
+  VX_cp_arbiter #(
+    .N               (N),
+    .ENABLE_PRIORITY (ENABLE_PRIORITY)
+  ) u_arb (
     .clk          (clk),
     .reset        (reset),
     .bid_valid    (in_valid),
     .bid_priority (in_prio),
-    .bid_grant    (out_grant)
+    .bid_grant    (out_grant),
+    .rr_pointer_o (rr_pointer),
+    .selected_queue_o (selected_queue)
   );
 
 endmodule : VX_cp_arbiter_top

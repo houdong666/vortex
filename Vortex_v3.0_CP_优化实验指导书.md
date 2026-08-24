@@ -1148,6 +1148,15 @@ Fairness Error = (max(grant_count) - min(grant_count)) / total_grants
 
 > 能够证明高优先级 Queue 获得更低服务延迟，同时同优先级 Queue 仍保持 Round-Robin 公平性。
 
+**实验7执行记录（2026年8月24日）**
+
+- 已在 `VX_cp_arbiter` 中实现 Priority First + Same-Priority Round Robin，并通过 `ENABLE_PRIORITY` 参数保留 Baseline 对照。
+- Test A 的 400 次授权在 Q0～Q3 之间各 100 次，Fairness Error=0%。
+- Test B 中 P3 队列获得 128/128 次授权；Test C 中两个 P3 队列各获得 64 次，保持轮询。
+- 严格优先级下低优先级队列可能饥饿，因此 `VX_cp_core` 的 `ENABLE_PRIORITY_ARBITRATION` 默认保持关闭，等实验8 Aging 完成后再评估默认集成。
+- 单个4路仲裁器的 FPGA LCs 为 73→75，FDRE 为 2→2；ASIC 面积为 52.136→97.622 um²，两者均满足 400 MHz 约束。
+- 完整结果见 [`docs/experiments/exp07_priority_arbitration.md`](docs/experiments/exp07_priority_arbitration.md)，逐步命令见 [`docs/experiments/exp07_commands.md`](docs/experiments/exp07_commands.md)。
+
 ---
 ### 实验8：Aging 防饥饿机制
 

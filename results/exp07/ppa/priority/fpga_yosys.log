@@ -1,0 +1,1077 @@
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2019  Clifford Wolf <clifford@clifford.at>           |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.9 (git sha1 1979e0b)
+
+
+-- Running command `read_verilog -defer results/exp07/ppa/priority/arbiter_input.v; synth_xilinx -flatten -family xc7 -top VX_cp_arbiter_top; stat' --
+
+1. Executing Verilog-2005 frontend: results/exp07/ppa/priority/arbiter_input.v
+Parsing Verilog input from `results/exp07/ppa/priority/arbiter_input.v' to AST representation.
+Storing AST representation for module `$abstract\VX_cp_arbiter'.
+Storing AST representation for module `$abstract\VX_cp_arbiter_top'.
+Successfully finished Verilog frontend.
+
+2. Executing SYNTH_XILINX pass.
+
+2.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_sim.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_sim.v' to AST representation.
+Generating RTLIL representation for module `\VCC'.
+Generating RTLIL representation for module `\GND'.
+Generating RTLIL representation for module `\IBUF'.
+Generating RTLIL representation for module `\OBUF'.
+Generating RTLIL representation for module `\BUFG'.
+Generating RTLIL representation for module `\BUFGCTRL'.
+Generating RTLIL representation for module `\BUFHCE'.
+Generating RTLIL representation for module `\INV'.
+Generating RTLIL representation for module `\LUT1'.
+Generating RTLIL representation for module `\LUT2'.
+Generating RTLIL representation for module `\LUT3'.
+Generating RTLIL representation for module `\LUT4'.
+Generating RTLIL representation for module `\LUT5'.
+Generating RTLIL representation for module `\LUT6'.
+Generating RTLIL representation for module `\LUT6_2'.
+Generating RTLIL representation for module `\MUXCY'.
+Generating RTLIL representation for module `\MUXF7'.
+Generating RTLIL representation for module `\MUXF8'.
+Generating RTLIL representation for module `\XORCY'.
+Generating RTLIL representation for module `\CARRY4'.
+Generating RTLIL representation for module `\FDRE'.
+Generating RTLIL representation for module `\FDSE'.
+Generating RTLIL representation for module `\FDCE'.
+Generating RTLIL representation for module `\FDPE'.
+Generating RTLIL representation for module `\FDRE_1'.
+Generating RTLIL representation for module `\FDSE_1'.
+Generating RTLIL representation for module `\FDCE_1'.
+Generating RTLIL representation for module `\FDPE_1'.
+Generating RTLIL representation for module `\RAM32X1D'.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM128X1D'.
+Generating RTLIL representation for module `\SRL16E'.
+Generating RTLIL representation for module `\SRLC32E'.
+Successfully finished Verilog frontend.
+
+2.2. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_xtra.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_xtra.v' to AST representation.
+Generating RTLIL representation for module `\BSCANE2'.
+Generating RTLIL representation for module `\BUFGCE'.
+Generating RTLIL representation for module `\BUFGCE_1'.
+Generating RTLIL representation for module `\BUFGMUX'.
+Generating RTLIL representation for module `\BUFGMUX_1'.
+Generating RTLIL representation for module `\BUFGMUX_CTRL'.
+Generating RTLIL representation for module `\BUFH'.
+Generating RTLIL representation for module `\BUFIO'.
+Generating RTLIL representation for module `\BUFMR'.
+Generating RTLIL representation for module `\BUFMRCE'.
+Generating RTLIL representation for module `\BUFR'.
+Generating RTLIL representation for module `\CAPTUREE2'.
+Generating RTLIL representation for module `\CFGLUT5'.
+Generating RTLIL representation for module `\DCIRESET'.
+Generating RTLIL representation for module `\DNA_PORT'.
+Generating RTLIL representation for module `\DSP48E1'.
+Generating RTLIL representation for module `\EFUSE_USR'.
+Generating RTLIL representation for module `\FIFO18E1'.
+Generating RTLIL representation for module `\FIFO36E1'.
+Generating RTLIL representation for module `\FRAME_ECCE2'.
+Generating RTLIL representation for module `\GTHE2_CHANNEL'.
+Generating RTLIL representation for module `\GTHE2_COMMON'.
+Generating RTLIL representation for module `\GTPE2_CHANNEL'.
+Generating RTLIL representation for module `\GTPE2_COMMON'.
+Generating RTLIL representation for module `\GTXE2_CHANNEL'.
+Generating RTLIL representation for module `\GTXE2_COMMON'.
+Generating RTLIL representation for module `\IBUF_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_GTE2'.
+Generating RTLIL representation for module `\IBUFDS_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\ICAPE2'.
+Generating RTLIL representation for module `\IDDR'.
+Generating RTLIL representation for module `\IDDR_2CLK'.
+Generating RTLIL representation for module `\IDELAYCTRL'.
+Generating RTLIL representation for module `\IDELAYE2'.
+Generating RTLIL representation for module `\IN_FIFO'.
+Generating RTLIL representation for module `\IOBUF'.
+Generating RTLIL representation for module `\IOBUF_DCIEN'.
+Generating RTLIL representation for module `\IOBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDS'.
+Generating RTLIL representation for module `\IOBUFDS_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\ISERDESE2'.
+Generating RTLIL representation for module `\KEEPER'.
+Generating RTLIL representation for module `\LDCE'.
+Generating RTLIL representation for module `\LDPE'.
+Generating RTLIL representation for module `\MMCME2_ADV'.
+Generating RTLIL representation for module `\MMCME2_BASE'.
+Generating RTLIL representation for module `\OBUFDS'.
+Generating RTLIL representation for module `\OBUFT'.
+Generating RTLIL representation for module `\OBUFTDS'.
+Generating RTLIL representation for module `\ODDR'.
+Generating RTLIL representation for module `\ODELAYE2'.
+Generating RTLIL representation for module `\OSERDESE2'.
+Generating RTLIL representation for module `\OUT_FIFO'.
+Generating RTLIL representation for module `\PHASER_IN'.
+Generating RTLIL representation for module `\PHASER_IN_PHY'.
+Generating RTLIL representation for module `\PHASER_OUT'.
+Generating RTLIL representation for module `\PHASER_OUT_PHY'.
+Generating RTLIL representation for module `\PHASER_REF'.
+Generating RTLIL representation for module `\PHY_CONTROL'.
+Generating RTLIL representation for module `\PLLE2_ADV'.
+Generating RTLIL representation for module `\PLLE2_BASE'.
+Generating RTLIL representation for module `\PS7'.
+Generating RTLIL representation for module `\PULLDOWN'.
+Generating RTLIL representation for module `\PULLUP'.
+Generating RTLIL representation for module `\RAM128X1S'.
+Generating RTLIL representation for module `\RAM256X1S'.
+Generating RTLIL representation for module `\RAM32M'.
+Generating RTLIL representation for module `\RAM32X1S'.
+Generating RTLIL representation for module `\RAM32X1S_1'.
+Generating RTLIL representation for module `\RAM32X2S'.
+Generating RTLIL representation for module `\RAM64M'.
+Replacing existing blackbox module `\RAM64X1D' at /home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_xtra.v:3741.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM64X1S'.
+Generating RTLIL representation for module `\RAM64X1S_1'.
+Generating RTLIL representation for module `\RAM64X2S'.
+Generating RTLIL representation for module `\ROM128X1'.
+Generating RTLIL representation for module `\ROM256X1'.
+Generating RTLIL representation for module `\ROM32X1'.
+Generating RTLIL representation for module `\ROM64X1'.
+Generating RTLIL representation for module `\STARTUPE2'.
+Generating RTLIL representation for module `\USR_ACCESSE2'.
+Generating RTLIL representation for module `\XADC'.
+Successfully finished Verilog frontend.
+
+2.3. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/brams_bb.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/brams_bb.v' to AST representation.
+Generating RTLIL representation for module `\RAMB18E1'.
+Generating RTLIL representation for module `\RAMB36E1'.
+Successfully finished Verilog frontend.
+
+2.4. Executing HIERARCHY pass (managing design hierarchy).
+
+2.5. Executing AST frontend in derive mode using pre-parsed AST for module `\VX_cp_arbiter_top'.
+Generating RTLIL representation for module `\VX_cp_arbiter_top'.
+
+2.5.1. Analyzing design hierarchy..
+Top module:  \VX_cp_arbiter_top
+
+2.5.2. Executing AST frontend in derive mode using pre-parsed AST for module `\VX_cp_arbiter'.
+Parameter \N = 4
+Parameter \ENABLE_PRIORITY = 1'1
+Generating RTLIL representation for module `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1'.
+
+2.5.3. Analyzing design hierarchy..
+Top module:  \VX_cp_arbiter_top
+Used module:     $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1
+
+2.5.4. Analyzing design hierarchy..
+Top module:  \VX_cp_arbiter_top
+Used module:     $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1
+Removing unused module `$abstract\VX_cp_arbiter_top'.
+Removing unused module `$abstract\VX_cp_arbiter'.
+Removed 2 unused modules.
+
+2.6. Executing PROC pass (convert processes to netlists).
+
+2.6.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+Cleaned up 1 empty switch.
+
+2.6.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 3 switch rules as full_case in process $proc$results/exp07/ppa/priority/arbiter_input.v:69$103 in module $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.
+Marked 12 switch rules as full_case in process $proc$results/exp07/ppa/priority/arbiter_input.v:46$32 in module $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.
+Removed a total of 0 dead cases.
+
+2.6.3. Executing PROC_INIT pass (extract init attributes).
+
+2.6.4. Executing PROC_ARST pass (detect async resets in processes).
+
+2.6.5. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:78$144'.
+     1/1: $0\_sv2v_0[0:0]
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$138'.
+     1/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$4$\sv2v_cast_E310E_signed[1:0]$139
+     2/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$31$\sv2v_cast_E310E_signed[1:0]$140
+     3/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$31$\inp[1:0]$141
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$132'.
+     1/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$3$\sv2v_cast_E310E_signed[1:0]$133
+     2/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$30$\sv2v_cast_E310E_signed[1:0]$134
+     3/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$30$\inp[1:0]$135
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$126'.
+     1/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$2$\sv2v_cast_E310E_signed[1:0]$127
+     2/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$29$\sv2v_cast_E310E_signed[1:0]$128
+     3/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$29$\inp[1:0]$129
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$120'.
+     1/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$1$\sv2v_cast_E310E_signed[1:0]$121
+     2/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$28$\sv2v_cast_E310E_signed[1:0]$122
+     3/3: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$28$\inp[1:0]$123
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+     1/15: $3$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\inp[1:0]$118
+     2/15: $3$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\sv2v_cast_E310E_signed[1:0]$117
+     3/15: $2$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\inp[1:0]$115
+     4/15: $2$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\sv2v_cast_E310E_signed[1:0]$114
+     5/15: $2$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\sv2v_cast_E310E_signed[1:0]$112
+     6/15: $2$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\inp[1:0]$113
+     7/15: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\inp[1:0]$111
+     8/15: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\sv2v_cast_E310E_signed[1:0]$110
+     9/15: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\inp[1:0]$109
+    10/15: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\sv2v_cast_E310E_signed[1:0]$108
+    11/15: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\inp[1:0]$107
+    12/15: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\sv2v_cast_E310E_signed[1:0]$106
+    13/15: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\inp[1:0]$105
+    14/15: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\sv2v_cast_E310E_signed[1:0]$104
+    15/15: $0\rr_pointer[1:0]
+Creating decoders for process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+     1/52: $4\selected_valid[0:0]
+     2/52: $4\selected_queue[1:0]
+     3/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\sv2v_cast_E310E_signed[1:0]$101
+     4/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\inp[1:0]$102
+     5/52: $4\scan_index[31:0]
+     6/52: $3\selected_valid[0:0]
+     7/52: $3\selected_queue[1:0]
+     8/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\sv2v_cast_E310E_signed[1:0]$93
+     9/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\inp[1:0]$94
+    10/52: $3\scan_index[31:0]
+    11/52: $2\selected_valid[0:0]
+    12/52: $2\selected_queue[1:0]
+    13/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\sv2v_cast_E310E_signed[1:0]$85
+    14/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\inp[1:0]$86
+    15/52: $2\scan_index[31:0]
+    16/52: $1\selected_valid[0:0]
+    17/52: $1\selected_queue[1:0]
+    18/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\sv2v_cast_E310E_signed[1:0]$77
+    19/52: $1$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\inp[1:0]$78
+    20/52: $1\scan_index[31:0]
+    21/52: $4\highest_priority[1:0]
+    22/52: $3\highest_priority[1:0]
+    23/52: $2\highest_priority[1:0]
+    24/52: $1\highest_priority[1:0]
+    25/52: $0\offset[31:0]
+    26/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\inp[1:0]$50
+    27/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\sv2v_cast_E310E_signed[1:0]$49
+    28/52: $0\selected_valid[0:0]
+    29/52: $0\selected_queue[1:0]
+    30/52: $0\scan_index[31:0]
+    31/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$24$\sv2v_cast_32_signed[31:0]$47
+    32/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$24$\inp[31:0]$48
+    33/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\inp[1:0]$46
+    34/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\sv2v_cast_E310E_signed[1:0]$45
+    35/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$22$\sv2v_cast_32_signed[31:0]$43
+    36/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$22$\inp[31:0]$44
+    37/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\inp[1:0]$42
+    38/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\sv2v_cast_E310E_signed[1:0]$41
+    39/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$20$\sv2v_cast_32_signed[31:0]$39
+    40/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$20$\inp[31:0]$40
+    41/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\inp[1:0]$38
+    42/52: $0$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\sv2v_cast_E310E_signed[1:0]$37
+    43/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$18$\sv2v_cast_32_signed[31:0]$35
+    44/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$18$\inp[31:0]$36
+    45/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:57$13$\sv2v_cast_32_signed[31:0]$33
+    46/52: $0$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:57$13$\inp[31:0]$34
+    47/52: $0\i[31:0]
+    48/52: $0\eligible[3:0] [3]
+    49/52: $0\eligible[3:0] [2]
+    50/52: $0\eligible[3:0] [1]
+    51/52: $0\eligible[3:0] [0]
+    52/52: $0\highest_priority[1:0]
+
+2.6.6. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\_sv2v_0' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:78$144'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$4$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$138'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$31$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$138'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$31$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$138'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$3$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$132'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$30$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$132'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$30$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$132'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$2$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$126'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$29$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$126'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$29$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$126'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$1$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$120'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$28$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$120'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:39$28$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$120'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\selected_queue' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\scan_index' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\selected_valid' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\eligible' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\offset' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\highest_priority' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\i' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:57$13$\sv2v_cast_32_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:57$13$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$18$\sv2v_cast_32_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$18$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$19$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$20$\sv2v_cast_32_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$20$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$21$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$22$\sv2v_cast_32_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$22$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$23$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$24$\sv2v_cast_32_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_32_signed$results/exp07/ppa/priority/arbiter_input.v:60$24$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\sv2v_cast_E310E_signed' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+No latch inferred for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:64$25$\inp' from process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+
+2.6.7. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.\rr_pointer' using process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+  created $dff cell `$procdff$280' with positive edge clock.
+Creating register for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\sv2v_cast_E310E_signed' using process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+  created $dff cell `$procdff$281' with positive edge clock.
+Creating register for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:73$26$\inp' using process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+  created $dff cell `$procdff$282' with positive edge clock.
+Creating register for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\sv2v_cast_E310E_signed' using process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+  created $dff cell `$procdff$283' with positive edge clock.
+Creating register for signal `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$func$\sv2v_cast_E310E_signed$results/exp07/ppa/priority/arbiter_input.v:76$27$\inp' using process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+  created $dff cell `$procdff$284' with positive edge clock.
+
+2.6.8. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:78$144'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$138'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$132'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$126'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:32$120'.
+Found and cleaned up 3 empty switches in `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:69$103'.
+Found and cleaned up 12 empty switches in `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+Removing empty process `$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.$proc$results/exp07/ppa/priority/arbiter_input.v:46$32'.
+Cleaned up 15 empty switches.
+
+2.7. Executing FLATTEN pass (flatten design).
+Using template $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1 for cells of type $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.
+<suppressed ~1 debug messages>
+No more expansions possible.
+Deleting now unused module $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1.
+
+2.8. Executing SYNTH pass.
+
+2.8.1. Executing PROC pass (convert processes to netlists).
+
+2.8.1.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+2.8.1.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+2.8.1.3. Executing PROC_INIT pass (extract init attributes).
+
+2.8.1.4. Executing PROC_ARST pass (detect async resets in processes).
+
+2.8.1.5. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+2.8.1.6. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+2.8.1.7. Executing PROC_DFF pass (convert process syncs to FFs).
+
+2.8.1.8. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+2.8.2. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+<suppressed ~8 debug messages>
+
+2.8.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 30 unused cells and 201 unused wires.
+<suppressed ~32 debug messages>
+
+2.8.4. Executing CHECK pass (checking for obvious problems).
+checking module VX_cp_arbiter_top..
+found and reported 0 problems.
+
+2.8.5. Executing OPT pass (performing simple optimizations).
+
+2.8.5.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.5.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+2.8.5.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_arbiter_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~14 debug messages>
+
+2.8.5.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_arbiter_top.
+Performed a total of 0 changes.
+
+2.8.5.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.8.5.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.5.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.5.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.5.9. Finished OPT passes. (There is nothing left to do.)
+
+2.8.6. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 2) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$eq$results/exp07/ppa/priority/arbiter_input.v:39$130 ($eq).
+Removed top 1 bits (of 2) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:76$119 ($add).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$97 ($sub).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$96 ($ge).
+Removed top 29 bits (of 32) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Removed top 29 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Converting cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add) from signed to unsigned.
+Removed top 28 bits (of 32) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Removed top 1 bits (of 3) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Removed top 1 bits (of 3) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Removed top 1 bits (of 4) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$89 ($sub).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$88 ($ge).
+Removed top 29 bits (of 32) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Removed top 29 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Converting cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add) from signed to unsigned.
+Removed top 28 bits (of 32) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Removed top 1 bits (of 3) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Removed top 1 bits (of 3) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Removed top 1 bits (of 4) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$81 ($sub).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$80 ($ge).
+Removed top 29 bits (of 32) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Removed top 30 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Converting cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add) from signed to unsigned.
+Removed top 28 bits (of 32) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Removed top 1 bits (of 3) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Removed top 1 bits (of 2) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Removed top 1 bits (of 4) from port Y of cell VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+Removed top 29 bits (of 32) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub).
+Converting cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub) from signed to unsigned.
+Removed top 1 bits (of 3) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub).
+Removed top 1 bits (of 4) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub).
+Removed top 29 bits (of 32) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge).
+Removed top 28 bits (of 32) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge).
+Converting cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge) from signed to unsigned.
+Removed top 1 bits (of 3) from port A of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge).
+Removed top 1 bits (of 4) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge).
+Removed top 1 bits (of 2) from port B of cell VX_cp_arbiter_top.$techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$51 ($gt).
+Removed top 29 bits (of 32) from wire VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79_Y.
+Removed top 29 bits (of 32) from wire VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87_Y.
+Removed top 29 bits (of 32) from wire VX_cp_arbiter_top.$techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95_Y.
+
+2.8.7. Executing PEEPOPT pass (run peephole optimizers).
+
+2.8.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.9. Executing TECHMAP pass (map to technology primitives).
+
+2.8.9.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/cmp2lut.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/cmp2lut.v' to AST representation.
+Generating RTLIL representation for module `\_90_lut_cmp_'.
+Successfully finished Verilog frontend.
+
+2.8.9.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~132 debug messages>
+
+2.8.10. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module VX_cp_arbiter_top:
+  creating $macc model for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79 ($add).
+  creating $macc model for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87 ($add).
+  creating $macc model for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95 ($add).
+  creating $macc model for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:76$119 ($add).
+  creating $macc model for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73 ($sub).
+  creating $macc model for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$81 ($sub).
+  creating $macc model for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$89 ($sub).
+  creating $macc model for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$97 ($sub).
+  creating $alu model for $macc $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$97.
+  creating $alu model for $macc $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$89.
+  creating $alu model for $macc $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$81.
+  creating $alu model for $macc $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73.
+  creating $alu model for $macc $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:76$119.
+  creating $alu model for $macc $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95.
+  creating $alu model for $macc $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87.
+  creating $alu model for $macc $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79.
+  creating $alu model for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72 ($ge): merged with $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73.
+  creating $alu model for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$80 ($ge): new $alu
+  creating $alu model for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$88 ($ge): new $alu
+  creating $alu model for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$96 ($ge): new $alu
+  creating $alu model for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$51 ($gt): new $alu
+  creating $alu model for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$53 ($gt): new $alu
+  creating $alu model for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$55 ($gt): new $alu
+  creating $alu model for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$57 ($gt): new $alu
+  creating $alu cell for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$57: $auto$alumacc.cc:474:replace_alu$295
+  creating $alu cell for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$55: $auto$alumacc.cc:474:replace_alu$306
+  creating $alu cell for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$53: $auto$alumacc.cc:474:replace_alu$317
+  creating $alu cell for $techmap\u_arb.$gt$results/exp07/ppa/priority/arbiter_input.v:51$51: $auto$alumacc.cc:474:replace_alu$328
+  creating $alu cell for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$96: $auto$alumacc.cc:474:replace_alu$333
+  creating $alu cell for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$88: $auto$alumacc.cc:474:replace_alu$344
+  creating $alu cell for $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$80: $auto$alumacc.cc:474:replace_alu$355
+  creating $alu cell for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$79: $auto$alumacc.cc:474:replace_alu$366
+  creating $alu cell for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$87: $auto$alumacc.cc:474:replace_alu$369
+  creating $alu cell for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:60$95: $auto$alumacc.cc:474:replace_alu$372
+  creating $alu cell for $techmap\u_arb.$add$results/exp07/ppa/priority/arbiter_input.v:76$119: $auto$alumacc.cc:474:replace_alu$375
+  creating $alu cell for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$73, $techmap\u_arb.$ge$results/exp07/ppa/priority/arbiter_input.v:61$72: $auto$alumacc.cc:474:replace_alu$378
+  creating $alu cell for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$81: $auto$alumacc.cc:474:replace_alu$391
+  creating $alu cell for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$89: $auto$alumacc.cc:474:replace_alu$394
+  creating $alu cell for $techmap\u_arb.$sub$results/exp07/ppa/priority/arbiter_input.v:62$97: $auto$alumacc.cc:474:replace_alu$397
+  created 15 $alu and 0 $macc cells.
+
+2.8.11. Executing SHARE pass (SAT-based resource sharing).
+
+2.8.12. Executing OPT pass (performing simple optimizations).
+
+2.8.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.8.12.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_arbiter_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~14 debug messages>
+
+2.8.12.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_arbiter_top.
+    New input vector for $reduce_or cell $auto$alumacc.cc:509:replace_alu$389: { $auto$rtlil.cc:1832:Not$388 $auto$rtlil.cc:1835:ReduceAnd$382 }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$298: { $auto$alumacc.cc:490:replace_alu$296 [0] $auto$alumacc.cc:490:replace_alu$296 [1] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$309: { $auto$alumacc.cc:490:replace_alu$307 [0] $auto$alumacc.cc:490:replace_alu$307 [1] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$320: { $auto$alumacc.cc:490:replace_alu$318 [0] $auto$alumacc.cc:490:replace_alu$318 [1] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$340: { $auto$alumacc.cc:490:replace_alu$334 [0] $auto$alumacc.cc:490:replace_alu$334 [1] $auto$alumacc.cc:490:replace_alu$334 [2] $auto$alumacc.cc:490:replace_alu$334 [3] $auto$alumacc.cc:490:replace_alu$334 [4] $auto$alumacc.cc:490:replace_alu$334 [5] $auto$alumacc.cc:490:replace_alu$334 [6] $auto$alumacc.cc:490:replace_alu$334 [7] $auto$alumacc.cc:490:replace_alu$334 [8] $auto$alumacc.cc:490:replace_alu$334 [9] $auto$alumacc.cc:490:replace_alu$334 [10] $auto$alumacc.cc:490:replace_alu$334 [11] $auto$alumacc.cc:490:replace_alu$334 [12] $auto$alumacc.cc:490:replace_alu$334 [13] $auto$alumacc.cc:490:replace_alu$334 [14] $auto$alumacc.cc:490:replace_alu$334 [15] $auto$alumacc.cc:490:replace_alu$334 [16] $auto$alumacc.cc:490:replace_alu$334 [17] $auto$alumacc.cc:490:replace_alu$334 [18] $auto$alumacc.cc:490:replace_alu$334 [19] $auto$alumacc.cc:490:replace_alu$334 [20] $auto$alumacc.cc:490:replace_alu$334 [21] $auto$alumacc.cc:490:replace_alu$334 [22] $auto$alumacc.cc:490:replace_alu$334 [23] $auto$alumacc.cc:490:replace_alu$334 [24] $auto$alumacc.cc:490:replace_alu$334 [25] $auto$alumacc.cc:490:replace_alu$334 [26] $auto$alumacc.cc:490:replace_alu$334 [27] $auto$alumacc.cc:490:replace_alu$334 [28] $auto$alumacc.cc:490:replace_alu$334 [29] $auto$alumacc.cc:490:replace_alu$334 [30] $auto$alumacc.cc:490:replace_alu$334 [31] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$351: { $auto$alumacc.cc:490:replace_alu$345 [0] $auto$alumacc.cc:490:replace_alu$345 [1] $auto$alumacc.cc:490:replace_alu$345 [2] $auto$alumacc.cc:490:replace_alu$345 [3] $auto$alumacc.cc:490:replace_alu$345 [4] $auto$alumacc.cc:490:replace_alu$345 [5] $auto$alumacc.cc:490:replace_alu$345 [6] $auto$alumacc.cc:490:replace_alu$345 [7] $auto$alumacc.cc:490:replace_alu$345 [8] $auto$alumacc.cc:490:replace_alu$345 [9] $auto$alumacc.cc:490:replace_alu$345 [10] $auto$alumacc.cc:490:replace_alu$345 [11] $auto$alumacc.cc:490:replace_alu$345 [12] $auto$alumacc.cc:490:replace_alu$345 [13] $auto$alumacc.cc:490:replace_alu$345 [14] $auto$alumacc.cc:490:replace_alu$345 [15] $auto$alumacc.cc:490:replace_alu$345 [16] $auto$alumacc.cc:490:replace_alu$345 [17] $auto$alumacc.cc:490:replace_alu$345 [18] $auto$alumacc.cc:490:replace_alu$345 [19] $auto$alumacc.cc:490:replace_alu$345 [20] $auto$alumacc.cc:490:replace_alu$345 [21] $auto$alumacc.cc:490:replace_alu$345 [22] $auto$alumacc.cc:490:replace_alu$345 [23] $auto$alumacc.cc:490:replace_alu$345 [24] $auto$alumacc.cc:490:replace_alu$345 [25] $auto$alumacc.cc:490:replace_alu$345 [26] $auto$alumacc.cc:490:replace_alu$345 [27] $auto$alumacc.cc:490:replace_alu$345 [28] $auto$alumacc.cc:490:replace_alu$345 [29] $auto$alumacc.cc:490:replace_alu$345 [30] $auto$alumacc.cc:490:replace_alu$345 [31] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$362: { $auto$alumacc.cc:490:replace_alu$356 [0] $auto$alumacc.cc:490:replace_alu$356 [1] $auto$alumacc.cc:490:replace_alu$356 [2] $auto$alumacc.cc:490:replace_alu$356 [3] $auto$alumacc.cc:490:replace_alu$356 [4] $auto$alumacc.cc:490:replace_alu$356 [5] $auto$alumacc.cc:490:replace_alu$356 [6] $auto$alumacc.cc:490:replace_alu$356 [7] $auto$alumacc.cc:490:replace_alu$356 [8] $auto$alumacc.cc:490:replace_alu$356 [9] $auto$alumacc.cc:490:replace_alu$356 [10] $auto$alumacc.cc:490:replace_alu$356 [11] $auto$alumacc.cc:490:replace_alu$356 [12] $auto$alumacc.cc:490:replace_alu$356 [13] $auto$alumacc.cc:490:replace_alu$356 [14] $auto$alumacc.cc:490:replace_alu$356 [15] $auto$alumacc.cc:490:replace_alu$356 [16] $auto$alumacc.cc:490:replace_alu$356 [17] $auto$alumacc.cc:490:replace_alu$356 [18] $auto$alumacc.cc:490:replace_alu$356 [19] $auto$alumacc.cc:490:replace_alu$356 [20] $auto$alumacc.cc:490:replace_alu$356 [21] $auto$alumacc.cc:490:replace_alu$356 [22] $auto$alumacc.cc:490:replace_alu$356 [23] $auto$alumacc.cc:490:replace_alu$356 [24] $auto$alumacc.cc:490:replace_alu$356 [25] $auto$alumacc.cc:490:replace_alu$356 [26] $auto$alumacc.cc:490:replace_alu$356 [27] $auto$alumacc.cc:490:replace_alu$356 [28] $auto$alumacc.cc:490:replace_alu$356 [29] $auto$alumacc.cc:490:replace_alu$356 [30] $auto$alumacc.cc:490:replace_alu$356 [31] }
+    New input vector for $reduce_and cell $auto$alumacc.cc:64:get_eq$381: { $auto$alumacc.cc:490:replace_alu$379 [0] $auto$alumacc.cc:490:replace_alu$379 [1] $auto$alumacc.cc:490:replace_alu$379 [2] $auto$alumacc.cc:490:replace_alu$379 [3] $auto$alumacc.cc:490:replace_alu$379 [4] $auto$alumacc.cc:490:replace_alu$379 [5] $auto$alumacc.cc:490:replace_alu$379 [6] $auto$alumacc.cc:490:replace_alu$379 [7] $auto$alumacc.cc:490:replace_alu$379 [8] $auto$alumacc.cc:490:replace_alu$379 [9] $auto$alumacc.cc:490:replace_alu$379 [10] $auto$alumacc.cc:490:replace_alu$379 [11] $auto$alumacc.cc:490:replace_alu$379 [12] $auto$alumacc.cc:490:replace_alu$379 [13] $auto$alumacc.cc:490:replace_alu$379 [14] $auto$alumacc.cc:490:replace_alu$379 [15] $auto$alumacc.cc:490:replace_alu$379 [16] $auto$alumacc.cc:490:replace_alu$379 [17] $auto$alumacc.cc:490:replace_alu$379 [18] $auto$alumacc.cc:490:replace_alu$379 [19] $auto$alumacc.cc:490:replace_alu$379 [20] $auto$alumacc.cc:490:replace_alu$379 [21] $auto$alumacc.cc:490:replace_alu$379 [22] $auto$alumacc.cc:490:replace_alu$379 [23] $auto$alumacc.cc:490:replace_alu$379 [24] $auto$alumacc.cc:490:replace_alu$379 [25] $auto$alumacc.cc:490:replace_alu$379 [26] $auto$alumacc.cc:490:replace_alu$379 [27] $auto$alumacc.cc:490:replace_alu$379 [28] $auto$alumacc.cc:490:replace_alu$379 [29] $auto$alumacc.cc:490:replace_alu$379 [30] $auto$alumacc.cc:490:replace_alu$379 [31] }
+  Optimizing cells in module \VX_cp_arbiter_top.
+Performed a total of 8 changes.
+
+2.8.12.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.8.12.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.12.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 0 unused cells and 8 unused wires.
+<suppressed ~1 debug messages>
+
+2.8.12.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.12.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.8.12.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_arbiter_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~14 debug messages>
+
+2.8.12.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_arbiter_top.
+Performed a total of 0 changes.
+
+2.8.12.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.8.12.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.12.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.8.12.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.12.16. Finished OPT passes. (There is nothing left to do.)
+
+2.8.13. Executing FSM pass (extract and optimize FSM).
+
+2.8.13.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+2.8.13.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+2.8.13.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+2.8.13.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.8.13.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+2.8.13.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+2.8.13.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+2.8.13.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+2.8.14. Executing OPT pass (performing simple optimizations).
+
+2.8.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.8.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.8.14.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.8.14.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.8.14.5. Finished fast OPT passes.
+
+2.8.15. Executing MEMORY pass.
+
+2.8.15.1. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+2.8.15.2. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.8.15.3. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+2.8.15.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.8.15.5. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+2.8.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+
+2.9. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+2.10. Executing TECHMAP pass (map to technology primitives).
+
+2.10.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/brams_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/brams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__XILINX_RAMB36_SDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB18_SDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB36_TDP'.
+Generating RTLIL representation for module `\$__XILINX_RAMB18_TDP'.
+Successfully finished Verilog frontend.
+
+2.10.2. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.11. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+2.12. Executing TECHMAP pass (map to technology primitives).
+
+2.12.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/drams_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/drams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__XILINX_RAM32X1D'.
+Generating RTLIL representation for module `\$__XILINX_RAM64X1D'.
+Generating RTLIL representation for module `\$__XILINX_RAM128X1D'.
+Successfully finished Verilog frontend.
+
+2.12.2. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.13. Executing PMUX2SHIFTX pass.
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+<suppressed ~4 debug messages>
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.14.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.14.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.14.5. Finished fast OPT passes.
+
+2.15. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).
+
+2.16. Executing DFFSR2DFF pass (mapping DFFSR cells to simpler FFs).
+
+2.17. Executing DFF2DFFE pass (transform $dff to $dffe where applicable).
+Transforming FF to FF+Enable cells in module VX_cp_arbiter_top:
+  created $dffe cell $auto$dff2dffe.cc:215:handle_dff_cell$406 for $techmap\u_arb.$0\rr_pointer[1:0] -> \u_arb.rr_pointer.
+  removing now obsolete cell $techmap\u_arb.$procdff$280.
+
+2.18. Executing OPT pass (performing simple optimizations).
+
+2.18.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+<suppressed ~2 debug messages>
+
+2.18.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.18.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \VX_cp_arbiter_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+2.18.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \VX_cp_arbiter_top.
+Performed a total of 0 changes.
+
+2.18.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+Removed a total of 0 cells.
+
+2.18.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.18.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.18.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+
+2.18.9. Finished OPT passes. (There is nothing left to do.)
+
+2.19. Executing SIMPLEMAP pass (map simple cells to gate primitives).
+Mapping VX_cp_arbiter_top.$auto$dff2dffe.cc:215:handle_dff_cell$406 ($dffe).
+
+2.20. Executing SHREGMAP pass (map shift registers).
+Converted 0 dff cells into 0 shift registers.
+
+2.21. Executing TECHMAP pass (map to technology primitives).
+
+2.21.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+2.21.2. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/arith_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/arith_map.v' to AST representation.
+Generating RTLIL representation for module `\_80_xilinx_lcu'.
+Generating RTLIL representation for module `\_80_xilinx_alu'.
+Successfully finished Verilog frontend.
+
+2.21.3. Continuing TECHMAP pass.
+Using template $paramod$ca8657235d8a1a508fa062cb11aebd08e57a2da0\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$679af22e9d54b84c3e785cf86acdbea423611e15\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$7ada20ec2bb99e3c13fcb1f0eba92489281a362f\_80_xilinx_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $reduce_and.
+Using template $paramod$584d8d3e7e56a0838a679d09bdfdc26a9a641387\_80_xilinx_alu for cells of type $alu.
+Using template $paramod\_90_alu\A_SIGNED=0\B_SIGNED=0\A_WIDTH=1\B_WIDTH=2\Y_WIDTH=2 for cells of type $alu.
+Using template $paramod\_90_alu\A_SIGNED=0\B_SIGNED=0\A_WIDTH=2\B_WIDTH=2\Y_WIDTH=2 for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod$e98ed4765b0fc14f13c58d6cfe4db8c4b4beef42\_80_xilinx_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_not.
+Using template $paramod$constmap:3cf042c45619902adb3de2341d420b7271e4488a$paramod$244602f8bdde01c3a10e7bdae9c4da54a090dc57\_90_shift_shiftx for cells of type $shiftx.
+Using extmapper simplemap for cells of type $pos.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod\_90_lcu\WIDTH=2 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~651 debug messages>
+
+2.22. Executing OPT pass (performing simple optimizations).
+
+2.22.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module VX_cp_arbiter_top.
+<suppressed ~1074 debug messages>
+
+2.22.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\VX_cp_arbiter_top'.
+<suppressed ~33 debug messages>
+Removed a total of 11 cells.
+
+2.22.3. Executing OPT_RMDFF pass (remove dff with constant values).
+
+2.22.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \VX_cp_arbiter_top..
+Removed 554 unused cells and 376 unused wires.
+<suppressed ~555 debug messages>
+
+2.22.5. Finished fast OPT passes.
+
+2.23. Executing TECHMAP pass (map to technology primitives).
+
+2.23.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+2.23.2. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `\_90_dff_nn0_to_np0'.
+Generating RTLIL representation for module `\_90_dff_pn0_to_pp0'.
+Generating RTLIL representation for module `\_90_dff_nn1_to_np1'.
+Generating RTLIL representation for module `\_90_dff_pn1_to_pp1'.
+Generating RTLIL representation for module `\$__SHREG_'.
+Generating RTLIL representation for module `\$__XILINX_SHREG_'.
+Successfully finished Verilog frontend.
+
+2.23.3. Continuing TECHMAP pass.
+No more expansions possible.
+
+2.24. Executing ABC pass (technology mapping using ABC).
+
+2.24.1. Extracting gate netlist of module `\VX_cp_arbiter_top' to `<abc-temp-dir>/input.blif'..
+Extracted 207 gates and 260 wires to a netlist network with 50 inputs and 29 outputs.
+
+2.24.1.1. Executing ABC.
+Running ABC command: berkeley-abc -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lut <abc-temp-dir>/lutdefs.txt 
+ABC: + strash 
+ABC: + ifraig 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + retime 
+ABC: + strash 
+ABC: + dch -f 
+ABC: + if 
+ABC: + mfs2 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+2.24.1.2. Re-integrating ABC results.
+ABC RESULTS:              $lut cells:      132
+ABC RESULTS:        internal signals:      181
+ABC RESULTS:           input signals:       50
+ABC RESULTS:          output signals:       29
+Removing temp directory.
+Removed 0 unused cells and 172 unused wires.
+
+2.25. Executing SHREGMAP pass (map shift registers).
+Converted 0 dff cells into 0 shift registers.
+
+2.26. Executing TECHMAP pass (map to technology primitives).
+
+2.26.1. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/lut_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/lut_map.v' to AST representation.
+Generating RTLIL representation for module `\$lut'.
+Successfully finished Verilog frontend.
+
+2.26.2. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/ff_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/ff_map.v' to AST representation.
+Generating RTLIL representation for module `\$_DFF_N_'.
+Generating RTLIL representation for module `\$_DFF_P_'.
+Generating RTLIL representation for module `\$_DFFE_NP_'.
+Generating RTLIL representation for module `\$_DFFE_PP_'.
+Generating RTLIL representation for module `\$_DFF_NN0_'.
+Generating RTLIL representation for module `\$_DFF_NP0_'.
+Generating RTLIL representation for module `\$_DFF_PN0_'.
+Generating RTLIL representation for module `\$_DFF_PP0_'.
+Generating RTLIL representation for module `\$_DFF_NN1_'.
+Generating RTLIL representation for module `\$_DFF_NP1_'.
+Generating RTLIL representation for module `\$_DFF_PN1_'.
+Generating RTLIL representation for module `\$_DFF_PP1_'.
+Successfully finished Verilog frontend.
+
+2.26.3. Executing Verilog-2005 frontend: /home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/home/houdong/tool/yosys/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `\_90_dff_nn0_to_np0'.
+Generating RTLIL representation for module `\_90_dff_pn0_to_pp0'.
+Generating RTLIL representation for module `\_90_dff_nn1_to_np1'.
+Generating RTLIL representation for module `\_90_dff_pn1_to_pp1'.
+Generating RTLIL representation for module `\$__SHREG_'.
+Generating RTLIL representation for module `\$__XILINX_SHREG_'.
+Successfully finished Verilog frontend.
+
+2.26.4. Continuing TECHMAP pass.
+Using template $paramod$a4bb539059e768f738b5c0031ec35cc109620b97\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'00011011 for cells of type $lut.
+Using template $paramod$c75c747a21a1c38899bed94b5f31576a2340e9e2\$lut for cells of type $lut.
+Using template $paramod$adf237c474fc189755b1d4f60f284b1615af5169\$lut for cells of type $lut.
+Using template $paramod$b102fa15f20d4a053cd06fc1d8e9f9a2561d2500\$lut for cells of type $lut.
+Using template $paramod$d68192cd5c64d793691dfa9d73b5eb02396a8b83\$lut for cells of type $lut.
+Using template $paramod$889f532a6b3f6a00c6b50aca67798f84fcede4ba\$lut for cells of type $lut.
+Using template $paramod$f1222bb2eeaeae6178a04ff7a22f6228a3e67aaf\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=4\LUT=16'0000011101110111 for cells of type $lut.
+Using template $paramod$493539e007bc0b06b578566d80f36ab0da8db31b\$lut for cells of type $lut.
+Using template $paramod$2b89dee5fe6577d16ccc176355b0d28292a55df9\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'00110101 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=5\LUT=65521 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=4\LUT=16'0000111100010001 for cells of type $lut.
+Using template $paramod$415a62358290b70884679c86908ca13925457cd5\$lut for cells of type $lut.
+Using template $paramod$3da916e1c5705810970d14a41b8c266d3136a8ba\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=2\LUT=4'0001 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'10110001 for cells of type $lut.
+Using template $paramod$764b54c448dc6d3451cf5677e27c53aa9b38192e\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=5\LUT=218103808 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'11100000 for cells of type $lut.
+Using template $paramod$943de186d44e408afe087ececbb98dc3c90b00a3\$lut for cells of type $lut.
+Using template $paramod$7a2eba44c79d465641f10dba5ffcd943b7bbb014\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=4\LUT=16'0000110000000101 for cells of type $lut.
+Using template \$_DFFE_PP_ for cells of type $_DFFE_PP_.
+Using template $paramod\$lut\WIDTH=3\LUT=8'01010011 for cells of type $lut.
+Using template $paramod$d5a01f24dfa5459c9c40f91d2f2848c4dc66c525\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=5\LUT=851968 for cells of type $lut.
+Using template $paramod\$lut\WIDTH=2\LUT=4'1011 for cells of type $lut.
+Using template $paramod$46718439644b019cca54ab79bc5ff14aa011796b\$lut for cells of type $lut.
+Using template $paramod$c57e397b8139f52040b9dc918cab40fdb64871f7\$lut for cells of type $lut.
+Using template $paramod$d49b823f78945b2a6ae50f9e50e9d721a4648df0\$lut for cells of type $lut.
+Using template $paramod$1a921902d5d12257c928f9e6b457e34b4ba3d6f8\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=1\LUT=2'01 for cells of type $lut.
+Using template $paramod$3349363691162dfce27d8b732afd4466d3413f43\$lut for cells of type $lut.
+Using template $paramod\$lut\WIDTH=3\LUT=8'00111010 for cells of type $lut.
+Using template $paramod$cd63eb82fd2016a45c932211662ce5876a9862e4\$lut for cells of type $lut.
+No more expansions possible.
+<suppressed ~461 debug messages>
+
+2.27. Executing DFFINIT pass (set INIT param on FF cells).
+Setting VX_cp_arbiter_top.$auto$simplemap.cc:442:simplemap_dffe$407.INIT (port=Q, net=\u_arb.rr_pointer [0]) to 1'0.
+Setting VX_cp_arbiter_top.$auto$simplemap.cc:442:simplemap_dffe$408.INIT (port=Q, net=\u_arb.rr_pointer [1]) to 1'0.
+Removed 0 unused cells and 134 unused wires.
+
+2.28. Executing HIERARCHY pass (managing design hierarchy).
+
+2.28.1. Analyzing design hierarchy..
+Top module:  \VX_cp_arbiter_top
+
+2.28.2. Analyzing design hierarchy..
+Top module:  \VX_cp_arbiter_top
+Removed 0 unused modules.
+
+2.29. Printing statistics.
+
+=== VX_cp_arbiter_top ===
+
+   Number of wires:                186
+   Number of wire bits:            516
+   Number of public wires:          22
+   Number of public wire bits:     129
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                298
+     FDRE                            2
+     LUT1                           17
+     LUT2                            2
+     LUT3                           12
+     LUT4                            4
+     LUT5                            3
+     LUT6                           56
+     MUXCY                         143
+     MUXF7                          23
+     MUXF8                           8
+     XORCY                          28
+
+   Estimated number of LCs:         75
+
+2.30. Executing CHECK pass (checking for obvious problems).
+checking module VX_cp_arbiter_top..
+found and reported 0 problems.
+
+3. Printing statistics.
+
+=== VX_cp_arbiter_top ===
+
+   Number of wires:                186
+   Number of wire bits:            516
+   Number of public wires:          22
+   Number of public wire bits:     129
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                298
+     FDRE                            2
+     LUT1                           17
+     LUT2                            2
+     LUT3                           12
+     LUT4                            4
+     LUT5                            3
+     LUT6                           56
+     MUXCY                         143
+     MUXF7                          23
+     MUXF8                           8
+     XORCY                          28
+
+End of script. Logfile hash: 80c31eb419
+CPU: user 0.60s system 0.03s, MEM: 216.00 MB total, 210.44 MB resident
+Yosys 0.9 (git sha1 1979e0b)
+Time spent: 47% 18x read_verilog (0 sec), 11% 1x share (0 sec), ...

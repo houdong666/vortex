@@ -1,0 +1,165 @@
+OpenSTA 2.0.17 GITDIR-NOT Copyright (c) 2019, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+read_liberty /home/houdong/vortex/hw/syn/libs/NangateOpenCellLibrary_typical.lib
+read_verilog results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 753 syntax error, unexpected '{', expecting ID.
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 757 syntax error, unexpected '{', expecting ID.
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 761 syntax error, unexpected '{', expecting ID.
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 762 syntax error, unexpected '{', expecting ID.
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 767 syntax error, unexpected '{', expecting ID.
+Error: results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top_mapped.v, line 789 syntax error, unexpected '{', expecting ID.
+link_design VX_cp_arbiter_top
+read_sdc results/exp07/ppa/priority/asic400_out/VX_cp_arbiter_top.resolved.sdc
+INFO: Using clock port: clk
+INFO: Found reset ports: _70815d480b630000_p_Port
+Error: run_sta.tcl, 70 invalid command name "report_units"
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                       2.50        0.00      1.25
+ext_clk                   2.50        0.00      1.25
+wns 0.00
+tns 0.00
+Startpoint: bid_valid[1] (input port clocked by ext_clk)
+Endpoint: u_arb/_324_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock ext_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.125    0.125 v input external delay
+   0.000    0.125 v bid_valid[1] (in)
+   0.085    0.210 ^ u_arb/_249_/ZN (AOI22_X1)
+   0.040    0.250 v u_arb/_250_/ZN (NAND2_X1)
+   0.063    0.313 ^ u_arb/_254_/ZN (OAI21_X1)
+   0.026    0.339 v u_arb/_257_/ZN (NAND2_X1)
+   0.029    0.368 ^ u_arb/_283_/ZN (AOI21_X1)
+   0.022    0.390 v u_arb/_284_/ZN (NOR3_X1)
+   0.064    0.454 v u_arb/_289_/Z (MUX2_X1)
+   0.109    0.563 ^ u_arb/_293_/ZN (AOI211_X1)
+   0.067    0.630 ^ u_arb/_301_/ZN (AND3_X1)
+   0.018    0.648 v u_arb/_303_/ZN (AOI211_X1)
+   0.054    0.702 v u_arb/_304_/ZN (XNOR2_X1)
+   0.030    0.732 ^ u_arb/_305_/ZN (INV_X1)
+   0.026    0.759 v u_arb/_317_/ZN (NAND3_X1)
+   0.029    0.787 ^ u_arb/_322_/ZN (AOI21_X1)
+   0.000    0.787 ^ u_arb/_324_/D (DFF_X1)
+            0.787   data arrival time
+
+   2.500    2.500   clock clk (rise edge)
+   0.000    2.500   clock network delay (ideal)
+  -0.050    2.450   clock uncertainty
+   0.000    2.450   clock reconvergence pessimism
+            2.450 ^ u_arb/_324_/CK (DFF_X1)
+  -0.035    2.415   library setup time
+            2.415   data required time
+-----------------------------------------------------------
+            2.415   data required time
+           -0.787   data arrival time
+-----------------------------------------------------------
+            1.628   slack (MET)
+
+
+Startpoint: bid_valid[1] (input port clocked by ext_clk)
+Endpoint: bid_grant[2] (output port clocked by ext_clk)
+Path Group: ext_clk
+Path Type: max
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock ext_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.125    0.125 v input external delay
+   0.000    0.125 v bid_valid[1] (in)
+   0.085    0.210 ^ u_arb/_249_/ZN (AOI22_X1)
+   0.040    0.250 v u_arb/_250_/ZN (NAND2_X1)
+   0.063    0.313 ^ u_arb/_254_/ZN (OAI21_X1)
+   0.026    0.339 v u_arb/_257_/ZN (NAND2_X1)
+   0.029    0.368 ^ u_arb/_283_/ZN (AOI21_X1)
+   0.022    0.390 v u_arb/_284_/ZN (NOR3_X1)
+   0.064    0.454 v u_arb/_289_/Z (MUX2_X1)
+   0.109    0.563 ^ u_arb/_293_/ZN (AOI211_X1)
+   0.067    0.630 ^ u_arb/_301_/ZN (AND3_X1)
+   0.018    0.648 v u_arb/_303_/ZN (AOI211_X1)
+   0.054    0.702 v u_arb/_304_/ZN (XNOR2_X1)
+   0.030    0.732 ^ u_arb/_305_/ZN (INV_X1)
+   0.026    0.759 v u_arb/_317_/ZN (NAND3_X1)
+   0.012    0.771 ^ u_arb/_318_/ZN (INV_X1)
+   0.000    0.771 ^ bid_grant[2] (out)
+            0.771   data arrival time
+
+   2.500    2.500   clock ext_clk (rise edge)
+   0.000    2.500   clock network delay (ideal)
+   0.000    2.500   clock reconvergence pessimism
+  -0.125    2.375   output external delay
+            2.375   data required time
+-----------------------------------------------------------
+            2.375   data required time
+           -0.771   data arrival time
+-----------------------------------------------------------
+            1.604   slack (MET)
+
+
+Startpoint: reset (input port clocked by ext_clk)
+Endpoint: u_arb/_324_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock ext_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.125    0.125 ^ input external delay
+   0.000    0.125 ^ reset (in)
+   0.007    0.132 v u_arb/_322_/ZN (AOI21_X1)
+   0.000    0.132 v u_arb/_324_/D (DFF_X1)
+            0.132   data arrival time
+
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.050    0.050   clock uncertainty
+   0.000    0.050   clock reconvergence pessimism
+            0.050 ^ u_arb/_324_/CK (DFF_X1)
+   0.002    0.052   library hold time
+            0.052   data required time
+-----------------------------------------------------------
+            0.052   data required time
+           -0.132   data arrival time
+-----------------------------------------------------------
+            0.080   slack (MET)
+
+
+Startpoint: u_arb/_323_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: rr_pointer[0] (output port clocked by ext_clk)
+Path Group: ext_clk
+Path Type: min
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ u_arb/_323_/CK (DFF_X1)
+   0.092    0.092 v u_arb/_323_/Q (DFF_X1)
+   0.000    0.092 v rr_pointer[0] (out)
+            0.092   data arrival time
+
+   0.000    0.000   clock ext_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000   clock reconvergence pessimism
+  -0.125   -0.125   output external delay
+           -0.125   data required time
+-----------------------------------------------------------
+           -0.125   data required time
+           -0.092   data arrival time
+-----------------------------------------------------------
+            0.217   slack (MET)
+
+
+INFO: SAIF_FILE not provided (or not found); power will be vectorless/default.
+STA done.
+Saving command history

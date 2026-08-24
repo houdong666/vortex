@@ -1,0 +1,12 @@
+METRIC mode=baseline test=A queue=0 requests=400 grants=100 average_wait=2.970000 max_wait=3 pending_wait=3
+METRIC mode=baseline test=A queue=1 requests=400 grants=100 average_wait=2.980000 max_wait=3 pending_wait=2
+METRIC mode=baseline test=A queue=2 requests=400 grants=100 average_wait=2.990000 max_wait=3 pending_wait=1
+METRIC mode=baseline test=A queue=3 requests=400 grants=100 average_wait=3.000000 max_wait=3 pending_wait=0
+FAIRNESS mode=baseline test=A error=0.000000
+METRIC mode=baseline test=B queue=0 requests=128 grants=64 average_wait=0.984375 max_wait=1 pending_wait=1
+METRIC mode=baseline test=B queue=1 requests=128 grants=64 average_wait=1.000000 max_wait=1 pending_wait=0
+METRIC mode=baseline test=C queue=0 requests=128 grants=32 average_wait=2.906250 max_wait=3 pending_wait=3
+METRIC mode=baseline test=C queue=1 requests=128 grants=32 average_wait=2.937500 max_wait=3 pending_wait=2
+METRIC mode=baseline test=C queue=2 requests=128 grants=32 average_wait=2.968750 max_wait=3 pending_wait=1
+METRIC mode=baseline test=C queue=3 requests=128 grants=32 average_wait=3.000000 max_wait=3 pending_wait=0
+RESULT mode=baseline tests=A,B,C fairness_error=0.000000 status=PASS

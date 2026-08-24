@@ -13,45 +13,78 @@
 `include "VX_define.vh"
 
 // ============================================================================
-// VX_cp_arbiter —— 针对 N 个请求者（KMU、DMA、DCR、event）的轮询仲裁器。
-// 每个周期最多授予一个请求者，并将指针移至获胜者之后。
-// 授予持续一个周期；没有飞行跟踪。`bid_priority` 预留且当前未使用。
-// 库 VX_rr_arbiter 的薄封装。
+// VX_cp_arbiter —— 优先级优先、同优先级轮询的单周期仲裁器。
+// 轮询指针始终移到获胜者之后，避免同优先级请求者被固定索引偏置。
 // ============================================================================
 
 module VX_cp_arbiter
   import VX_cp_pkg::*;
 #(
-  parameter int N = 1
+  parameter int N = 1,
+  parameter bit ENABLE_PRIORITY = 0
 )(
   input  wire                  clk,
   input  wire                  reset,
 
   input  wire                  bid_valid    [N],
   input  wire [1:0]            bid_priority [N],
-  output logic                 bid_grant    [N]
+  output logic                 bid_grant    [N],
+  output wire [(N > 1 ? $clog2(N) : 1)-1:0] rr_pointer_o,
+  output wire [(N > 1 ? $clog2(N) : 1)-1:0] selected_queue_o
 );
-  wire [N-1:0] requests;
-  wire [N-1:0] grant_onehot;
+  localparam int PTR_W = (N > 1) ? $clog2(N) : 1;
 
-  for (genvar i = 0; i < N; ++i) begin : g_ports
-    assign requests[i]  = bid_valid[i];
-    assign bid_grant[i] = grant_onehot[i];
-    `UNUSED_VAR (bid_priority[i])
+  logic [PTR_W-1:0] rr_pointer;
+  logic [PTR_W-1:0] selected_queue;
+  logic             selected_valid;
+  logic [1:0]       highest_priority;
+  logic [N-1:0]     eligible;
+  integer           i;
+  integer           offset;
+  integer           scan_index;
+
+  assign rr_pointer_o     = rr_pointer;
+  assign selected_queue_o = selected_queue;
+
+  for (genvar g = 0; g < N; ++g) begin : g_ports
+    assign bid_grant[g] = selected_valid && (selected_queue == PTR_W'(g));
   end
 
-  // grant_ready 固定为高：每个被服务的周期都消耗一次授予，使指针前进
-  //（单周期、非粘性授予）。
-  VX_rr_arbiter #(
-    .NUM_REQS (N)
-  ) rr_arb (
-    .clk          (clk),
-    .reset        (reset),
-    .requests     (requests),
-    `UNUSED_PIN   (grant_index),
-    .grant_onehot (grant_onehot),
-    `UNUSED_PIN   (grant_valid),
-    .grant_ready  (1'b1)
-  );
+  always_comb begin
+    highest_priority = '0;
+    for (i = 0; i < N; ++i) begin
+      if (bid_valid[i] && (bid_priority[i] > highest_priority))
+        highest_priority = bid_priority[i];
+    end
+
+    for (i = 0; i < N; ++i) begin
+      eligible[i] = bid_valid[i]
+                 && (!ENABLE_PRIORITY || (bid_priority[i] == highest_priority));
+    end
+
+    selected_queue = rr_pointer;
+    selected_valid = 1'b0;
+    scan_index = int'(rr_pointer);
+    for (offset = 0; offset < N; ++offset) begin
+      scan_index = int'(rr_pointer) + offset;
+      if (scan_index >= N)
+        scan_index = scan_index - N;
+      if (!selected_valid && eligible[scan_index]) begin
+        selected_queue = PTR_W'(scan_index);
+        selected_valid = 1'b1;
+      end
+    end
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      rr_pointer <= '0;
+    end else if (selected_valid) begin
+      if (selected_queue == PTR_W'(N - 1))
+        rr_pointer <= '0;
+      else
+        rr_pointer <= selected_queue + PTR_W'(1);
+    end
+  end
 
 endmodule

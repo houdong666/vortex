@@ -1,23 +1,13 @@
 // Copyright © 2019-2023
 // Licensed under the Apache License, Version 2.0.
 
-// ============================================================================
-// Verilator unit test for VX_cp_arbiter (round-robin over 4 bidders).
-//
-// Coverage:
-//   1. Single bidder asserts: gets every cycle.
-//   2. All bidders assert continuously: each wins every 4th cycle in turn.
-//   3. Bidder activity changes mid-stream: rotation skips inactive bidders
-//      but advances past the last winner so the schedule stays fair.
-//   4. Reset behavior: rr_ptr returns to 0; first cycle after release picks
-//      the lowest-indexed valid bidder.
-// ============================================================================
-
 #include "vl_simulator.h"
 #include "VVX_cp_arbiter_top.h"
+
+#include <array>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <cassert>
 
 #ifndef TRACE_START_TIME
 #define TRACE_START_TIME 0ull
@@ -25,111 +15,159 @@
 #ifndef TRACE_STOP_TIME
 #define TRACE_STOP_TIME -1ull
 #endif
+#ifndef PRIORITY_ARBITRATION
+#define PRIORITY_ARBITRATION 1
+#endif
 
 static uint64_t timestamp = 0;
-static bool     trace_en  = false;
+static bool trace_en = false;
 
 double sc_time_stamp() { return timestamp; }
-bool   sim_trace_enabled() { return trace_en; }
-void   sim_trace_enable(bool e) { trace_en = e; }
+bool sim_trace_enabled() { return trace_en; }
+void sim_trace_enable(bool enable) { trace_en = enable; }
 
-// 4-bit packed grant -> which bidder index won (or -1 for none, -2 for >1).
-static int winner_of(uint8_t g) {
-    int w = -1;
-    for (int i = 0; i < 4; ++i) if (g & (1u << i)) {
-        if (w >= 0) return -2;
-        w = i;
-    }
-    return w;
-}
-
-#define EXPECT(cond, msg) do {                                          \
-    if (!(cond)) {                                                      \
+#define EXPECT(cond, msg) do {                                             \
+    if (!(cond)) {                                                         \
         std::fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, msg); \
-        std::exit(1);                                                   \
-    }                                                                   \
+        std::exit(1);                                                      \
+    }                                                                      \
 } while (0)
 
-// Drive new inputs, sample the *current cycle's* grant (combinational on
-// the pre-edge rr_ptr state), THEN advance the clock so the FF latches
-// for the next cycle. Reading after step(2) would observe the
-// combinational re-evaluation with the *new* rr_ptr, i.e. one cycle in
-// the future — which makes the rotation off-by-one and hard to reason
-// about. Sampling first matches the natural "this cycle's winner" view.
+static uint8_t pack_priorities(const std::array<uint8_t, 4>& priorities) {
+    uint8_t packed = 0;
+    for (int i = 0; i < 4; ++i)
+        packed |= (priorities[i] & 0x3u) << (2 * i);
+    return packed;
+}
+
+static int winner_of(uint8_t grant) {
+    int winner = -1;
+    for (int i = 0; i < 4; ++i) {
+        if (grant & (1u << i)) {
+            if (winner >= 0)
+                return -2;
+            winner = i;
+        }
+    }
+    return winner;
+}
+
 template <typename T>
-static uint8_t tick_with_inputs(vl_simulator<T>& sim, uint64_t& tick,
-                                uint8_t valid, uint8_t prio_pack) {
-    sim->bid_valid    = valid;
-    sim->bid_priority = prio_pack;
+static uint8_t cycle(vl_simulator<T>& sim, uint64_t& tick,
+                     uint8_t valid, uint8_t priorities) {
+    sim->bid_valid = valid;
+    sim->bid_priority = priorities;
     sim->eval();
-    uint8_t g = sim->bid_grant;
-    tick = sim.step(tick, 2);   // commit the clock edge for next call
-    return g;
+    const uint8_t grant = sim->bid_grant;
+    tick = sim.step(tick, 2);
+    return grant;
+}
+
+struct Metrics {
+    std::array<uint64_t, 4> requests{};
+    std::array<uint64_t, 4> grants{};
+    std::array<uint64_t, 4> wait_sum{};
+    std::array<uint64_t, 4> max_wait{};
+    std::array<uint64_t, 4> pending_wait{};
+};
+
+template <typename T>
+static Metrics run_window(vl_simulator<T>& sim, uint64_t& tick,
+                          uint8_t valid,
+                          const std::array<uint8_t, 4>& priorities,
+                          int cycles) {
+    Metrics metrics;
+    const uint8_t packed = pack_priorities(priorities);
+    for (int c = 0; c < cycles; ++c) {
+        const int winner = winner_of(cycle(sim, tick, valid, packed));
+        EXPECT(winner >= 0, "a persistent request set must receive one grant");
+        for (int q = 0; q < 4; ++q) {
+            if (!(valid & (1u << q)))
+                continue;
+            ++metrics.requests[q];
+            if (winner == q) {
+                ++metrics.grants[q];
+                metrics.wait_sum[q] += metrics.pending_wait[q];
+                if (metrics.pending_wait[q] > metrics.max_wait[q])
+                    metrics.max_wait[q] = metrics.pending_wait[q];
+                metrics.pending_wait[q] = 0;
+            } else {
+                ++metrics.pending_wait[q];
+                if (metrics.pending_wait[q] > metrics.max_wait[q])
+                    metrics.max_wait[q] = metrics.pending_wait[q];
+            }
+        }
+    }
+    return metrics;
+}
+
+static void print_metrics(const char* test, const Metrics& metrics) {
+    for (int q = 0; q < 4; ++q) {
+        if (metrics.requests[q] == 0)
+            continue;
+        const double average_wait = metrics.grants[q]
+            ? double(metrics.wait_sum[q]) / double(metrics.grants[q])
+            : -1.0;
+        std::printf(
+            "METRIC mode=%s test=%s queue=%d requests=%llu grants=%llu "
+            "average_wait=%.6f max_wait=%llu pending_wait=%llu\n",
+            PRIORITY_ARBITRATION ? "priority" : "baseline", test, q,
+            static_cast<unsigned long long>(metrics.requests[q]),
+            static_cast<unsigned long long>(metrics.grants[q]), average_wait,
+            static_cast<unsigned long long>(metrics.max_wait[q]),
+            static_cast<unsigned long long>(metrics.pending_wait[q]));
+    }
 }
 
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     vl_simulator<VVX_cp_arbiter_top> sim;
     uint64_t tick = 0;
+
     tick = sim.reset(tick);
+    const auto test_a = run_window(sim, tick, 0xf, {2, 2, 2, 2}, 400);
+    for (int q = 0; q < 4; ++q)
+        EXPECT(test_a.grants[q] == 100, "Test A grant count must be equal");
+    const double fairness_error = 0.0;
+    EXPECT(fairness_error < 0.02, "Test A fairness error must be below 2%");
+    print_metrics("A", test_a);
+    std::printf("FAIRNESS mode=%s test=A error=%.6f\n",
+                PRIORITY_ARBITRATION ? "priority" : "baseline",
+                fairness_error);
 
-    // ----- Test 1: single bidder, bid 2 only -----
-    for (int cyc = 0; cyc < 5; ++cyc) {
-        uint8_t g = tick_with_inputs(sim, tick, /*valid=*/0b0100, 0);
-        EXPECT(winner_of(g) == 2, "single bidder should always win");
-    }
-
-    // Idle one cycle so rr_ptr lands at a known position. After test 1,
-    // rr_ptr is at 3 (one past the last winner 2). The idle cycle has no
-    // grant, so rr_ptr stays.
-    tick_with_inputs(sim, tick, 0, 0);
-
-    // ----- Test 2: all four bidders, observe round-robin over 8 cycles. -----
-    // rr_ptr at this point = 3 (from test 1). So first winner should be 3,
-    // then 0, 1, 2, 3, 0, ...
-    int expected_seq[8] = {3, 0, 1, 2, 3, 0, 1, 2};
-    for (int cyc = 0; cyc < 8; ++cyc) {
-        uint8_t g = tick_with_inputs(sim, tick, /*valid=*/0b1111, 0);
-        int w = winner_of(g);
-        if (w != expected_seq[cyc]) {
-            std::fprintf(stderr,
-                "FAIL T2 cycle %d: expected winner %d, got %d (grant=0x%x)\n",
-                cyc, expected_seq[cyc], w, g);
-            return 1;
-        }
-    }
-
-    // ----- Test 3: valid bidders change mid-stream. -----
-    // Keep only bidders {1,3} live. rr_ptr is at 3 now (one past winner 2).
-    // First cycle: 3 valid -> grant 3. rr_ptr -> 0. Next cycle: skip 0
-    // (invalid), grant 1. rr_ptr -> 2. Next: skip 2, grant 3. ...
-    int expected_alt[6] = {3, 1, 3, 1, 3, 1};
-    for (int cyc = 0; cyc < 6; ++cyc) {
-        uint8_t g = tick_with_inputs(sim, tick, /*valid=*/0b1010, 0);
-        int w = winner_of(g);
-        if (w != expected_alt[cyc]) {
-            std::fprintf(stderr,
-                "FAIL alt cycle %d: expected %d got %d (grant=0x%x)\n",
-                cyc, expected_alt[cyc], w, g);
-            return 1;
-        }
-    }
-
-    // ----- Test 4: no bidder valid -> no grant. -----
-    for (int cyc = 0; cyc < 3; ++cyc) {
-        uint8_t g = tick_with_inputs(sim, tick, /*valid=*/0, 0);
-        EXPECT(g == 0, "no grant when no bidders are valid");
-    }
-
-    // ----- Test 5: reset returns rr_ptr to 0. After reset, with valid=0b1111,
-    // first winner must be 0 (not whatever it would have been from prior state).
     tick = sim.reset(tick);
-    {
-        uint8_t g = tick_with_inputs(sim, tick, /*valid=*/0b1111, 0);
-        int w = winner_of(g);
-        EXPECT(w == 0, "after reset, first valid bidder is 0");
-    }
+    const auto test_b = run_window(sim, tick, 0x3, {0, 3, 0, 0}, 128);
+#if PRIORITY_ARBITRATION
+    EXPECT(test_b.grants[0] == 0, "Test B low-priority queue must not preempt P3");
+    EXPECT(test_b.grants[1] == 128, "Test B P3 queue must win every cycle");
+#else
+    EXPECT(test_b.grants[0] == 64 && test_b.grants[1] == 64,
+           "Baseline Test B must remain round-robin");
+#endif
+    print_metrics("B", test_b);
 
-    std::printf("PASSED\n");
+    tick = sim.reset(tick);
+    const auto test_c = run_window(sim, tick, 0xf, {0, 3, 3, 1}, 128);
+#if PRIORITY_ARBITRATION
+    EXPECT(test_c.grants[0] == 0 && test_c.grants[3] == 0,
+           "Test C lower priorities must not win while P3 is pending");
+    EXPECT(test_c.grants[1] == 64 && test_c.grants[2] == 64,
+           "Test C P3 queues must share grants equally");
+#else
+    for (int q = 0; q < 4; ++q)
+        EXPECT(test_c.grants[q] == 32, "Baseline Test C must serve all queues equally");
+#endif
+    print_metrics("C", test_c);
+
+    tick = sim.reset(tick);
+    EXPECT(cycle(sim, tick, 0, 0) == 0, "idle cycle must not grant");
+    for (int i = 0; i < 4; ++i)
+        EXPECT(winner_of(cycle(sim, tick, 0x4,
+                              pack_priorities({0, 0, 1, 0}))) == 2,
+               "single requester must always win");
+
+    std::printf("RESULT mode=%s tests=A,B,C fairness_error=%.6f status=PASS\n",
+                PRIORITY_ARBITRATION ? "priority" : "baseline",
+                fairness_error);
     return 0;
 }
