@@ -16,7 +16,8 @@ module VX_cp_arbiter_top
   import VX_cp_pkg::*;
 #(
   parameter int N = 4,
-  parameter bit ENABLE_PRIORITY = 1
+  parameter bit ENABLE_PRIORITY = 1,
+  parameter bit ENABLE_AGING = 0
 )(
   input  wire             clk,
   input  wire             reset,
@@ -25,25 +26,35 @@ module VX_cp_arbiter_top
   input  wire [2*N-1:0]   bid_priority,     // packed: 2 bits per bidder
   output wire [N-1:0]     bid_grant,        // packed: bit i = bidder i granted
   output wire [$clog2(N)-1:0] rr_pointer,
-  output wire [$clog2(N)-1:0] selected_queue
+  output wire [$clog2(N)-1:0] selected_queue,
+  output wire [7*N-1:0]   wait_counter,
+  output wire [2*N-1:0]   aging_boost,
+  output wire [2*N-1:0]   effective_priority
 );
 
   // Unpacked arrays for the DUT.
   wire        in_valid [N];
   wire [1:0]  in_prio  [N];
   logic       out_grant[N];
+  wire [6:0]  out_wait [N];
+  wire [1:0]  out_boost[N];
+  wire [1:0]  out_effective[N];
 
   generate
     for (genvar i = 0; i < N; ++i) begin : g_unpack
       assign in_valid[i] = bid_valid[i];
       assign in_prio[i]  = bid_priority[2*i +: 2];
       assign bid_grant[i] = out_grant[i];
+      assign wait_counter[7*i +: 7] = out_wait[i];
+      assign aging_boost[2*i +: 2] = out_boost[i];
+      assign effective_priority[2*i +: 2] = out_effective[i];
     end
   endgenerate
 
   VX_cp_arbiter #(
     .N               (N),
-    .ENABLE_PRIORITY (ENABLE_PRIORITY)
+    .ENABLE_PRIORITY (ENABLE_PRIORITY),
+    .ENABLE_AGING    (ENABLE_AGING)
   ) u_arb (
     .clk          (clk),
     .reset        (reset),
@@ -51,7 +62,10 @@ module VX_cp_arbiter_top
     .bid_priority (in_prio),
     .bid_grant    (out_grant),
     .rr_pointer_o (rr_pointer),
-    .selected_queue_o (selected_queue)
+    .selected_queue_o (selected_queue),
+    .wait_counter_o (out_wait),
+    .aging_boost_o (out_boost),
+    .effective_priority_o (out_effective)
   );
 
 endmodule : VX_cp_arbiter_top

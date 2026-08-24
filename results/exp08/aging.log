@@ -1,0 +1,15 @@
+METRIC mode=aging test=A queue=0 requests=400 grants=100 average_wait=2.970000 max_wait=3 pending_wait=3
+METRIC mode=aging test=A queue=1 requests=400 grants=100 average_wait=2.980000 max_wait=3 pending_wait=2
+METRIC mode=aging test=A queue=2 requests=400 grants=100 average_wait=2.990000 max_wait=3 pending_wait=1
+METRIC mode=aging test=A queue=3 requests=400 grants=100 average_wait=3.000000 max_wait=3 pending_wait=0
+FAIRNESS mode=aging test=A error=0.000000
+METRIC mode=aging test=B queue=0 requests=128 grants=1 average_wait=64.000000 max_wait=64 pending_wait=63
+METRIC mode=aging test=B queue=1 requests=128 grants=127 average_wait=0.007874 max_wait=1 pending_wait=0
+METRIC mode=aging test=C queue=0 requests=128 grants=1 average_wait=66.000000 max_wait=66 pending_wait=61
+METRIC mode=aging test=C queue=1 requests=128 grants=62 average_wait=1.048387 max_wait=3 pending_wait=1
+METRIC mode=aging test=C queue=2 requests=128 grants=62 average_wait=1.064516 max_wait=3 pending_wait=0
+METRIC mode=aging test=C queue=3 requests=128 grants=3 average_wait=32.333333 max_wait=33 pending_wait=28
+METRIC mode=aging test=S queue=0 requests=512 grants=7 average_wait=64.000000 max_wait=64 pending_wait=57
+METRIC mode=aging test=S queue=1 requests=512 grants=505 average_wait=0.013861 max_wait=1 pending_wait=0
+AGING_BOUNDARY first_low_grant=64 max_wait_limit=128 status=PASS
+RESULT mode=aging tests=A,B,C,S fairness_error=0.000000 status=PASS

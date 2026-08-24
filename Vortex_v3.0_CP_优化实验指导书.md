@@ -1,53 +1,50 @@
-好的，明白。你要的是**完整版**——即把原始文档中所有79个技术细节点**全部保留**，同时融入优化后的结构和新增的GitHub项目管理规范，不省略任何一条命令、测试向量、公式或验收条件。
-
-下面就是**完整版**《Vortex v3.0 Command Processor 优化实验指导书（含GitHub项目管理全案）》。你可以将它直接作为项目的**主README**或**顶层设计文档**使用。
-
----
-
 # Vortex v3.0 Command Processor（CP）优化实验指导书（完整版）
 ## 目录
 
-1. [实验概述与研究目标](#1-实验概述与研究目标)
-2. [源码基线与环境配置](#2-源码基线与环境配置)
-   - [2.1 固定基线](#21-固定基线)
-   - [2.2 编译与单元测试环境](#22-编译与单元测试环境)
-   - [2.3 现有 CP 单元测试清单](#23-现有cp单元测试清单)
-3. [CP 微架构与关键 RTL 文件](#3-cp-微架构与关键rtl文件)
-   - [3.1 整体数据流](#31-整体数据流)
-   - [3.2 重点研究的 RTL 文件清单](#32-重点研究的rtl文件清单)
-4. [CP 当前关键微架构特征](#4-cp-当前关键微架构特征)
-   - [4.1 Fetch（单笔无预取）](#41-fetch单笔无预取)
-   - [4.2 Unpack（零填充为结束标记）](#42-unpack零填充为结束标记)
-   - [4.3 Engine 当前状态机](#43-engine-当前状态机)
-   - [4.4 Arbiter（Round Robin，忽视优先级）](#44-arbiterround-robin忽视优先级)
-5. [实验总体路线与难度分层](#5-实验总体路线与难度分层)
-6. [详细实验步骤（实验 0～实验 12）](#6-详细实验步骤实验0--实验12)
-   - [实验 0：Baseline 建立](#实验0baseline-建立)
-   - [实验 1：CP 完整数据流与波形实验](#实验1cp-完整数据流与波形实验不修改rtl)
-   - [实验 2：CP 性能测量基础设施](#实验2cp-性能测量基础设施)
-   - [实验 3：DMA Byte-Exact Correctness](#实验3dma-byte-exact-correctness正确性修复)
-   - [实验 4：Engine Simple Command Fast Path](#实验4engine-simple-command-fast-path)
-   - [实验 5：Command Packing](#实验5command-packing)
-   - [实验 6：Fetch Prefetch](#实验6fetch-prefetch)
-   - [实验 7：Priority-Aware Arbitration](#实验7priority-aware-arbitration)
-   - [实验 8：Aging 防饥饿机制](#实验8aging-防饥饿机制)
-   - [实验 9：EVENT_WAIT Fairness](#实验9event_wait-fairness)
-   - [实验 10：QMD-Style Kernel Launch](#实验10qmd-style-kernel-launch高级)
-   - [实验 11：Multi-Queue](#实验11multi-queue高级)
-   - [实验 12：最终综合与 PPA 评估](#实验12最终综合与ppa评估)
-7. [性能度量核心公式与指标体系](#7-性能度量核心公式与指标体系)
-8. [全局验收标准（功能/性能/时序/面积）](#8-全局验收标准功能性能时序面积)
-9. [GitHub 项目管理与协作规范](#9-github-项目管理与协作规范完整版)
-   - [9.1 分支与标签策略](#91-分支与标签策略)
-   - [9.2 Issue 与里程碑](#92-issue与里程碑milestones)
-   - [9.3 Pull Request 流程](#93-pull-requestpr流程强制执行)
-   - [9.4 CI/CD 自动化集成](#94-cicd-自动化集成github-actions)
-   - [9.5 项目看板](#95-项目看板projects)
-   - [9.6 文档与代码注释规范](#96-文档与代码注释规范)
-10. [推荐时间安排与最终报告结构](#10-推荐时间安排与最终报告结构)
-    - [10.1 12 周时间线](#101-12周时间线供参考)
-    - [10.2 最终实验报告结构](#102-最终实验报告结构建议16章)
-11. [项目核心思想总结](#项目核心思想总结)
+- [Vortex v3.0 Command Processor（CP）优化实验指导书（完整版）](#vortex-v30-command-processorcp优化实验指导书完整版)
+  - [目录](#目录)
+  - [1. 实验概述与研究目标](#1-实验概述与研究目标)
+  - [2. 源码基线与环境配置](#2-源码基线与环境配置)
+    - [2.1 固定基线](#21-固定基线)
+    - [2.2 编译与单元测试环境](#22-编译与单元测试环境)
+    - [2.3 现有CP单元测试清单](#23-现有cp单元测试清单)
+  - [3. CP 微架构与关键RTL文件](#3-cp-微架构与关键rtl文件)
+    - [3.1 整体数据流](#31-整体数据流)
+    - [3.2 重点研究的RTL文件清单](#32-重点研究的rtl文件清单)
+  - [4. CP 当前关键微架构特征](#4-cp-当前关键微架构特征)
+    - [4.1 Fetch（单笔无预取）](#41-fetch单笔无预取)
+    - [4.2 Unpack（零填充为结束标记）](#42-unpack零填充为结束标记)
+    - [4.3 Engine 当前状态机](#43-engine-当前状态机)
+    - [4.4 Arbiter（Round Robin，忽视优先级）](#44-arbiterround-robin忽视优先级)
+  - [5. 实验总体路线与难度分层](#5-实验总体路线与难度分层)
+  - [6. 详细实验步骤（实验0 ~ 实验12）](#6-详细实验步骤实验0--实验12)
+    - [实验0：Baseline 建立](#实验0baseline-建立)
+    - [实验1：CP 完整数据流与波形实验（不修改RTL）](#实验1cp-完整数据流与波形实验不修改rtl)
+    - [实验2：CP 性能测量基础设施](#实验2cp-性能测量基础设施)
+    - [实验3：DMA Byte-Exact Correctness（正确性修复）](#实验3dma-byte-exact-correctness正确性修复)
+    - [实验4：Engine Simple Command Fast Path](#实验4engine-simple-command-fast-path)
+    - [实验5：Command Packing](#实验5command-packing)
+    - [实验6：Fetch Prefetch](#实验6fetch-prefetch)
+    - [实验7：Priority-Aware Arbitration](#实验7priority-aware-arbitration)
+    - [实验8：Aging 防饥饿机制](#实验8aging-防饥饿机制)
+    - [实验9：EVENT\_WAIT Fairness](#实验9event_wait-fairness)
+    - [实验10：QMD-Style Kernel Launch（高级）](#实验10qmd-style-kernel-launch高级)
+    - [实验11：Multi-Queue（高级）](#实验11multi-queue高级)
+    - [实验12：最终综合与PPA评估](#实验12最终综合与ppa评估)
+  - [6.1 实验可交付成果总览](#61-实验可交付成果总览)
+  - [7. 性能度量核心公式与指标体系](#7-性能度量核心公式与指标体系)
+  - [8. 全局验收标准（功能/性能/时序/面积）](#8-全局验收标准功能性能时序面积)
+  - [9. GitHub 项目管理与协作规范（完整版）](#9-github-项目管理与协作规范完整版)
+    - [9.1 分支与标签策略](#91-分支与标签策略)
+    - [9.2 Issue与里程碑（Milestones）](#92-issue与里程碑milestones)
+    - [9.3 Pull Request（PR）流程（强制执行）](#93-pull-requestpr流程强制执行)
+    - [9.4 CI/CD 自动化集成（GitHub Actions）](#94-cicd-自动化集成github-actions)
+    - [9.5 项目看板（Projects）](#95-项目看板projects)
+    - [9.6 文档与代码注释规范](#96-文档与代码注释规范)
+  - [10. 推荐时间安排与最终报告结构](#10-推荐时间安排与最终报告结构)
+    - [10.1 12周时间线（供参考）](#101-12周时间线供参考)
+    - [10.2 最终实验报告结构（建议16章）](#102-最终实验报告结构建议16章)
+  - [项目核心思想总结](#项目核心思想总结)
 
 ---
 ## 1. 实验概述与研究目标
@@ -1230,6 +1227,14 @@ Arbiter使用 `effective_priority` 而非 `base_priority`。
 **本实验完成标志**
 
 > 在高优先级请求持续存在时，低优先级持续请求仍能在有限周期内得到服务，并有数据证明不存在无限 starvation。
+
+**实际完成记录**
+
+- 已在 `VX_cp_arbiter` 中加入每队列 7 位饱和等待计数器，并按 16/32/64 周期产生 +1/+2/+3 的 Aging 提升。
+- P0 与持续请求的 P3 竞争时，P0 在第 64 周期首次获权；512 周期压力测试中 P0 获权 7 次，最大等待 64 周期，满足 `MAX_WAIT=128`。
+- 同优先级 4 队列各获权 100 次，公平误差为 0%；完整 CP 的 100 条命令集成回归无丢失、无重复。
+- 单个 4 路仲裁器的 FPGA LCs 为 75→191、FDRE 为 2→30；ASIC 面积为 86.716→347.928 um²，400 MHz 下 setup slack 为 1.602→1.387 ns。
+- 完整报告见 [`docs/experiments/exp08_aging.md`](docs/experiments/exp08_aging.md)，逐步命令见 [`docs/experiments/exp08_commands.md`](docs/experiments/exp08_commands.md)。
 
 ---
 ### 实验9：EVENT_WAIT Fairness

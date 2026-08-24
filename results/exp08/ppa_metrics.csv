@@ -1,0 +1,3 @@
+mode,fpga_lcs,fpga_fdre,asic_area_um2,max_path_ns,setup_slack_ns,target_mhz
+strict_priority,75,2,86.716,0.813,1.602,400
+priority_aging,191,30,347.928,1.017,1.387,400

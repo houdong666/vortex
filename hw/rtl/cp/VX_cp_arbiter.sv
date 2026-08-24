@@ -14,14 +14,15 @@
 
 // ============================================================================
 // VX_cp_arbiter —— 优先级优先、同优先级轮询的单周期仲裁器。
-// 轮询指针始终移到获胜者之后，避免同优先级请求者被固定索引偏置。
+// Aging 会逐段提升长时间等待者的有效优先级，避免严格优先级导致饥饿。
 // ============================================================================
 
 module VX_cp_arbiter
   import VX_cp_pkg::*;
 #(
   parameter int N = 1,
-  parameter bit ENABLE_PRIORITY = 0
+  parameter bit ENABLE_PRIORITY = 0,
+  parameter bit ENABLE_AGING = 0
 )(
   input  wire                  clk,
   input  wire                  reset,
@@ -30,7 +31,10 @@ module VX_cp_arbiter
   input  wire [1:0]            bid_priority [N],
   output logic                 bid_grant    [N],
   output wire [(N > 1 ? $clog2(N) : 1)-1:0] rr_pointer_o,
-  output wire [(N > 1 ? $clog2(N) : 1)-1:0] selected_queue_o
+  output wire [(N > 1 ? $clog2(N) : 1)-1:0] selected_queue_o,
+  output wire [6:0]            wait_counter_o      [N],
+  output wire [1:0]            aging_boost_o       [N],
+  output wire [1:0]            effective_priority_o[N]
 );
   localparam int PTR_W = (N > 1) ? $clog2(N) : 1;
 
@@ -39,7 +43,11 @@ module VX_cp_arbiter
   logic             selected_valid;
   logic [1:0]       highest_priority;
   logic [N-1:0]     eligible;
+  logic [6:0]       wait_counter       [N];
+  logic [1:0]       aging_boost        [N];
+  logic [1:0]       effective_priority [N];
   integer           i;
+  integer           j;
   integer           offset;
   integer           scan_index;
 
@@ -48,18 +56,39 @@ module VX_cp_arbiter
 
   for (genvar g = 0; g < N; ++g) begin : g_ports
     assign bid_grant[g] = selected_valid && (selected_queue == PTR_W'(g));
+    assign wait_counter_o[g]       = wait_counter[g];
+    assign aging_boost_o[g]        = aging_boost[g];
+    assign effective_priority_o[g] = effective_priority[g];
   end
 
   always_comb begin
+    // 等待周期达到 16/32/64 时分别提升 1/2/3 级。
+    for (i = 0; i < N; ++i) begin
+      if (!ENABLE_AGING || (wait_counter[i] < 7'd16))
+        aging_boost[i] = 2'd0;
+      else if (wait_counter[i] < 7'd32)
+        aging_boost[i] = 2'd1;
+      else if (wait_counter[i] < 7'd64)
+        aging_boost[i] = 2'd2;
+      else
+        aging_boost[i] = 2'd3;
+
+      // 有效优先级在 P3 饱和，防止 2 位加法溢出回绕。
+      if ({1'b0, bid_priority[i]} + {1'b0, aging_boost[i]} >= 3'd3)
+        effective_priority[i] = 2'd3;
+      else
+        effective_priority[i] = bid_priority[i] + aging_boost[i];
+    end
+
     highest_priority = '0;
     for (i = 0; i < N; ++i) begin
-      if (bid_valid[i] && (bid_priority[i] > highest_priority))
-        highest_priority = bid_priority[i];
+      if (bid_valid[i] && (effective_priority[i] > highest_priority))
+        highest_priority = effective_priority[i];
     end
 
     for (i = 0; i < N; ++i) begin
       eligible[i] = bid_valid[i]
-                 && (!ENABLE_PRIORITY || (bid_priority[i] == highest_priority));
+                 && (!ENABLE_PRIORITY || (effective_priority[i] == highest_priority));
     end
 
     selected_queue = rr_pointer;
@@ -79,11 +108,26 @@ module VX_cp_arbiter
   always_ff @(posedge clk) begin
     if (reset) begin
       rr_pointer <= '0;
-    end else if (selected_valid) begin
-      if (selected_queue == PTR_W'(N - 1))
-        rr_pointer <= '0;
-      else
-        rr_pointer <= selected_queue + PTR_W'(1);
+      for (j = 0; j < N; ++j)
+        wait_counter[j] <= '0;
+    end else begin
+      if (selected_valid) begin
+        if (selected_queue == PTR_W'(N - 1))
+          rr_pointer <= '0;
+        else
+          rr_pointer <= selected_queue + PTR_W'(1);
+      end
+
+      for (j = 0; j < N; ++j) begin
+        // 撤销请求或成功获权都结束本轮等待；其余持续请求饱和累加。
+        if (!ENABLE_AGING
+         || !bid_valid[j]
+         || (selected_valid && (selected_queue == PTR_W'(j)))) begin
+          wait_counter[j] <= '0;
+        end else if (wait_counter[j] != 7'h7f) begin
+          wait_counter[j] <= wait_counter[j] + 7'd1;
+        end
+      end
     end
   end
 

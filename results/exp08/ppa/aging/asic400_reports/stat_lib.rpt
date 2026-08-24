@@ -1,0 +1,86 @@
+
+23. Printing statistics.
+
+=== $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1\ENABLE_AGING=1'1 ===
+
+   Number of wires:                733
+   Number of wire bits:           2163
+   Number of public wires:          32
+   Number of public wire bits:     250
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                241
+     AND2_X1                         8
+     AND3_X1                         4
+     AND4_X1                         1
+     AOI211_X1                       8
+     AOI21_X1                       34
+     AOI22_X1                        4
+     DFF_X1                         30
+     INV_X1                         39
+     MUX2_X1                         4
+     NAND2_X1                       27
+     NAND3_X1                       12
+     NOR2_X1                        20
+     NOR3_X1                         7
+     OAI211_X1                       5
+     OAI21_X1                       10
+     OAI22_X1                        2
+     OAI33_X1                        2
+     OR2_X1                          6
+     XNOR2_X1                       14
+     XOR2_X1                         4
+
+   Chip area for module '$paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1\ENABLE_AGING=1'1': 347.928000
+
+=== VX_cp_arbiter_top ===
+
+   Number of wires:                 16
+   Number of wire bits:            126
+   Number of public wires:          16
+   Number of public wire bits:     126
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1\ENABLE_AGING=1'1      1
+
+   Area for cell type $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1\ENABLE_AGING=1'1 is unknown!
+
+=== design hierarchy ===
+
+   VX_cp_arbiter_top                 1
+     $paramod\VX_cp_arbiter\N=4\ENABLE_PRIORITY=1'1\ENABLE_AGING=1'1      1
+
+   Number of wires:                749
+   Number of wire bits:           2289
+   Number of public wires:          48
+   Number of public wire bits:     376
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                241
+     AND2_X1                         8
+     AND3_X1                         4
+     AND4_X1                         1
+     AOI211_X1                       8
+     AOI21_X1                       34
+     AOI22_X1                        4
+     DFF_X1                         30
+     INV_X1                         39
+     MUX2_X1                         4
+     NAND2_X1                       27
+     NAND3_X1                       12
+     NOR2_X1                        20
+     NOR3_X1                         7
+     OAI211_X1                       5
+     OAI21_X1                       10
+     OAI22_X1                        2
+     OAI33_X1                        2
+     OR2_X1                          6
+     XNOR2_X1                       14
+     XOR2_X1                         4
+
+   Chip area for top module '\VX_cp_arbiter_top': 347.928000
+

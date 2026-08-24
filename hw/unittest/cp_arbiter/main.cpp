@@ -18,9 +18,18 @@
 #ifndef PRIORITY_ARBITRATION
 #define PRIORITY_ARBITRATION 1
 #endif
+#ifndef ARBITRATION_AGING
+#define ARBITRATION_AGING 0
+#endif
 
 static uint64_t timestamp = 0;
 static bool trace_en = false;
+
+static const char* mode_name() {
+    if (!PRIORITY_ARBITRATION)
+        return "baseline";
+    return ARBITRATION_AGING ? "aging" : "priority";
+}
 
 double sc_time_stamp() { return timestamp; }
 bool sim_trace_enabled() { return trace_en; }
@@ -111,7 +120,7 @@ static void print_metrics(const char* test, const Metrics& metrics) {
         std::printf(
             "METRIC mode=%s test=%s queue=%d requests=%llu grants=%llu "
             "average_wait=%.6f max_wait=%llu pending_wait=%llu\n",
-            PRIORITY_ARBITRATION ? "priority" : "baseline", test, q,
+            mode_name(), test, q,
             static_cast<unsigned long long>(metrics.requests[q]),
             static_cast<unsigned long long>(metrics.grants[q]), average_wait,
             static_cast<unsigned long long>(metrics.max_wait[q]),
@@ -132,12 +141,14 @@ int main(int argc, char** argv) {
     EXPECT(fairness_error < 0.02, "Test A fairness error must be below 2%");
     print_metrics("A", test_a);
     std::printf("FAIRNESS mode=%s test=A error=%.6f\n",
-                PRIORITY_ARBITRATION ? "priority" : "baseline",
-                fairness_error);
+                mode_name(), fairness_error);
 
     tick = sim.reset(tick);
     const auto test_b = run_window(sim, tick, 0x3, {0, 3, 0, 0}, 128);
-#if PRIORITY_ARBITRATION
+#if ARBITRATION_AGING
+    EXPECT(test_b.grants[0] > 0, "Aging Test B low-priority queue must eventually win");
+    EXPECT(test_b.max_wait[0] <= 64, "Aging Test B low-priority wait must be bounded");
+#elif PRIORITY_ARBITRATION
     EXPECT(test_b.grants[0] == 0, "Test B low-priority queue must not preempt P3");
     EXPECT(test_b.grants[1] == 128, "Test B P3 queue must win every cycle");
 #else
@@ -148,7 +159,12 @@ int main(int argc, char** argv) {
 
     tick = sim.reset(tick);
     const auto test_c = run_window(sim, tick, 0xf, {0, 3, 3, 1}, 128);
-#if PRIORITY_ARBITRATION
+#if ARBITRATION_AGING
+    for (int q = 0; q < 4; ++q) {
+        EXPECT(test_c.grants[q] > 0, "Aging Test C every persistent queue must win");
+        EXPECT(test_c.max_wait[q] <= 128, "Aging Test C must satisfy MAX_WAIT");
+    }
+#elif PRIORITY_ARBITRATION
     EXPECT(test_c.grants[0] == 0 && test_c.grants[3] == 0,
            "Test C lower priorities must not win while P3 is pending");
     EXPECT(test_c.grants[1] == 64 && test_c.grants[2] == 64,
@@ -159,6 +175,54 @@ int main(int argc, char** argv) {
 #endif
     print_metrics("C", test_c);
 
+    // 长时间饥饿压力：P0 和 P3 同时持续请求 512 周期。
+    tick = sim.reset(tick);
+    const auto starvation = run_window(sim, tick, 0x3, {0, 3, 0, 0}, 512);
+#if ARBITRATION_AGING
+    EXPECT(starvation.grants[0] > 0, "Aging stress must serve the P0 queue");
+    EXPECT(starvation.max_wait[0] <= 128, "Aging stress must satisfy MAX_WAIT");
+#elif PRIORITY_ARBITRATION
+    EXPECT(starvation.grants[0] == 0,
+           "Strict priority stress must reproduce low-priority starvation");
+#else
+    EXPECT(starvation.grants[0] == 256 && starvation.grants[1] == 256,
+           "Baseline stress must remain round-robin");
+#endif
+    print_metrics("S", starvation);
+
+#if ARBITRATION_AGING
+    // 直接观测 P0 持续等待时的 16/32/64 周期分段晋升边界。
+    tick = sim.reset(tick);
+    const uint8_t stress_prio = pack_priorities({0, 3, 0, 0});
+    int first_low_grant = -1;
+    for (int c = 0; c <= 64; ++c) {
+        sim->bid_valid = 0x3;
+        sim->bid_priority = stress_prio;
+        sim->eval();
+        const uint8_t q0_wait = sim->wait_counter & 0x7f;
+        const uint8_t q0_boost = sim->aging_boost & 0x3;
+        const uint8_t q0_effective = sim->effective_priority & 0x3;
+        if (c == 0)
+            EXPECT(q0_wait == 0 && q0_boost == 0, "Aging starts at zero");
+        if (c == 16)
+            EXPECT(q0_wait == 16 && q0_boost == 1 && q0_effective == 1,
+                   "16-cycle boundary must add one priority level");
+        if (c == 32)
+            EXPECT(q0_wait == 32 && q0_boost == 2 && q0_effective == 2,
+                   "32-cycle boundary must add two priority levels");
+        if (c == 64)
+            EXPECT(q0_wait == 64 && q0_boost == 3 && q0_effective == 3,
+                   "64-cycle boundary must saturate at P3");
+        const int winner = winner_of(sim->bid_grant);
+        if (winner == 0 && first_low_grant < 0)
+            first_low_grant = c;
+        tick = sim.step(tick, 2);
+    }
+    EXPECT(first_low_grant == 64, "P0 must receive its first grant at wait cycle 64");
+    std::printf("AGING_BOUNDARY first_low_grant=%d max_wait_limit=128 status=PASS\n",
+                first_low_grant);
+#endif
+
     tick = sim.reset(tick);
     EXPECT(cycle(sim, tick, 0, 0) == 0, "idle cycle must not grant");
     for (int i = 0; i < 4; ++i)
@@ -166,8 +230,7 @@ int main(int argc, char** argv) {
                               pack_priorities({0, 0, 1, 0}))) == 2,
                "single requester must always win");
 
-    std::printf("RESULT mode=%s tests=A,B,C fairness_error=%.6f status=PASS\n",
-                PRIORITY_ARBITRATION ? "priority" : "baseline",
-                fairness_error);
+    std::printf("RESULT mode=%s tests=A,B,C,S fairness_error=%.6f status=PASS\n",
+                mode_name(), fairness_error);
     return 0;
 }

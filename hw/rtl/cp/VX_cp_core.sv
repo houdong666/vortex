@@ -79,7 +79,8 @@ module VX_cp_core
   parameter int DATA_W     = 512,                 // AXI 数据位宽（用于数据搬运）
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C, // AXI 事务 ID 位宽
   parameter int AXIL_AW    = 16,                  // AXI-Lite 控制接口的地址位宽
-  parameter bit ENABLE_PRIORITY_ARBITRATION = 0
+  parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
+  parameter bit ENABLE_ARBITRATION_AGING = 0
 )(
   input  wire                       clk,          // 时钟
   input  wire                       reset,        // 复位
@@ -284,25 +285,29 @@ module VX_cp_core
   endgenerate
 
   // 实例化四个仲裁器
-  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION)) u_arb_kmu (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_kmu (
     .clk(clk), .reset(reset),
     .bid_valid(kmu_valid), .bid_priority(kmu_prio), .bid_grant(kmu_grant),
-    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o)
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION)) u_arb_dma (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dma (
     .clk(clk), .reset(reset),
     .bid_valid(dma_valid), .bid_priority(dma_prio), .bid_grant(dma_grant),
-    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o)
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION)) u_arb_dcr (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dcr (
     .clk(clk), .reset(reset),
     .bid_valid(dcr_valid), .bid_priority(dcr_prio), .bid_grant(dcr_grant),
-    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o)
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION)) u_arb_event (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_event (
     .clk(clk), .reset(reset),
     .bid_valid(event_valid), .bid_priority(event_prio), .bid_grant(event_grant),
-    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o)
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
 
   // ----- 从授权者中选出对应的命令体，供各共享资源模块使用 -----
