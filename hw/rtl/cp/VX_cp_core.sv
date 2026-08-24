@@ -80,7 +80,8 @@ module VX_cp_core
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C, // AXI 事务 ID 位宽
   parameter int AXIL_AW    = 16,                  // AXI-Lite 控制接口的地址位宽
   parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
-  parameter bit ENABLE_ARBITRATION_AGING = 0
+  parameter bit ENABLE_ARBITRATION_AGING = 0,
+  parameter bit ENABLE_EVENT_WAIT_FAIRNESS = 0
 )(
   input  wire                       clk,          // 时钟
   input  wire                       reset,        // 复位
@@ -177,7 +178,8 @@ module VX_cp_core
   logic       cpe_cmd_ready [NUM_QUEUES]; // 引擎准备好接收
 
   // 共享资源完成的脉冲（广播给所有 CPE）
-  logic launch_done, dma_done, dcr_done, event_done;
+  logic launch_done, dma_done, dcr_done, event_done, event_retry;
+  wire event_ready;
 
   // 每个队列内部的 AXI 子主设备（仅取指单元使用 AXI）
   VX_mem_axi_if #(.ADDR_W(ADDR_W), .DATA_W(DATA_W), .ID_W(ID_W))
@@ -217,6 +219,7 @@ module VX_cp_core
         .dma_done_i    (dma_done),
         .dcr_done_i    (dcr_done),
         .event_done_i  (event_done),
+        .event_retry_i (event_retry),
         .retire_evt    (retire_evt[q]),         // 输出退役事件
         .retire_seqnum (retire_seqnum[q]),      // 输出退役序号
         .retire_ready_i(retire_ready[q]),       // 完成写回单元反压
@@ -277,7 +280,8 @@ module VX_cp_core
       assign dcr_cmd[q]       = bid_dcr[q].cmd;
       assign bid_dcr[q].grant = dcr_grant[q];
 
-      assign event_valid[q]     = bid_event[q].valid;
+      // EVENT 单元忙碌时禁止新授权，确保完成或重试只属于当前命令。
+      assign event_valid[q]     = bid_event[q].valid && event_ready;
       assign event_prio[q]      = bid_event[q].priority_;
       assign event_cmd[q]       = bid_event[q].cmd;
       assign bid_event[q].grant = event_grant[q];
@@ -377,12 +381,16 @@ module VX_cp_core
   );
 
   // ----- 事件单元（处理 EVENT_SIGNAL / EVENT_WAIT）-----
-  VX_cp_event_unit u_event (
+  VX_cp_event_unit #(
+    .ENABLE_WAIT_RELEASE(ENABLE_EVENT_WAIT_FAIRNESS)
+  ) u_event (
     .clk   (clk),
     .reset (reset),
     .grant (any_event_grant),         // 事件仲裁授权
     .cmd   (granted_event_cmd),       // 事件命令
     .done  (event_done),              // 完成脉冲
+    .retry (event_retry),             // WAIT 未满足时通知原队列重新竞标
+    .ready (event_ready),             // 仅空闲状态接收新命令
     .axi_m (event_axi)                // 连接到设备交叉开关的 AXI 主设备
   );
 

@@ -33,21 +33,20 @@
 //                GT  匹配条件：读值 >  arg1
 //                NE  匹配条件：读值 != arg1
 //                匹配 → S_DONE
-//                不匹配 → S_REQ_AR（自旋直到满足条件；
-//                        往返延迟提供了自然的速率限制）
+//                不匹配 → 基线回到 S_REQ_AR；公平模式进入 S_RETRY 并释放资源
 //
 //   S_DONE     ：脉冲 `done` 一个周期 → S_IDLE
 //
-// 该单元在整个等待期间保持 EVENT bid 授权。
-// 仲裁器在 CPE 之间采用轮询方式，因此当多个等待并发自旋时，
-// 其他队列的 WAIT 会公平地交错执行。
+// 公平模式每次只执行一次 Poll，失败后通过 retry 让原 Engine 重新竞标，
+// 从而允许其他队列的 SIGNAL 或 WAIT 插入执行。
 // ============================================================================
 
 module VX_cp_event_unit
   import VX_cp_pkg::*;
 #(
   parameter int ID_W = VX_CP_AXI_TID_WIDTH_C,
-  parameter logic [ID_W-1:0] TID_PREFIX = '0
+  parameter logic [ID_W-1:0] TID_PREFIX = '0,
+  parameter bit ENABLE_WAIT_RELEASE = 1'b0
 )(
   input  wire                       clk,
   input  wire                       reset,
@@ -57,6 +56,8 @@ module VX_cp_event_unit
   // 其余字段被转发但本单元不使用。
   input  cmd_t                      cmd,
   output logic                      done,
+  output logic                      retry,
+  output wire                       ready,
 
   VX_mem_axi_if.master             axi_m
 );
@@ -70,7 +71,7 @@ module VX_cp_event_unit
   // ---- 状态机 ----
   typedef enum logic [3:0] {
     S_IDLE, S_REQ_AW, S_REQ_W, S_WAIT_B,
-            S_REQ_AR, S_WAIT_R, S_DONE
+            S_REQ_AR, S_WAIT_R, S_RETRY, S_DONE
   } state_e;
 
   state_e          state;
@@ -125,11 +126,14 @@ module VX_cp_event_unit
         S_REQ_AR: if (axi_m.arvalid && axi_m.arready) state <= S_WAIT_R;
         S_WAIT_R: begin
           if (axi_m.rvalid && axi_m.rready) begin
-            state <= match ? S_DONE : S_REQ_AR;
+            // 公平模式下，不满足条件的 WAIT 释放单元并通知原队列重新竞标。
+            state <= match ? S_DONE
+                           : (ENABLE_WAIT_RELEASE ? S_RETRY : S_REQ_AR);
           end
         end
 
-        S_DONE: state <= S_IDLE;
+        S_RETRY: state <= S_IDLE;
+        S_DONE:  state <= S_IDLE;
         default: state <= S_IDLE;
       endcase
     end
@@ -167,9 +171,13 @@ module VX_cp_event_unit
     // ---- R（WAIT） ----
     axi_m.rready = (state == S_WAIT_R);
 
-    // Done 脉冲
+    // done 表示命令完成；retry 只表示本轮轮询未满足，不能触发退役。
     done = (state == S_DONE);
+    retry = (state == S_RETRY);
   end
+
+  // 仅空闲时允许仲裁器发出新授权，避免忙碌期间接受第二条命令。
+  assign ready = (state == S_IDLE);
 
   // 辅助 / 未使用信号
   `UNUSED_VAR (axi_m.bid)

@@ -1308,6 +1308,14 @@ Q3: EVENT_SIGNAL W
 
 > EVENT_WAIT 不再长期独占 Event 资源，其他 Event Command 的等待时间显著降低，同时 WAIT 语义保持正确。
 
+**实际完成记录**
+
+- 已实现 `EVENT ready` 门控和 `WAIT retry → Release → Backoff → Re-BID` 完整握手。
+- 四队列对照中，Q1/Q2/Q3 SIGNAL 退休周期由 109/114/119 降至 11/16/21，分别降低 89.9%/86.0%/82.4%。
+- WAIT Poll 次数由 50 降至 18，EVENT 忙碌周期由 113 降至 66；Q0 WAIT 最终延迟仅增加 1 周期。
+- 正确性检查结果为 `lost=0`、`early_retire=0`、`duplicate=0`，完整 CP 100 命令回归同样无丢失和重复。
+- 完整报告见 [`docs/experiments/exp09_event_wait_fairness.md`](docs/experiments/exp09_event_wait_fairness.md)，逐步命令见 [`docs/experiments/exp09_commands.md`](docs/experiments/exp09_commands.md)。
+
 ---
 ### 实验10：QMD-Style Kernel Launch（高级）
 

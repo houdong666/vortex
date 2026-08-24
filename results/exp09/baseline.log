@@ -1,0 +1,1 @@
+EVENT_FAIRNESS mode=baseline_spin poll_count=50 busy_cycles=113 q0_latency=104 q1_latency=109 q2_latency=114 q3_latency=119 retry_count=0 lost=0 early_retire=0 duplicate=0 status=PASS

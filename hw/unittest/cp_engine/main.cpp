@@ -282,6 +282,7 @@ static NopMetrics run_nop_benchmark(vl_simulator<T>& sim, uint64_t& tick,
     sim->dma_done_i = 0;
     sim->dcr_done_i = 0;
     sim->event_done_i = 0;
+    sim->event_retry_i = 0;
     tick = sim.reset(tick);
     sim->eval();
     EXPECT(sim->seqnum_out == 0, "NOP benchmark did not reset seqnum");
@@ -404,6 +405,7 @@ int main(int argc, char** argv) {
     sim->dma_done_i   = 0;
     sim->dcr_done_i   = 0;
     sim->event_done_i = 0;
+    sim->event_retry_i = 0;
     tick = sim.reset(tick);
 
     std::printf("ENGINE_CONFIG nop_fast_path=%d\n",

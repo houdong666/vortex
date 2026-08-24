@@ -1,0 +1,1 @@
+EVENT_FAIRNESS mode=release_backoff poll_count=18 busy_cycles=66 q0_latency=105 q1_latency=11 q2_latency=16 q3_latency=21 retry_count=17 lost=0 early_retire=0 duplicate=0 status=PASS

@@ -23,7 +23,8 @@ module VX_cp_core_top
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C,
   parameter int AXIL_AW    = 16,
   parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
-  parameter bit ENABLE_ARBITRATION_AGING = 0
+  parameter bit ENABLE_ARBITRATION_AGING = 0,
+  parameter bit ENABLE_EVENT_WAIT_FAIRNESS = 0
 )(
   input  wire                       clk,
   input  wire                       reset,
@@ -259,7 +260,8 @@ module VX_cp_core_top
     .ID_W       (ID_W),
     .AXIL_AW    (AXIL_AW),
     .ENABLE_PRIORITY_ARBITRATION (ENABLE_PRIORITY_ARBITRATION),
-    .ENABLE_ARBITRATION_AGING (ENABLE_ARBITRATION_AGING)
+    .ENABLE_ARBITRATION_AGING (ENABLE_ARBITRATION_AGING),
+    .ENABLE_EVENT_WAIT_FAIRNESS (ENABLE_EVENT_WAIT_FAIRNESS)
   ) u_dut (
     .clk       (clk),
     .reset     (reset),

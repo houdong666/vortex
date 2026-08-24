@@ -58,6 +58,7 @@ module VX_cp_engine_top
   input  wire                          dma_done_i,
   input  wire                          dcr_done_i,
   input  wire                          event_done_i,
+  input  wire                          event_retry_i,
 
   // 退役信号。
   output wire                          retire_evt,
@@ -131,6 +132,7 @@ module VX_cp_engine_top
     .dma_done_i    (dma_done_i),
     .dcr_done_i    (dcr_done_i),
     .event_done_i  (event_done_i),
+    .event_retry_i (event_retry_i),
     .retire_evt    (retire_evt),
     .retire_seqnum (retire_seqnum),
     .retire_ready_i(1'b1),                // unit-test: completion is always ready

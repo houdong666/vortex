@@ -60,6 +60,7 @@ module VX_cp_engine
   input  wire                     dma_done_i,
   input  wire                     dcr_done_i,
   input  wire                     event_done_i,
+  input  wire                     event_retry_i,
 
   // 退役信号给 VX_cp_completion。`retire_evt` 在 S_RETIRE 状态下保持高，
   // 直到观察到 `retire_ready_i` — 这是 valid/ready 握手机制，确保完成模块
@@ -80,7 +81,8 @@ module VX_cp_engine
     S_DECODE,
     S_BID,
     S_WAIT_DONE,
-    S_RETIRE
+    S_RETIRE,
+    S_EVENT_BACKOFF
   } state_e;
 
   state_e       fsm;
@@ -168,10 +170,17 @@ module VX_cp_engine
             RES_KMU:   if (kmu_done_i)   fsm <= S_RETIRE;
             RES_DMA:   if (dma_done_i)   fsm <= S_RETIRE;
             RES_DCR:   if (dcr_done_i)   fsm <= S_RETIRE;
-            RES_EVT: if (event_done_i) fsm <= S_RETIRE;
+            RES_EVT: begin
+              if (event_done_i)
+                fsm <= S_RETIRE;
+              else if (event_retry_i)
+                fsm <= S_EVENT_BACKOFF;
+            end
             default:                     fsm <= S_RETIRE;
           endcase
         end
+        // 退避一个周期后重新竞标，让其他 EVENT 命令先进入候选集合。
+        S_EVENT_BACKOFF: fsm <= S_BID;
         S_RETIRE: begin
           // 保持 S_RETIRE（以及 retire_evt），直到完成模块接受该退役请求。
           // seqnum_r 仅在移出该状态的那个周期递增，因此 retire_seqnum
