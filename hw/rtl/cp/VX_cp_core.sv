@@ -79,6 +79,9 @@ module VX_cp_core
   parameter int DATA_W     = 512,                 // AXI 数据位宽（用于数据搬运）
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C, // AXI 事务 ID 位宽
   parameter int AXIL_AW    = 16,                  // AXI-Lite 控制接口的地址位宽
+  // 将实验 4/6 的局部开关提升到 CP 顶层，便于整机回归和同顶层 PPA 对照。
+  parameter bit ENABLE_NOP_FAST_PATH = 0,
+  parameter int PREFETCH_DEPTH = 1,
   parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
   parameter bit ENABLE_ARBITRATION_AGING = 0,
   parameter bit ENABLE_EVENT_WAIT_FAIRNESS = 0
@@ -189,7 +192,10 @@ module VX_cp_core
   generate
     for (genvar q = 0; q < NUM_QUEUES; ++q) begin : g_cpe
       // 取指单元：负责从主机内存的命令环读取命令并解包
-      VX_cp_fetch #(.QID(q)) u_fetch (
+      VX_cp_fetch #(
+        .QID            (q),
+        .PREFETCH_DEPTH (PREFETCH_DEPTH)
+      ) u_fetch (
         .clk           (clk),
         .reset         (reset),
         .state_in      (q_state[q]),            // 本队列的配置状态
@@ -201,7 +207,10 @@ module VX_cp_core
       );
 
       // 命令执行引擎：解码并执行来自取指单元的命令
-      VX_cp_engine #(.QID(q)) u_engine (
+      VX_cp_engine #(
+        .QID                  (q),
+        .ENABLE_NOP_FAST_PATH (ENABLE_NOP_FAST_PATH)
+      ) u_engine (
         .clk           (clk),
         .reset         (reset),
         .prio_in       (q_state[q].prio),       // 队列优先级

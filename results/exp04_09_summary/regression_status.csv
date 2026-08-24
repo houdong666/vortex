@@ -1,0 +1,13 @@
+layer,experiment,scenario,status,evidence_or_blocker
+unit,4,NOP Fast Path baseline/enabled,PASS,cp_engine 100/1000/10000 commands and smoke
+unit,5,command unpack and packing,PASS,cp_unpack 8 scenarios; cp_core packing path
+unit,6,fetch depth 1/2,PASS,cp_axi_path 4 scenarios for each depth
+unit,7,RR and priority arbitration,PASS,results/exp07/run_exp07.py
+unit,8,baseline/priority/aging,PASS,results/exp08/run_exp08.py
+unit,9,EVENT_WAIT baseline/fairness,PASS,results/exp09/run_exp09.py
+integration,4-9,fastpath+prefetch2+priority+aging+event fairness+packing,PASS,1000 commands final_seqnum=1000 drop=0 duplicate=0
+rtl,4-9,rtlsim demo XLEN=64,PASS,instrs=3640 cycles=10346 IPC=0.352
+rtl,4-9,rtlsim sgemm 16x16 XLEN=64,PASS,instrs=14688 cycles=34617 IPC=0.424
+ppa-area,4-9,VX_cp_core_top 4-queue baseline/all-enabled,PASS,FPGA 11485 to 11610 LCs (+1.09%); Nangate area 404913.978 to 423704.218 um2 (+4.64%); check reports 0 problems
+ppa-timing,4-9,VX_cp_core_top 4-queue baseline/all-enabled,BLOCKED,Unbuffered whole-top netlist has extreme fanout; OpenSTA 2.0.17 delay is invalid and crashes in power report; use Vivado place-and-route
+xrt,4-9,XRT full integration,BLOCKED,xrt-smi xbutil v++ Vivado platform and xclbin unavailable

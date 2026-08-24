@@ -1316,6 +1316,13 @@ Q3: EVENT_SIGNAL W
 - 正确性检查结果为 `lost=0`、`early_retire=0`、`duplicate=0`，完整 CP 100 命令回归同样无丢失和重复。
 - 完整报告见 [`docs/experiments/exp09_event_wait_fairness.md`](docs/experiments/exp09_event_wait_fairness.md)，逐步命令见 [`docs/experiments/exp09_commands.md`](docs/experiments/exp09_commands.md)。
 
+**实验 4～9 阶段稳定性记录**
+
+- 单项测试和 Fast Path + Prefetch Depth 2 + Priority + Aging + EVENT_WAIT Fairness + Packing 组合回归已经通过，1000 条命令结果为 `final_seqnum=1000`、`drop=0`、`duplicate=0`。
+- 64 位整机 rtlsim 的 `demo` 和 `sgemm 16×16` 已通过；XRT 当前受工具链、平台和 xclbin 缺失阻塞，不得记为功能 PASS。
+- 已解决 Yosys 0.9 在完整 CP 顶层的 AST 深递归崩溃：换用 Yosys 0.40 后，4 队列 Baseline 与实验 4～9 全开配置均完成映射且 `check` 为 0 个问题；FPGA 面积代理为 11485→11610 LCs（+1.09%），Nangate 标准单元面积为 404913.978→423704.218 µm²（+4.64%）。未布局网表的高扇出使 OpenSTA 时序失真，Fmax 仍需 Vivado 验证。
+- 统一回归状态、补跑命令和 PPA 横向总结见 [`docs/experiments/exp04_09_stability_and_ppa.md`](docs/experiments/exp04_09_stability_and_ppa.md)。
+
 ---
 ### 实验10：QMD-Style Kernel Launch（高级）
 

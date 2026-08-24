@@ -22,6 +22,9 @@ module VX_cp_core_top
   parameter int DATA_W     = 512,
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C,
   parameter int AXIL_AW    = 16,
+  // 顶层透传实验开关，确保单元回归和完整 CP 综合使用同一配置。
+  parameter bit ENABLE_NOP_FAST_PATH = 0,
+  parameter int PREFETCH_DEPTH = 1,
   parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
   parameter bit ENABLE_ARBITRATION_AGING = 0,
   parameter bit ENABLE_EVENT_WAIT_FAIRNESS = 0
@@ -259,6 +262,8 @@ module VX_cp_core_top
     .DATA_W     (DATA_W),
     .ID_W       (ID_W),
     .AXIL_AW    (AXIL_AW),
+    .ENABLE_NOP_FAST_PATH (ENABLE_NOP_FAST_PATH),
+    .PREFETCH_DEPTH (PREFETCH_DEPTH),
     .ENABLE_PRIORITY_ARBITRATION (ENABLE_PRIORITY_ARBITRATION),
     .ENABLE_ARBITRATION_AGING (ENABLE_ARBITRATION_AGING),
     .ENABLE_EVENT_WAIT_FAIRNESS (ENABLE_EVENT_WAIT_FAIRNESS)

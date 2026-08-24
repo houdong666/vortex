@@ -1,0 +1,4 @@
+scenario,num_queues,estimated_lcs,fdre,fdse,ram32m,ram64m,asic_area_um2,yosys_version,abc_version,check
+baseline,4,11485,11300,25,22,512,404913.978000,0.40,1.01,PASS
+all_enabled,4,11610,9388,25,366,512,423704.218000,0.40,1.01,PASS
+delta_percent,4,1.09,NA,NA,NA,NA,4.64,0.40,1.01,PASS
