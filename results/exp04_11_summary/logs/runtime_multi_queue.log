@@ -1,0 +1,8 @@
+make: Entering directory '/home/houdong/vortex/build64/tests/unittest/cp_runtime_multi_queue'
+rm -f cp_runtime_multi_queue libvortex-mockcp.so
+g++ -std=c++17 -Wall -Wextra -Wfatal-errors -Werror -I/home/houdong/vortex/sw/runtime/include -I/home/houdong/vortex/sw/runtime/common -fPIC -shared /home/houdong/vortex/tests/unittest/cp_runtime_multi_queue/mock_backend.cpp -pthread -o libvortex-mockcp.so
+g++ -std=c++17 -Wall -Wextra -Wfatal-errors -Werror -I/home/houdong/vortex/sw/runtime/include -I/home/houdong/vortex/sw/runtime/common /home/houdong/vortex/tests/unittest/cp_runtime_multi_queue/main.cpp -L/home/houdong/vortex/build64/sw/runtime -lvortex -ldl -pthread \
+	-Wl,-rpath,/home/houdong/vortex/build64/sw/runtime -o cp_runtime_multi_queue
+LD_LIBRARY_PATH=/home/houdong/vortex/build64/sw/runtime:/home/houdong/vortex/build64/tests/unittest/cp_runtime_multi_queue VORTEX_DRIVER=mockcp ./cp_runtime_multi_queue
+PASS: Runtime四队列绑定、优先级、提交和复用
+make: Leaving directory '/home/houdong/vortex/build64/tests/unittest/cp_runtime_multi_queue'

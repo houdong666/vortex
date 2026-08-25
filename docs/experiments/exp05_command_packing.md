@@ -133,3 +133,5 @@ Packed 结果的 334 条缓存行符合 `ceil(1000 / 3)`。最后一条缓存行
 - 无命令丢失、重复或顺序错误；
 - 恰好放满、空间不足、多缓存行连续处理及 Ring wrap 均有测试覆盖；
 - 相关 CP 单元测试和 Runtime 编译回归通过。
+
+逐步复现见 [`exp05_commands.md`](exp05_commands.md)，最新Runtime多队列接入后的统一回归状态见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

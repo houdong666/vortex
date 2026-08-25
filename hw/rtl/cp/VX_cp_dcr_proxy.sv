@@ -39,6 +39,7 @@ module VX_cp_dcr_proxy
   input  cmd_t cmd,
   // verilator lint_on UNUSED
   output logic done,
+  output wire  ready,
 
   // 最近一次 CMD_DCR_READ 的响应值（读操作完成后在 `done` 为高时有效；
   // 写操作后固定为 0）。引擎在观察到读命令的 done 时捕获此值。
@@ -152,5 +153,8 @@ module VX_cp_dcr_proxy
     done          = (state == S_DONE);
     last_rsp_data = rsp_data_r;
   end
+
+  // DCR代理忙碌期间必须保持当前命令所有权，避免其他队列提前进入等待完成态。
+  assign ready = (state == S_IDLE);
 
 endmodule : VX_cp_dcr_proxy

@@ -1,0 +1,2 @@
+T_DMA,T_DCR,T_EVT,T_KMU,T_serial,T_parallel,max_isolated,speedup,parallel_over_max,status
+41,17,21,31,110,43,41,2.558140,1.048780,PASS

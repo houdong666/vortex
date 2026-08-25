@@ -1,0 +1,9 @@
+scenario,mode,active_queues,total_commands,total_cycles,fairness,dropped,duplicate,dma_ok,event_ok,status
+same-dma,round_robin,4,16,222,1.000000,0,0,1,1,PASS
+same-dma,strict_priority,4,16,222,1.000000,0,0,1,1,PASS
+same-dma,priority_aging,4,16,222,1.000000,0,0,1,1,PASS
+isolated-dma,priority_aging,1,1,41,1.000000,0,0,1,1,PASS
+isolated-dcr,priority_aging,1,1,17,1.000000,0,0,1,1,PASS
+isolated-event,priority_aging,1,1,21,1.000000,0,0,1,1,PASS
+isolated-kmu,priority_aging,1,1,31,1.000000,0,0,1,1,PASS
+mixed,priority_aging,4,4,43,1.000000,0,0,1,1,PASS

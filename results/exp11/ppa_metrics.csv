@@ -1,0 +1,4 @@
+metric,one_queue,four_queues,change_percent,per_added_queue,yosys_version,abc_version
+fpga_estimated_lcs,6145,11406,85.61,1753.667,0.40,1.01
+fpga_fdre,7348,11407,55.24,1353,0.40,1.01
+asic_cell_area_um2,337524.474000,406066.556000,20.31,22847.361,0.40,1.01

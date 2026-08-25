@@ -1,0 +1,2 @@
+MQ_QUEUE scenario=isolated-dcr mode=priority_aging queue=1 priority=1 commands=1 grants=1 average_wait=0.000 max_wait=0 retire_cycle=12 final_seqnum=0
+MQ_RESULT scenario=isolated-dcr mode=priority_aging active_queues=1 total_commands=1 total_cycles=17 fairness=1.000000 dropped=0 duplicate=0 dma_ok=1 event_ok=1 status=PASS

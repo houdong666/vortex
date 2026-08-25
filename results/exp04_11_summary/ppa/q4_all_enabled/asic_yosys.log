@@ -1,0 +1,12 @@
+Warning: Replacing memory \u_dut.u_completion.pending_ent with list of registers. See /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:2122
+Warning: Replacing memory \wait_counter with list of registers. See /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:3307
+Warning: Replacing memory \effective_priority with list of registers. See /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:3285, /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:3279
+Warning: Replacing memory \aging_boost with list of registers. See /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:3278, /tmp/vortex-exp09-11-ppa.V5IAQj/cp_core_flat.v:3271
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFRS_X1' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFRS_X2' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFR_X1' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFR_X2' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFS_X1' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFFS_X2' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFF_X1' - skipping.
+Warning: Found unsupported expression 'SE*SI+D*!SE' in pin attribute of cell 'SDFF_X2' - skipping.

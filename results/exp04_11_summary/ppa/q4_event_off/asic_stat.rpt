@@ -1,0 +1,905 @@
+
+22. Printing statistics.
+
+=== $paramod$08f5926ccb34b1a68bbe3bf2bffc734c7ce718b5\VX_mm_axi_slice ===
+
+   Number of wires:                 52
+   Number of wire bits:           2546
+   Number of public wires:          52
+   Number of public wire bits:    2546
+   Number of ports:                 52
+   Number of port bits:           2546
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  5
+     $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_skid_buffer      1
+     $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_skid_buffer      2
+     $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_skid_buffer      1
+     $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_skid_buffer      1
+
+   Area for cell type $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_skid_buffer is unknown!
+   Area for cell type $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_skid_buffer is unknown!
+   Area for cell type $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_skid_buffer is unknown!
+   Area for cell type $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_skid_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$109bb6766c248c9ad65357cc08032166e3078fd7\VX_mm_axi_arb ===
+
+   Number of wires:              10246
+   Number of wire bits:          42712
+   Number of public wires:          87
+   Number of public wire bits:   10198
+   Number of ports:                 52
+   Number of port bits:           8906
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               5636
+     $paramod$73ef93ceb080b708c56aceff71c4460dbee622f2\VX_generic_arbiter      2
+     AND2_X1                         3
+     AND3_X1                         2
+     AOI211_X1                       7
+     AOI21_X1                     1231
+     AOI221_X1                     114
+     AOI22_X1                      189
+     DFF_X1                          4
+     INV_X1                        749
+     MUX2_X1                       622
+     NAND2_X1                       15
+     NAND3_X1                        3
+     NOR2_X1                       716
+     NOR3_X1                        18
+     NOR4_X1                         2
+     OAI211_X1                      73
+     OAI21_X1                     1197
+     OAI22_X1                      687
+     OR2_X1                          2
+
+   Area for cell type $paramod$73ef93ceb080b708c56aceff71c4460dbee622f2\VX_generic_arbiter is unknown!
+
+   Chip area for module '$paramod$109bb6766c248c9ad65357cc08032166e3078fd7\VX_mm_axi_arb': 6227.858000
+     of which used for sequential elements: 18.088000 (0.29%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_skid_buffer ===
+
+   Number of wires:                  8
+   Number of wire bits:           1048
+   Number of public wires:           8
+   Number of public wire bits:    1048
+   Number of ports:                  8
+   Number of port bits:           1048
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_stream_buffer      1
+
+   Area for cell type $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_stream_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_stream_buffer ===
+
+   Number of wires:               5252
+   Number of wire bits:           7852
+   Number of public wires:          14
+   Number of public wire bits:    2094
+   Number of ports:                  8
+   Number of port bits:           1048
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2615
+     AND2_X1                         1
+     AOI211_X1                       1
+     DFF_X1                       1044
+     INV_X1                          1
+     MUX2_X1                      1563
+     NOR2_X1                         1
+     NOR3_X1                         2
+     OAI21_X1                        1
+     OR2_X1                          1
+
+   Chip area for module '$paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_stream_buffer': 7639.254000
+     of which used for sequential elements: 4739.056000 (62.04%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$16dfd0cc9c94a3fedf300165b996dec38137037e\VX_pipe_register ===
+
+   Number of wires:                183
+   Number of wire bits:            344
+   Number of public wires:           8
+   Number of public wire bits:     169
+   Number of ports:                  5
+   Number of port bits:             71
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 70
+     AOI211_X1                       1
+     DFF_X1                         34
+     INV_X1                          1
+     MUX2_X1                        33
+     NOR2_X1                         1
+
+   Chip area for module '$paramod$16dfd0cc9c94a3fedf300165b996dec38137037e\VX_pipe_register': 217.854000
+     of which used for sequential elements: 4892.804000 (2245.91%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_skid_buffer ===
+
+   Number of wires:                  8
+   Number of wire bits:            162
+   Number of public wires:           8
+   Number of public wire bits:     162
+   Number of ports:                  8
+   Number of port bits:            162
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_stream_buffer      1
+
+   Area for cell type $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_stream_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_stream_buffer ===
+
+   Number of wires:                822
+   Number of wire bits:           1207
+   Number of public wires:          14
+   Number of public wire bits:     322
+   Number of ports:                  8
+   Number of port bits:            162
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                400
+     AOI211_X1                       1
+     DFF_X1                        158
+     INV_X1                          1
+     MUX2_X1                       234
+     NAND2_X1                        1
+     NOR2_X1                         1
+     NOR3_X1                         2
+     OAI21_X1                        1
+     OR2_X1                          1
+
+   Chip area for module '$paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_stream_buffer': 1157.898000
+     of which used for sequential elements: 5607.280000 (484.26%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_skid_buffer ===
+
+   Number of wires:                  8
+   Number of wire bits:           1160
+   Number of public wires:           8
+   Number of public wire bits:    1160
+   Number of ports:                  8
+   Number of port bits:           1160
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_stream_buffer      1
+
+   Area for cell type $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_stream_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_stream_buffer ===
+
+   Number of wires:               5812
+   Number of wire bits:           8692
+   Number of public wires:          14
+   Number of public wire bits:    2318
+   Number of ports:                  8
+   Number of port bits:           1160
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2895
+     AND2_X1                         1
+     AOI211_X1                       1
+     DFF_X1                       1156
+     INV_X1                          1
+     MUX2_X1                      1731
+     NOR2_X1                         1
+     NOR3_X1                         2
+     OAI21_X1                        1
+     OR2_X1                          1
+
+   Chip area for module '$paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_stream_buffer': 8458.534000
+     of which used for sequential elements: 10834.712000 (128.09%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$29c2fcf872559fbb3909a88efa6502a5e44b3975\VX_rr_arbiter ===
+
+   Number of wires:                 75
+   Number of wire bits:             91
+   Number of public wires:          20
+   Number of public wire bits:      31
+   Number of ports:                  7
+   Number of port bits:              9
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 30
+     $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000010      1
+     AND2_X1                         2
+     AOI211_X1                       1
+     AOI21_X1                        4
+     AOI22_X1                        1
+     DFF_X1                          4
+     INV_X1                          5
+     NAND2_X1                        4
+     NAND3_X1                        2
+     NAND4_X1                        1
+     NOR2_X1                         2
+     NOR3_X1                         1
+     OAI22_X1                        1
+     OR2_X1                          1
+
+   Area for cell type $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000010 is unknown!
+
+   Chip area for module '$paramod$29c2fcf872559fbb3909a88efa6502a5e44b3975\VX_rr_arbiter': 41.496000
+     of which used for sequential elements: 10852.800000 (26153.85%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_skid_buffer ===
+
+   Number of wires:                  8
+   Number of wire bits:             22
+   Number of public wires:           8
+   Number of public wire bits:      22
+   Number of ports:                  8
+   Number of port bits:             22
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_stream_buffer      1
+
+   Area for cell type $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_stream_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_stream_buffer ===
+
+   Number of wires:                122
+   Number of wire bits:            157
+   Number of public wires:          14
+   Number of public wire bits:      42
+   Number of ports:                  8
+   Number of port bits:             22
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 50
+     AOI211_X1                       1
+     DFF_X1                         18
+     INV_X1                          1
+     MUX2_X1                        24
+     NAND2_X1                        1
+     NOR2_X1                         1
+     NOR3_X1                         2
+     OAI21_X1                        1
+     OR2_X1                          1
+
+   Chip area for module '$paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_stream_buffer': 133.798000
+     of which used for sequential elements: 10934.196000 (8172.17%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$370a6d8436a31b276ab676f06b99d10febb9d45e\VX_pipe_buffer ===
+
+   Number of wires:                  8
+   Number of wire bits:             96
+   Number of public wires:           8
+   Number of public wire bits:      96
+   Number of ports:                  8
+   Number of port bits:             96
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  0
+
+   Estimated number of transistors:          0
+
+=== $paramod$438cc21b37d6aedd0aa9ce5f06688afdfb2b13fd\VX_generic_arbiter ===
+
+   Number of wires:                  7
+   Number of wire bits:              9
+   Number of public wires:           7
+   Number of public wire bits:       9
+   Number of ports:                  7
+   Number of port bits:              9
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$29c2fcf872559fbb3909a88efa6502a5e44b3975\VX_rr_arbiter      1
+
+   Area for cell type $paramod$29c2fcf872559fbb3909a88efa6502a5e44b3975\VX_rr_arbiter is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$570ecca0a00db6aa969dcc9c018d73028732eb67\VX_mm_axi_xbar ===
+
+   Number of wires:                356
+   Number of wire bits:           9334
+   Number of public wires:          66
+   Number of public wire bits:    9016
+   Number of ports:                 55
+   Number of port bits:           8921
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 95
+     $paramod$109bb6766c248c9ad65357cc08032166e3078fd7\VX_mm_axi_arb      1
+     AND2_X1                         2
+     AOI211_X1                       2
+     AOI21_X1                       12
+     AOI22_X1                        3
+     DFF_X1                          8
+     INV_X1                         13
+     NAND2_X1                       10
+     NAND3_X1                        4
+     NAND4_X1                        3
+     NOR2_X1                        15
+     NOR4_X1                         1
+     OAI211_X1                       3
+     OAI21_X1                        4
+     OAI221_X1                       1
+     OR2_X1                          4
+     OR3_X1                          1
+     OR4_X1                          1
+     XNOR2_X1                        5
+     XOR2_X1                         2
+
+   Area for cell type $paramod$109bb6766c248c9ad65357cc08032166e3078fd7\VX_mm_axi_arb is unknown!
+
+   Chip area for module '$paramod$570ecca0a00db6aa969dcc9c018d73028732eb67\VX_mm_axi_xbar': 122.360000
+     of which used for sequential elements: 10970.372000 (8965.65%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$658729e91df3272ac594003e15346a1a891f952a\VX_pipe_register ===
+
+   Number of wires:                 16
+   Number of wire bits:             16
+   Number of public wires:           6
+   Number of public wire bits:       6
+   Number of ports:                  5
+   Number of port bits:              5
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  4
+     AOI211_X1                       1
+     DFF_X1                          1
+     INV_X1                          1
+     NOR2_X1                         1
+
+   Chip area for module '$paramod$658729e91df3272ac594003e15346a1a891f952a\VX_pipe_register': 7.182000
+     of which used for sequential elements: 10974.894000 (152811.11%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$73ef93ceb080b708c56aceff71c4460dbee622f2\VX_generic_arbiter ===
+
+   Number of wires:                  7
+   Number of wire bits:             19
+   Number of public wires:           7
+   Number of public wire bits:      19
+   Number of ports:                  7
+   Number of port bits:             19
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$7c8524b521b53b55fae9efbbc14d48821ad02fb8\VX_rr_arbiter      1
+
+   Area for cell type $paramod$7c8524b521b53b55fae9efbbc14d48821ad02fb8\VX_rr_arbiter is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$7c8524b521b53b55fae9efbbc14d48821ad02fb8\VX_rr_arbiter ===
+
+   Number of wires:                178
+   Number of wire bits:            266
+   Number of public wires:          20
+   Number of public wire bits:      77
+   Number of ports:                  7
+   Number of port bits:             19
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 99
+     $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000110      1
+     AND2_X1                         2
+     AND3_X1                         2
+     AND4_X1                         1
+     AOI21_X1                       13
+     AOI222_X1                       3
+     AOI22_X1                        2
+     DFF_X1                         12
+     INV_X1                         16
+     NAND2_X1                       14
+     NAND3_X1                        3
+     NAND4_X1                        1
+     NOR2_X1                         4
+     NOR3_X1                         1
+     OAI211_X1                       2
+     OAI21_X1                       15
+     OAI221_X1                       2
+     OR2_X1                          3
+     OR3_X1                          1
+     OR4_X1                          1
+
+   Area for cell type $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000110 is unknown!
+
+   Chip area for module '$paramod$7c8524b521b53b55fae9efbbc14d48821ad02fb8\VX_rr_arbiter': 139.916000
+     of which used for sequential elements: 11029.158000 (7882.70%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$9fdd7775c1ee94a9ab095485f1686b63d9ee7a81\VX_mm_axi_arb ===
+
+   Number of wires:               2355
+   Number of wire bits:           7459
+   Number of public wires:          87
+   Number of public wire bits:    5100
+   Number of ports:                 52
+   Number of port bits:           3818
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                761
+     $paramod$438cc21b37d6aedd0aa9ce5f06688afdfb2b13fd\VX_generic_arbiter      2
+     AND2_X1                         8
+     AND3_X1                         2
+     AOI211_X1                       1
+     AOI21_X1                        1
+     DFF_X1                          2
+     INV_X1                          5
+     MUX2_X1                       734
+     NAND3_X1                        1
+     NAND4_X1                        1
+     NOR2_X1                         4
+
+   Area for cell type $paramod$438cc21b37d6aedd0aa9ce5f06688afdfb2b13fd\VX_generic_arbiter is unknown!
+
+   Chip area for module '$paramod$9fdd7775c1ee94a9ab095485f1686b63d9ee7a81\VX_mm_axi_arb': 1397.564000
+     of which used for sequential elements: 11038.202000 (789.82%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$a162576d6f7c7153cbe8a4fac1ff2ee16504be9d\VX_elastic_buffer ===
+
+   Number of wires:                 11
+   Number of wire bits:            143
+   Number of public wires:          11
+   Number of public wire bits:     143
+   Number of ports:                  8
+   Number of port bits:             96
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  2
+     $paramod$370a6d8436a31b276ab676f06b99d10febb9d45e\VX_pipe_buffer      1
+     $paramod\VX_stream_buffer\DATAW=s32'00000000000000000000000000101101\OUT_REG=1'1      1
+
+   Area for cell type $paramod\VX_stream_buffer\DATAW=s32'00000000000000000000000000101101\OUT_REG=1'1 is unknown!
+   Area for cell type $paramod$370a6d8436a31b276ab676f06b99d10febb9d45e\VX_pipe_buffer is unknown!
+
+   Estimated number of transistors:          0+
+
+=== $paramod$afbc1128b975ae89151e5279765dd6b3ce57df06\VX_mm_axi_xbar ===
+
+   Number of wires:                103
+   Number of wire bits:           3941
+   Number of public wires:          63
+   Number of public wire bits:    3898
+   Number of ports:                 55
+   Number of port bits:           3824
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 15
+     $paramod$9fdd7775c1ee94a9ab095485f1686b63d9ee7a81\VX_mm_axi_arb      1
+     AOI21_X1                        2
+     DFF_X1                          3
+     INV_X1                          1
+     NAND2_X1                        1
+     NAND3_X1                        2
+     NOR2_X1                         1
+     OAI21_X1                        1
+     XNOR2_X1                        2
+     XOR2_X1                         1
+
+   Area for cell type $paramod$9fdd7775c1ee94a9ab095485f1686b63d9ee7a81\VX_mm_axi_arb is unknown!
+
+   Chip area for module '$paramod$afbc1128b975ae89151e5279765dd6b3ce57df06\VX_mm_axi_xbar': 25.802000
+     of which used for sequential elements: 11051.768000 (42832.99%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod$e9d8312044bff63d7a31e915d9afa263abdb1764\VX_cp_arbiter ===
+
+   Number of wires:                808
+   Number of wire bits:           1920
+   Number of public wires:          42
+   Number of public wire bits:     419
+   Number of ports:                 11
+   Number of port bits:             67
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                323
+     AND2_X1                        15
+     AND3_X1                        15
+     AND4_X1                         6
+     AOI211_X1                      10
+     AOI21_X1                       28
+     AOI221_X1                       1
+     AOI222_X1                       1
+     AOI22_X1                        3
+     DFF_X1                         30
+     INV_X1                         33
+     MUX2_X1                         4
+     NAND2_X1                       21
+     NAND3_X1                       27
+     NAND4_X1                        8
+     NOR2_X1                        38
+     NOR3_X1                        24
+     NOR4_X1                         7
+     OAI211_X1                       9
+     OAI21_X1                       12
+     OAI221_X1                       1
+     OAI33_X1                        3
+     OR2_X1                          8
+     OR3_X1                          3
+     OR4_X1                          2
+     XNOR2_X1                        8
+     XOR2_X1                         6
+
+   Chip area for module '$paramod$e9d8312044bff63d7a31e915d9afa263abdb1764\VX_cp_arbiter': 448.210000
+     of which used for sequential elements: 11187.428000 (2496.02%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000010 ===
+
+   Number of wires:                  6
+   Number of wire bits:              7
+   Number of public wires:           3
+   Number of public wire bits:       4
+   Number of ports:                  3
+   Number of port bits:              4
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     OR2_X1                          1
+
+   Chip area for module '$paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000010': 1.064000
+     of which used for sequential elements: 11187.428000 (1051450.00%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000110 ===
+
+   Number of wires:                 32
+   Number of wire bits:             98
+   Number of public wires:          19
+   Number of public wire bits:      83
+   Number of ports:                  3
+   Number of port bits:             10
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  5
+     OR2_X1                          2
+     OR3_X1                          3
+
+   Chip area for module '$paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000110': 6.118000
+     of which used for sequential elements: 11187.428000 (182860.87%)
+
+   Estimated number of transistors:          0+
+
+=== $paramod\VX_stream_buffer\DATAW=s32'00000000000000000000000000101101\OUT_REG=1'1 ===
+
+   Number of wires:                492
+   Number of wire bits:            712
+   Number of public wires:          14
+   Number of public wire bits:     190
+   Number of ports:                  8
+   Number of port bits:             96
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                235
+     AOI211_X1                       1
+     DFF_X1                         92
+     INV_X1                          1
+     MUX2_X1                       135
+     NAND2_X1                        1
+     NOR2_X1                         1
+     NOR3_X1                         2
+     OAI21_X1                        1
+     OR2_X1                          1
+
+   Chip area for module '$paramod\VX_stream_buffer\DATAW=s32'00000000000000000000000000101101\OUT_REG=1'1': 675.108000
+     of which used for sequential elements: 11603.452000 (1718.75%)
+
+   Estimated number of transistors:          0+
+
+=== VX_cp_core_top ===
+
+   Number of wires:             244328
+   Number of wire bits:         421580
+   Number of public wires:        1509
+   Number of public wire bits:  109599
+   Number of ports:                127
+   Number of port bits:           3130
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:             148873
+     $paramod$08f5926ccb34b1a68bbe3bf2bffc734c7ce718b5\VX_mm_axi_slice      2
+     $paramod$16dfd0cc9c94a3fedf300165b996dec38137037e\VX_pipe_register      1
+     $paramod$570ecca0a00db6aa969dcc9c018d73028732eb67\VX_mm_axi_xbar      1
+     $paramod$658729e91df3272ac594003e15346a1a891f952a\VX_pipe_register      1
+     $paramod$a162576d6f7c7153cbe8a4fac1ff2ee16504be9d\VX_elastic_buffer      1
+     $paramod$afbc1128b975ae89151e5279765dd6b3ce57df06\VX_mm_axi_xbar      1
+     $paramod$e9d8312044bff63d7a31e915d9afa263abdb1764\VX_cp_arbiter      4
+     AND2_X1                      1457
+     AND3_X1                       290
+     AND4_X1                       101
+     AOI211_X1                    3126
+     AOI21_X1                    11946
+     AOI221_X1                    1304
+     AOI222_X1                      65
+     AOI22_X1                     2022
+     DFF_X1                      40200
+     INV_X1                       7868
+     MUX2_X1                     41643
+     NAND2_X1                     2825
+     NAND3_X1                     1694
+     NAND4_X1                      221
+     NOR2_X1                      7112
+     NOR3_X1                       856
+     NOR4_X1                       188
+     OAI211_X1                    5335
+     OAI21_X1                    14888
+     OAI221_X1                     640
+     OAI222_X1                       2
+     OAI22_X1                      994
+     OAI33_X1                       59
+     OR2_X1                       3267
+     OR3_X1                        165
+     OR4_X1                         22
+     VX_cp_dcr_proxy                 1
+     VX_cp_launch                    1
+     VX_cp_unpack                    4
+     XNOR2_X1                      345
+     XOR2_X1                       221
+
+   Area for cell type \VX_cp_unpack is unknown!
+   Area for cell type \VX_cp_launch is unknown!
+   Area for cell type \VX_cp_dcr_proxy is unknown!
+   Area for cell type $paramod$16dfd0cc9c94a3fedf300165b996dec38137037e\VX_pipe_register is unknown!
+   Area for cell type $paramod$658729e91df3272ac594003e15346a1a891f952a\VX_pipe_register is unknown!
+   Area for cell type $paramod$a162576d6f7c7153cbe8a4fac1ff2ee16504be9d\VX_elastic_buffer is unknown!
+   Area for cell type $paramod$08f5926ccb34b1a68bbe3bf2bffc734c7ce718b5\VX_mm_axi_slice is unknown!
+   Area for cell type $paramod$afbc1128b975ae89151e5279765dd6b3ce57df06\VX_mm_axi_xbar is unknown!
+   Area for cell type $paramod$570ecca0a00db6aa969dcc9c018d73028732eb67\VX_mm_axi_xbar is unknown!
+   Area for cell type $paramod$e9d8312044bff63d7a31e915d9afa263abdb1764\VX_cp_arbiter is unknown!
+
+   Chip area for module '\VX_cp_core_top': 328598.312000
+     of which used for sequential elements: 193387.852000 (58.85%)
+
+   Estimated number of transistors:          0+
+
+=== VX_cp_dcr_proxy ===
+
+   Number of wires:               1165
+   Number of wire bits:           2004
+   Number of public wires:          28
+   Number of public wire bits:     611
+   Number of ports:                 13
+   Number of port bits:            404
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                560
+     AND2_X1                         3
+     AND3_X1                         3
+     AND4_X1                         1
+     AOI211_X1                      36
+     AOI21_X1                       53
+     AOI221_X1                      14
+     AOI222_X1                       2
+     AOI22_X1                       19
+     DFF_X1                        112
+     INV_X1                         56
+     MUX2_X1                        16
+     NAND2_X1                      107
+     NAND3_X1                        2
+     NAND4_X1                        3
+     NOR2_X1                        90
+     NOR3_X1                         5
+     NOR4_X1                         5
+     OAI211_X1                       1
+     OAI21_X1                        7
+     OAI221_X1                       1
+     OAI22_X1                        5
+     OR2_X1                          2
+     OR4_X1                          2
+     XNOR2_X1                        7
+     XOR2_X1                         8
+
+   Chip area for module '\VX_cp_dcr_proxy': 952.546000
+     of which used for sequential elements: 193894.316000 (20355.38%)
+
+   Estimated number of transistors:          0+
+
+=== VX_cp_launch ===
+
+   Number of wires:                 60
+   Number of wire bits:             83
+   Number of public wires:           9
+   Number of public wire bits:      10
+   Number of ports:                  7
+   Number of port bits:              7
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 18
+     AOI211_X1                       2
+     AOI21_X1                        2
+     AOI221_X1                       1
+     AOI22_X1                        1
+     DFF_X1                          2
+     INV_X1                          1
+     NAND2_X1                        1
+     NOR2_X1                         5
+     NOR3_X1                         2
+     OAI22_X1                        1
+
+   Chip area for module '\VX_cp_launch': 25.536000
+     of which used for sequential elements: 193903.360000 (759333.33%)
+
+   Estimated number of transistors:          0+
+
+=== VX_cp_unpack ===
+
+   Number of wires:               7248
+   Number of wire bits:         458474
+   Number of public wires:          66
+   Number of public wire bits:    2736
+   Number of ports:                  5
+   Number of port bits:            815
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               5790
+     AND2_X1                       286
+     AND3_X1                         9
+     AND4_X1                         7
+     AOI211_X1                     408
+     AOI21_X1                      788
+     AOI221_X1                     108
+     AOI222_X1                      20
+     AOI22_X1                      123
+     INV_X1                         96
+     MUX2_X1                      1463
+     NAND2_X1                      513
+     NAND3_X1                       46
+     NAND4_X1                        2
+     NOR2_X1                       608
+     NOR3_X1                       123
+     NOR4_X1                        58
+     OAI211_X1                     186
+     OAI21_X1                      621
+     OAI221_X1                      49
+     OAI222_X1                       8
+     OAI22_X1                       59
+     OAI33_X1                        7
+     OR2_X1                        120
+     OR3_X1                         15
+     XNOR2_X1                       56
+     XOR2_X1                        11
+
+   Chip area for module '\VX_cp_unpack': 7365.806000
+     of which used for sequential elements: 193903.360000 (2632.48%)
+
+   Estimated number of transistors:          0+
+
+=== design hierarchy ===
+
+   VX_cp_core_top                    1
+     $paramod$08f5926ccb34b1a68bbe3bf2bffc734c7ce718b5\VX_mm_axi_slice      2
+       $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_skid_buffer      1
+         $paramod$14e6aea35e7d6ba57701114953c42647aaa73ea0\VX_stream_buffer      1
+       $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_skid_buffer      2
+         $paramod$1af168841491ae31ea8e4855135a15933fcd3ea4\VX_stream_buffer      1
+       $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_skid_buffer      1
+         $paramod$230215b21a3f3566ad1622a91c4a5198379932db\VX_stream_buffer      1
+       $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_skid_buffer      1
+         $paramod$2b4d4de3b6172c1c3d7c15e39c33ff61c5906377\VX_stream_buffer      1
+     $paramod$16dfd0cc9c94a3fedf300165b996dec38137037e\VX_pipe_register      1
+     $paramod$570ecca0a00db6aa969dcc9c018d73028732eb67\VX_mm_axi_xbar      1
+       $paramod$109bb6766c248c9ad65357cc08032166e3078fd7\VX_mm_axi_arb      1
+         $paramod$73ef93ceb080b708c56aceff71c4460dbee622f2\VX_generic_arbiter      2
+           $paramod$7c8524b521b53b55fae9efbbc14d48821ad02fb8\VX_rr_arbiter      1
+             $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000110      1
+     $paramod$658729e91df3272ac594003e15346a1a891f952a\VX_pipe_register      1
+     $paramod$a162576d6f7c7153cbe8a4fac1ff2ee16504be9d\VX_elastic_buffer      1
+       $paramod$370a6d8436a31b276ab676f06b99d10febb9d45e\VX_pipe_buffer      1
+       $paramod\VX_stream_buffer\DATAW=s32'00000000000000000000000000101101\OUT_REG=1'1      1
+     $paramod$afbc1128b975ae89151e5279765dd6b3ce57df06\VX_mm_axi_xbar      1
+       $paramod$9fdd7775c1ee94a9ab095485f1686b63d9ee7a81\VX_mm_axi_arb      1
+         $paramod$438cc21b37d6aedd0aa9ce5f06688afdfb2b13fd\VX_generic_arbiter      2
+           $paramod$29c2fcf872559fbb3909a88efa6502a5e44b3975\VX_rr_arbiter      1
+             $paramod\VX_onehot_encoder\N=s32'00000000000000000000000000000010      1
+     $paramod$e9d8312044bff63d7a31e915d9afa263abdb1764\VX_cp_arbiter      4
+     VX_cp_dcr_proxy                 1
+     VX_cp_launch                    1
+     VX_cp_unpack                    4
+
+   Number of wires:             318001
+   Number of wire bits:         2379410
+   Number of public wires:        2804
+   Number of public wire bits:  172498
+   Number of ports:                791
+   Number of port bits:          48350
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:             193682
+     AND2_X1                      2689
+     AND3_X1                       397
+     AND4_X1                       156
+     AOI211_X1                    4861
+     AOI21_X1                    16545
+     AOI221_X1                    1869
+     AOI222_X1                     157
+     AOI22_X1                     2744
+     DFF_X1                      45678
+     INV_X1                       9264
+     MUX2_X1                     56623
+     NAND2_X1                     5138
+     NAND3_X1                     2008
+     NAND4_X1                      272
+     NOR2_X1                     10552
+     NOR3_X1                      1495
+     NOR4_X1                       456
+     OAI211_X1                    6196
+     OAI21_X1                    18670
+     OAI221_X1                     846
+     OAI222_X1                      34
+     OAI22_X1                     1925
+     OAI33_X1                       99
+     OR2_X1                       3812
+     OR3_X1                        246
+     OR4_X1                         35
+     XNOR2_X1                      615
+     XOR2_X1                       300
+
+   Chip area for top module '\VX_cp_core_top': 406978.138000
+     of which used for sequential elements: 193903.360000 (47.64%)
+
+   Estimated number of transistors:          0+
+

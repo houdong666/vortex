@@ -105,4 +105,4 @@ Fmax 按关键寄存器路径倒算：`period_min = (arrival + setup) / (1 - unc
 
 **功能 Accept，默认集成 Reject**：NOP 固定路径由 3 CPC 降至 2 CPC，改善 33.33%，且 100/1000/10000 条命令均保持 retire/seqnum 语义正确；但当前 Fmax 代理下降 6.43%，超过指导书的 2% 重新评估线。因此保留实验代码和测试，`VX_cp_engine` 参数继续默认关闭，不把快路径作为整机默认配置。
 
-完整的工具安装、测试、波形和综合命令见 `docs/experiments/exp04_commands.md`。
+完整的工具安装、测试、波形和综合命令见 [`exp04_commands.md`](exp04_commands.md)，最新组合回归与完整CP PPA边界见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

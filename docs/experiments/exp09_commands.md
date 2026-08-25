@@ -82,7 +82,25 @@ env -u DEBUG OBJCACHE= make -C hw/unittest/cp_core clean all \
 
 预期 `final_seqnum=100`、`dropped_count=0`、`duplicate_count=0`。
 
-## 步骤 8：检查最终修改
+## 步骤 8：运行完整CP PPA
+
+```bash
+cd /home/houdong/vortex
+results/exp04_11_summary/run_ppa.sh
+cat results/exp09/ppa_metrics.csv
+```
+
+脚本固定四队列、Priority和Aging开启，只切换EVENT公平性开关。PPA结果使用完整CP顶层，不能与仅综合单个EVENT单元的数据混用。
+
+## 步骤 9：运行最新统一回归
+
+```bash
+cd /home/houdong/vortex
+results/exp04_11_summary/run_regression.sh
+cat results/exp04_11_summary/regression_status.csv
+```
+
+## 步骤 10：检查最终修改
 
 ```bash
 cd /home/houdong/vortex
@@ -90,4 +108,4 @@ git diff --check
 git status --short
 ```
 
-实验分析见 [`exp09_event_wait_fairness.md`](exp09_event_wait_fairness.md)。
+实验分析见 [`exp09_event_wait_fairness.md`](exp09_event_wait_fairness.md)，实验4～11统一结论见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

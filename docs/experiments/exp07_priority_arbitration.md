@@ -81,5 +81,6 @@ ASIC 面积增幅看起来较大，但绝对增量只有 45.486 um²，因为仲
 
 实验7完成了 Priority First + Same-Priority RR，证明高优先级队列能获得更低的服务等待，同优先级公平性误差为 0%。
 
-当前决策为：**功能 Accept，默认集成暂缓**。原因是 Strict Priority 已在 Test B/C 中证明可能使低优先级队列饥饿，且仍需要完整 CP PPA。下一步是实验8 Aging，为等待过久的队列增加优先级补偿。
+当前决策为：**功能 Accept，不能单独默认开启**。Strict Priority已在Test B/C中证明可能使低优先级队列饥饿，因此生产配置必须与实验8 Aging配套；完整CP面积代理已补齐，Vivado时序和XRT仍待验证。
 
+逐步复现见 [`exp07_commands.md`](exp07_commands.md)，Priority+Aging在四队列完整CP中的最新联合结果见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

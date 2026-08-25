@@ -1,0 +1,36 @@
+
+4. Printing statistics.
+
+=== VX_cp_core_top ===
+
+   Number of wires:              10756
+   Number of wire bits:         164273
+   Number of public wires:        2108
+   Number of public wire bits:  131331
+   Number of ports:                127
+   Number of port bits:           3130
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              29028
+     $scopeinfo                     53
+     BUFG                            1
+     CARRY4                        582
+     FDRE                         9379
+     FDSE                           25
+     IBUF                         1178
+     INV                           286
+     LUT1                          145
+     LUT2                         2738
+     LUT3                         3441
+     LUT4                          568
+     LUT5                          766
+     LUT6                         6688
+     MUXF7                         251
+     MUXF8                          97
+     OBUF                         1952
+     RAM32M                        366
+     RAM64M                        512
+
+   Estimated number of LCs:      11463
+

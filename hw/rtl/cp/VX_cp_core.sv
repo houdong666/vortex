@@ -270,6 +270,7 @@ module VX_cp_core
   wire [1:0]  event_prio  [NUM_QUEUES];
   cmd_t       event_cmd   [NUM_QUEUES];
   logic       event_grant [NUM_QUEUES];
+  logic       kmu_ready, dma_ready, dcr_ready;
 
   // 将 bid 接口信号连接到相应的仲裁器输入数组
   generate
@@ -289,8 +290,7 @@ module VX_cp_core
       assign dcr_cmd[q]       = bid_dcr[q].cmd;
       assign bid_dcr[q].grant = dcr_grant[q];
 
-      // EVENT 单元忙碌时禁止新授权，确保完成或重试只属于当前命令。
-      assign event_valid[q]     = bid_event[q].valid && event_ready;
+      assign event_valid[q]     = bid_event[q].valid;
       assign event_prio[q]      = bid_event[q].priority_;
       assign event_cmd[q]       = bid_event[q].cmd;
       assign bid_event[q].grant = event_grant[q];
@@ -300,24 +300,28 @@ module VX_cp_core
   // 实例化四个仲裁器
   VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_kmu (
     .clk(clk), .reset(reset),
+    .grant_enable(kmu_ready),
     .bid_valid(kmu_valid), .bid_priority(kmu_prio), .bid_grant(kmu_grant),
     `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
     `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
   VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dma (
     .clk(clk), .reset(reset),
+    .grant_enable(dma_ready),
     .bid_valid(dma_valid), .bid_priority(dma_prio), .bid_grant(dma_grant),
     `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
     `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
   VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dcr (
     .clk(clk), .reset(reset),
+    .grant_enable(dcr_ready),
     .bid_valid(dcr_valid), .bid_priority(dcr_prio), .bid_grant(dcr_grant),
     `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
     `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
   VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_event (
     .clk(clk), .reset(reset),
+    .grant_enable(event_ready),
     .bid_valid(event_valid), .bid_priority(event_prio), .bid_grant(event_grant),
     `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
     `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
@@ -353,7 +357,8 @@ module VX_cp_core
     .grant    (any_kmu_grant),          // 来自仲裁器的有效授权
     .start    (gpu_if_int.start),       // 向 GPU 发送启动脉冲
     .gpu_busy (gpu_if_int.busy),        // 接收 GPU 忙信号
-    .done     (launch_done)             // 输出完成脉冲（广播）
+    .done     (launch_done),            // 输出完成脉冲（广播）
+    .ready    (kmu_ready)                // 空闲时才允许仲裁器授权
   );
 
   // ----- 共享的 DCR 代理单元（响应 DCR 仲裁授权）-----
@@ -363,6 +368,7 @@ module VX_cp_core
     .grant         (any_dcr_grant),              // 有效授权
     .cmd           (granted_dcr_cmd),            // 要执行的 DCR 命令
     .done          (dcr_done),                   // 完成脉冲
+    .ready         (dcr_ready),                  // 空闲时才允许仲裁器授权
     .last_rsp_data (dcr_last_rsp_data),          // 最近读返回数据（送寄存文件）
     .dcr_req_valid (gpu_if_int.dcr_req_valid),   // 向 GPU 发出的 DCR 请求有效
     .dcr_req_rw    (gpu_if_int.dcr_req_rw),      // 读/写标志
@@ -385,6 +391,7 @@ module VX_cp_core
     .grant    (any_dma_grant),        // DMA 仲裁授权
     .cmd      (granted_dma_cmd),      // 要执行的 MEM_* 命令
     .done     (dma_done),             // 完成脉冲
+    .ready    (dma_ready),            // 空闲时才允许仲裁器授权
     .axi_host (dma_host_axi),         // 连接到主机交叉开关的 AXI 主设备
     .axi_dev  (dma_dev_axi)           // 连接到设备交叉开关的 AXI 主设备
   );

@@ -58,6 +58,7 @@ module VX_cp_arbiter_top
   ) u_arb (
     .clk          (clk),
     .reset        (reset),
+    .grant_enable (1'b1),
     .bid_valid    (in_valid),
     .bid_priority (in_prio),
     .bid_grant    (out_grant),

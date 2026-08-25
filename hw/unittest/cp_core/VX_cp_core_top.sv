@@ -156,7 +156,21 @@ module VX_cp_core_top
   output wire                       dbg_launch_done,
   output wire                       dbg_dma_done,
   output wire                       dbg_dcr_done,
-  output wire                       dbg_event_done
+  output wire                       dbg_event_done,
+  // 实验11使用紧凑向量同时观测全部队列，避免测试台依赖Verilator内部层级名称。
+  output wire [NUM_QUEUES-1:0]      dbg_q_enabled_all,
+  output wire [NUM_QUEUES-1:0]      dbg_retire_evt_all,
+  output wire [NUM_QUEUES-1:0]      dbg_retire_ready_all,
+  output wire [NUM_QUEUES-1:0]      dbg_kmu_valid_all,
+  output wire [NUM_QUEUES-1:0]      dbg_kmu_grant_all,
+  output wire [NUM_QUEUES-1:0]      dbg_dma_valid_all,
+  output wire [NUM_QUEUES-1:0]      dbg_dma_grant_all,
+  output wire [NUM_QUEUES-1:0]      dbg_dcr_valid_all,
+  output wire [NUM_QUEUES-1:0]      dbg_dcr_grant_all,
+  output wire [NUM_QUEUES-1:0]      dbg_event_valid_all,
+  output wire [NUM_QUEUES-1:0]      dbg_event_grant_all,
+  output wire [3*NUM_QUEUES-1:0]    dbg_engine_fsm_all,
+  output wire [2*NUM_QUEUES-1:0]    dbg_engine_res_all
 );
 
   VX_cp_axil_s_if #(.ADDR_W(AXIL_AW)) axil_s_if ();
@@ -308,5 +322,23 @@ module VX_cp_core_top
   assign dbg_dma_done        = u_dut.dma_done;
   assign dbg_dcr_done        = u_dut.dcr_done;
   assign dbg_event_done      = u_dut.event_done;
+
+  generate
+    for (genvar q = 0; q < NUM_QUEUES; ++q) begin : g_multi_queue_debug
+      assign dbg_q_enabled_all[q]       = u_dut.q_state[q].enabled;
+      assign dbg_retire_evt_all[q]      = u_dut.retire_evt[q];
+      assign dbg_retire_ready_all[q]    = u_dut.retire_ready[q];
+      assign dbg_kmu_valid_all[q]       = u_dut.kmu_valid[q];
+      assign dbg_kmu_grant_all[q]       = u_dut.kmu_grant[q];
+      assign dbg_dma_valid_all[q]       = u_dut.dma_valid[q];
+      assign dbg_dma_grant_all[q]       = u_dut.dma_grant[q];
+      assign dbg_dcr_valid_all[q]       = u_dut.dcr_valid[q];
+      assign dbg_dcr_grant_all[q]       = u_dut.dcr_grant[q];
+      assign dbg_event_valid_all[q]     = u_dut.event_valid[q];
+      assign dbg_event_grant_all[q]     = u_dut.event_grant[q];
+      assign dbg_engine_fsm_all[3*q +: 3] = u_dut.g_cpe[q].u_engine.fsm;
+      assign dbg_engine_res_all[2*q +: 2] = u_dut.g_cpe[q].u_engine.cur_res;
+    end
+  endgenerate
 
 endmodule : VX_cp_core_top

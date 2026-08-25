@@ -1,0 +1,2 @@
+Running: DEBUG=0 CFG_FILE=./ci/../VX_config.toml make -C ./ci/../sw/runtime/simx > /dev/null
+Running: DEBUG=0 make -C "./ci/../tests/regression/demo" run-simx > run.log 2>&1

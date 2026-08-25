@@ -89,3 +89,5 @@ Fmax 按 `(arrival + setup) / (1 - uncertainty)` 换算；Baseline setup 为 0.0
 最终结论为：**功能与性能 Accept，默认集成暂缓**。2-entry 在高延迟下接近 2 倍吞吐，但 ASIC 面积增加 10.87%、Fmax 代理下降 2.27%。保留参数和实验实现，`VX_cp_fetch` 默认 `PREFETCH_DEPTH=1`；性能实验和后续优化可显式设为 2。
 
 实验六达到功能完成条件：没有重复或跳过缓存行，命令顺序、Ring wrap、head 和 seqnum 均正确，并用六档可调 AXI 延迟证明了 2-entry Prefetch 的延迟隐藏效果。
+
+逐步复现见 [`exp06_commands.md`](exp06_commands.md)，最新组合回归与完整CP PPA边界见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

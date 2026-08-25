@@ -1,0 +1,5 @@
+MQ_QUEUE scenario=same-dma mode=priority_aging queue=0 priority=0 commands=4 grants=4 average_wait=32.750 max_wait=74 retire_cycle=204 final_seqnum=3
+MQ_QUEUE scenario=same-dma mode=priority_aging queue=1 priority=1 commands=4 grants=4 average_wait=35.500 max_wait=50 retire_cycle=217 final_seqnum=3
+MQ_QUEUE scenario=same-dma mode=priority_aging queue=2 priority=2 commands=4 grants=4 average_wait=28.500 max_wait=35 retire_cycle=191 final_seqnum=3
+MQ_QUEUE scenario=same-dma mode=priority_aging queue=3 priority=3 commands=4 grants=4 average_wait=18.250 max_wait=35 retire_cycle=152 final_seqnum=3
+MQ_RESULT scenario=same-dma mode=priority_aging active_queues=4 total_commands=16 total_cycles=222 fairness=1.000000 dropped=0 duplicate=0 dma_ok=1 event_ok=1 status=PASS

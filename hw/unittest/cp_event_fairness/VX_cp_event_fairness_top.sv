@@ -31,7 +31,6 @@ module VX_cp_event_fairness_top
   VX_cp_engine_bid_if bid_evt[N]();
   logic [3:0] cmd_pending;
   logic [63:0] seqnum[N];
-  logic valid_gated[N];
   wire evt_valid[N];
   logic [1:0] bid_prio[N];
   logic grant[N];
@@ -48,7 +47,6 @@ module VX_cp_event_fairness_top
       commands[q].arg1 = 64'd1;
       commands[q].arg2 = 64'(WAIT_OP_GE);
       bid_prio[q] = 2'd0;
-      valid_gated[q] = evt_valid[q] && event_ready;
     end
   end
 
@@ -87,7 +85,8 @@ module VX_cp_event_fairness_top
   end
 
   VX_cp_arbiter #(.N(N)) u_arbiter (
-    .clk(clk), .reset(reset), .bid_valid(valid_gated), .bid_priority(bid_prio),
+    .clk(clk), .reset(reset), .grant_enable(event_ready),
+    .bid_valid(evt_valid), .bid_priority(bid_prio),
     .bid_grant(grant), `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
     `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o),
     `UNUSED_PIN(effective_priority_o)

@@ -217,25 +217,26 @@ public:
 
     // Post one CMD_DCR_WRITE to the ring, commit Q_TAIL, and wait for
     // Q_SEQNUM to reach the post's sequence number. Synchronous semantics.
-    vx_result_t cp_submit_dcr_write(uint32_t addr, uint32_t value);
+    vx_result_t cp_submit_dcr_write(uint32_t addr, uint32_t value,
+                                    uint32_t qid = 0);
 
     // Post one CMD_LAUNCH to the ring, commit Q_TAIL, and wait for
     // Q_SEQNUM. Synchronous. Followed by an implicit CMD_CACHE_FLUSH so
     // the host observes coherent results (see cp_submit_cache_flush).
-    vx_result_t cp_submit_launch();
+    vx_result_t cp_submit_launch(uint32_t qid = 0);
 
     // Post one CMD_LAUNCH_QMD: the CP reads the KMU descriptor (a
     // {count,(dcr_addr,value)...} list the caller staged to device memory at
     // `qmd_addr`) and replays it, then pulses start — one ring command in
     // place of a launch's ~18 CMD_DCR_WRITEs (NVIDIA QMD model). Followed by an
     // implicit CMD_CACHE_FLUSH, like cp_submit_launch. Batch-aware.
-    vx_result_t cp_submit_launch_qmd(uint64_t qmd_addr);
+    vx_result_t cp_submit_launch_qmd(uint64_t qmd_addr, uint32_t qid = 0);
 
     // Post one CMD_DRAW (OP_DRAW): arg0 = device address of a resident draw
     // descriptor ({uint32 num_steps, 28-byte cmd-record steps...}). The CP walks
     // the embedded bundle on-device — one ring command for a whole draw. Same
     // trailing COUT-drain discipline as cp_submit_launch_qmd.
-    vx_result_t cp_submit_draw(uint64_t desc_addr);
+    vx_result_t cp_submit_draw(uint64_t desc_addr, uint32_t qid = 0);
 
     // True iff the CP decodes CMD_DRAW (OP_DRAW). When false, vx_enqueue_draw
     // streams the draw as a ring batch instead (functionally identical).
@@ -246,7 +247,7 @@ public:
     // sweeps a per-core cache flush across all cores and retires the
     // command only when the last core's flush completes. A no-op on
     // write-through cache configs. Posted after every CMD_LAUNCH.
-    vx_result_t cp_submit_cache_flush();
+    vx_result_t cp_submit_cache_flush(uint32_t qid = 0);
 
     // ----- Batched CP submission (one draw = one ring batch) -----
     // cp_batch_begin holds the ring lock and switches cp_submit_* into
@@ -262,19 +263,19 @@ public:
     //
     // The lock is held for the batch's whole duration, so a batch must not
     // contain a CMD_EVENT_WAIT that depends on another queue posting a
-    // CMD_EVENT_SIGNAL (that submitter would deadlock on cp_mu_). Graphics
+    // CMD_EVENT_SIGNAL (that submitter would deadlock on the queue lock). Graphics
     // draw batches contain only DCR writes + launches, so this never arises.
     // cp_batch_end is always paired with cp_batch_begin (call it even on a
     // mid-batch error) to release the lock and drain the partial sequence.
-    void        cp_batch_begin();
-    vx_result_t cp_batch_end();
+    void        cp_batch_begin(uint32_t qid = 0);
+    vx_result_t cp_batch_end(uint32_t qid = 0);
 
     // Post one CMD_DCR_READ to the ring, wait for retire, and read the
     // response from the CP regfile's Q_LAST_DCR_RSP slot. `tag` is
     // forwarded as the DCR read's data bus payload (e.g. per-core
     // CACHE_FLUSH addressing).
     vx_result_t cp_submit_dcr_read(uint32_t addr, uint32_t tag,
-                                   uint32_t* out_value);
+                                   uint32_t* out_value, uint32_t qid = 0);
 
     // ----- CP-driven host<->device DMA (CMD_MEM_*) -----
     // The CP's VX_cp_dma engine performs the transfer; the host only
@@ -283,11 +284,14 @@ public:
     // into a VX_MEM_HOST buffer and posts CMD_MEM_WRITE (host->device);
     // cp_submit_mem_read posts CMD_MEM_READ (device->host) into a
     // VX_MEM_HOST buffer and copies it back to `host_dst`. Synchronous.
-    vx_result_t cp_submit_mem_copy (uint64_t dst, uint64_t src, uint64_t size);
+    vx_result_t cp_submit_mem_copy (uint64_t dst, uint64_t src, uint64_t size,
+                                    uint32_t qid = 0);
     vx_result_t cp_submit_mem_write(uint64_t dev_dst, const void* host_src,
-                                    uint64_t size, bool physical = false);
+                                    uint64_t size, bool physical = false,
+                                    uint32_t qid = 0);
     vx_result_t cp_submit_mem_read (void* host_dst, uint64_t dev_src,
-                                    uint64_t size, bool physical = false);
+                                    uint64_t size, bool physical = false,
+                                    uint32_t qid = 0);
 
     // ----- Device-memory transfer router -----
     // Every dispatcher path that moves data to/from device memory (module
@@ -296,15 +300,26 @@ public:
     // engine (CMD_MEM_*) — identically on every backend. The runtime never
     // touches device memory directly: it only appends commands to the host
     // ring and the CP executes them.
-    vx_result_t dev_write(uint64_t dev_addr, const void* src, uint64_t size);
-    vx_result_t dev_read (void* dst, uint64_t dev_addr, uint64_t size);
-    vx_result_t dev_copy (uint64_t dst, uint64_t src, uint64_t size);
+    vx_result_t dev_write(uint64_t dev_addr, const void* src, uint64_t size,
+                          uint32_t qid = 0);
+    vx_result_t dev_read (void* dst, uint64_t dev_addr, uint64_t size,
+                          uint32_t qid = 0);
+    vx_result_t dev_copy (uint64_t dst, uint64_t src, uint64_t size,
+                          uint32_t qid = 0);
 
     // Drain COUT stream rings: copy out each hart's [rd,wr) bytes, print
     // "#slot: <line>", advance rd[]. Called every CP launch-wait poll
     // iteration — concurrent with the producing kernel, so back-pressure
     // never deadlocks.
-    vx_result_t drain_cout();
+    vx_result_t drain_cout(uint32_t qid = 0);
+
+    // 软件 Queue 在整个生命周期内独占 QID；优先级同时写入硬件 Q_CONTROL。
+    vx_result_t cp_queue_acquire(uint32_t priority, uint32_t flags,
+                                 uint32_t* out_qid);
+    void        cp_queue_release(uint32_t qid);
+
+    // DCR 和 KMU 配置是设备级共享状态，跨队列启动序列必须保持原子性。
+    std::mutex& cp_config_mutex() { return cp_config_mu_; }
 
     // Acquire a device-memory slot to stage a kernel-args blob of `size`
     // bytes. Slots <= ARGS_SLOT_SIZE come from a recycled free-list (the
@@ -341,23 +356,26 @@ private:
 
     // 将一条紧凑命令加入当前缓存行。批处理期间尽量复用当前行；同步提交则在
     // 加入后立即写出并等待。cmd_size 是命令的线上字节数。
-    vx_result_t cp_submit_cl_(const void* cmd, std::size_t cmd_size);
+    vx_result_t cp_submit_cl_(uint32_t qid, const void* cmd,
+                              std::size_t cmd_size);
 
     // 将一条命令加入缓存行构建器。空间不足时先写出旧行，再创建新行。
-    // 每成功加入一条命令，cp_expected_seqnum_ 递增一次。
-    vx_result_t cp_command_append_(const void* cmd, std::size_t cmd_size);
+    // 每成功加入一条命令，该队列的expected_seqnum递增一次。
+    struct CpQueueState;
+    vx_result_t cp_command_append_(CpQueueState& q, const void* cmd,
+                                   std::size_t cmd_size);
 
     // 写出构建器中尚未提交的缓存行；空行不执行任何操作。
-    vx_result_t cp_line_flush_();
+    vx_result_t cp_line_flush_(CpQueueState& q);
 
-    // 在当前 tail 写入一条完整缓存行并推进 cp_tail_。调用者必须持有 cp_mu_。
-    vx_result_t cp_ring_append_(const void* cl);
+    // 在当前Tail写入一条完整缓存行并推进指针。调用者必须持有该队列的锁。
+    vx_result_t cp_ring_append_(CpQueueState& q, const void* cl);
 
     // Build + submit a CMD_MEM_* descriptor (opcode, dst, src, size).
     // `physical` sets the CMD_MEM header flag so the CP DMA skips VM
     // translation — used for page-table writes / the PT region.
     vx_result_t cp_submit_mem_(uint8_t opcode, uint64_t arg0, uint64_t arg1,
-                               uint64_t arg2, bool physical = false);
+                               uint64_t arg2, bool physical, uint32_t qid);
 
     // ----- CP-visible host memory (command ring + DMA staging) -----
     // host_alloc wraps platform()->host_mem_alloc and records the region
@@ -367,6 +385,26 @@ private:
         uint64_t cp_addr  = 0;         // device-side address the CP DMAs
         uint64_t size     = 0;
     };
+
+    struct CpQueueState {
+        uint32_t                qid = 0;
+        HostMem                 ring;
+        HostMem                 head;
+        HostMem                 cmpl;
+        uint64_t                tail = 0;
+        uint64_t                expected_seqnum = 0;
+        std::array<uint8_t, 64> pending_line{};
+        std::size_t             pending_used = 0;
+        bool                    in_batch = false;
+        bool                    batch_needs_cout_drain = false;
+        uint64_t                batch_target = 0;
+        bool                    assigned = false;
+        std::recursive_mutex    mu;
+    };
+
+    CpQueueState* cp_queue_(uint32_t qid);
+    bool          cp_defer_cout_drain_(uint32_t qid);
+    uint32_t      cp_queue_reg_(uint32_t qid, uint32_t reg) const;
     vx_result_t host_alloc(uint64_t size, HostMem* out);
     void        host_free (uint64_t cp_addr);
 
@@ -407,25 +445,13 @@ private:
     Queue*                         legacy_q_     = nullptr;
     Event*                         legacy_last_  = nullptr;
 
-    // CP state — populated only when cp_enabled_ == true. The ring / head /
-    // completion buffers are CP-visible host memory (HostMem): the runtime
-    // writes commands straight through their host_ptr.
+    // 每个硬件 QID 都有独立提交状态；unique_ptr 避免含 mutex 的对象被 vector 移动。
     bool                           cp_enabled_         = false;
-    HostMem                        cp_ring_;
-    HostMem                        cp_head_;
-    HostMem                        cp_cmpl_;
-    uint64_t                       cp_tail_            = 0;
-    uint64_t                       cp_expected_seqnum_ = 0;
-    std::array<uint8_t, 64>        cp_pending_line_{};
-    std::size_t                    cp_pending_used_    = 0;
+    std::vector<std::unique_ptr<CpQueueState>> cp_queues_;
     uint64_t                       cp_num_cores_       = 0; // cached VX_CAPS_NUM_CORES, used for CMD_CACHE_FLUSH
-    std::mutex                     cp_mu_;             // serialize ring writes
-    // Batched-submit state. cp_in_batch_ is set between cp_batch_begin and
-    // cp_batch_end (cp_mu_ held throughout); while set, cp_submit_* append
-    // without ringing the doorbell. cp_batch_target_ tracks the seqnum the
-    // last appended command will reach, which cp_batch_end polls for once.
-    bool                           cp_in_batch_        = false;
-    uint64_t                       cp_batch_target_    = 0;
+    std::mutex                     cp_queue_alloc_mu_;
+    std::mutex                     cp_mmio_mu_;        // 后端 MMIO 回调可能不是线程安全的
+    std::mutex                     cp_config_mu_;      // 保护共享 DCR/KMU 配置序列
 
     // Virtual memory — the Device owns the VMManager (the page-table
     // builder) iff the device reports an MMU (vm_enabled_, discovered from
@@ -451,6 +477,7 @@ private:
     uint32_t                       cout_rd_       [VX_MEM_IO_COUT_SLOTS] = {};
     uint32_t                       cout_lost_seen_[VX_MEM_IO_COUT_SLOTS] = {};
     std::string                    cout_line_     [VX_MEM_IO_COUT_SLOTS];
+    std::mutex                     cout_mu_;
 
     // Kernel-args scratch pool. Free-list of recycled fixed-size device slots;
     // ARGS_SLOT_SIZE covers typical kernel arg blocks. Drained in ~Device.
@@ -477,7 +504,7 @@ public:
 
     vx_result_t access(uint64_t off, uint64_t size, uint32_t flags);
     vx_result_t map   (uint64_t off, uint64_t size, uint32_t flags, void** out);
-    vx_result_t unmap (void* host_ptr);
+    vx_result_t unmap (void* host_ptr, uint32_t qid = 0);
 
     // Async-map support: map_reserve allocates the host mirror and records
     // the mapping (no data transfer), so vx_enqueue_map can hand the caller
@@ -486,7 +513,7 @@ public:
     // whose enqueue failed (frees the mirror without flushing).
     vx_result_t map_reserve(uint64_t off, uint64_t size, uint32_t flags,
                             void** out);
-    vx_result_t map_commit();
+    vx_result_t map_commit(uint32_t qid = 0);
     void        map_cancel();
 
 private:
@@ -591,6 +618,7 @@ public:
                               Queue** out);
 
     Device*  device()                  { return device_; }
+    uint32_t qid()                const{ return qid_; }
     uint32_t flags()              const{ return flags_; }
     bool     profiling_enabled()  const{ return (flags_ & VX_QUEUE_PROFILING_ENABLE) != 0; }
 
@@ -669,7 +697,7 @@ public:
 
 private:
     friend class RefCounted<Queue>;
-    Queue(Device* dev, const vx_queue_info_t& info);
+    Queue(Device* dev, const vx_queue_info_t& info, uint32_t qid);
     ~Queue();
 
     // ------------------------------------------------------------------
@@ -705,6 +733,7 @@ private:
                         vx_event_h* out);
 
     Device*                  device_;
+    uint32_t                 qid_;
     uint32_t                 priority_;
     uint32_t                 flags_;
 

@@ -67,8 +67,20 @@ Q3：EVENT_SIGNAL W = 1
 - 启用 `EVENT_WAIT_FAIRNESS=1` 的完整 `cp_core` B1/100 命令回归 PASS。
 - `final_seqnum=100`、`dropped_count=0`、`duplicate_count=0`。
 
-## 6. 结论
+## 6. 完整CP PPA
+
+使用最新四队列`VX_cp_core_top`，固定Priority和Aging开启，只切换`ENABLE_EVENT_WAIT_FAIRNESS`。工具为Yosys 0.40、Berkeley ABC 1.01和NanGate typical库。
+
+| 指标 | Baseline | Fairness | 变化 |
+|---|---:|---:|---:|
+| FPGA estimated LCs | 11319 | 11406 | +0.77% |
+| FPGA FDRE | 11406 | 11407 | +0.01% |
+| ASIC cell area | 406978.138 µm² | 406066.556 µm² | -0.22% |
+
+FPGA逻辑增量低于1%，寄存器几乎不变。ASIC面积轻微下降属于完整顶层技术映射差异，应解释为“面积基本持平”，不能宣称公平机制本身节省面积。该数据关闭了开源工具面积代理门禁，但不代替Vivado布局布线Fmax和XRT真板验证。原始数据见`results/exp09/ppa_metrics.csv`，综合报告见`results/exp04_11_summary/ppa/{q4_event_off,q4_full}/`。
+
+## 7. 结论
 
 实验 9 把长时间占用资源的 WAIT 转换为可抢占的单次 Poll。它显著降低无关 SIGNAL 的尾延迟，并消除“WAIT 占用 EVENT、SIGNAL 又负责满足 WAIT”的结构性死锁条件。代价是 WAIT 比较失败时增加一次 retry 和一个 Engine 退避周期；在本场景中最终 WAIT 只慢 1 周期。
 
-逐步复现见 [`exp09_commands.md`](exp09_commands.md)。
+逐步复现见 [`exp09_commands.md`](exp09_commands.md)，最新统一状态见 [`exp04_11_unified_summary.md`](exp04_11_unified_summary.md)。

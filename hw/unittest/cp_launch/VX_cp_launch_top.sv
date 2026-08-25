@@ -26,7 +26,8 @@ module VX_cp_launch_top (
     .grant    (grant),
     .start    (start),
     .gpu_busy (gpu_busy),
-    .done     (done)
+    .done     (done),
+    `UNUSED_PIN(ready)
   );
 
 endmodule : VX_cp_launch_top

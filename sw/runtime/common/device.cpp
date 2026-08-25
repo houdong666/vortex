@@ -89,10 +89,12 @@ Device::~Device() {
             this->mem_free(addr);
         args_pool_free_.clear();
     }
-    // Release the CP ring / head / completion host buffers.
-    if (cp_ring_.cp_addr) host_free(cp_ring_.cp_addr);
-    if (cp_head_.cp_addr) host_free(cp_head_.cp_addr);
-    if (cp_cmpl_.cp_addr) host_free(cp_cmpl_.cp_addr);
+    // Release every hardware queue's CP-visible buffers.
+    for (auto& q : cp_queues_) {
+        if (q->ring.cp_addr) host_free(q->ring.cp_addr);
+        if (q->head.cp_addr) host_free(q->head.cp_addr);
+        if (q->cmpl.cp_addr) host_free(q->cmpl.cp_addr);
+    }
     // Queues / buffers are torn down by their own refcount path; this
     // just detaches the device backlinks.
     std::lock_guard<std::mutex> g(mu_);
@@ -182,6 +184,7 @@ constexpr uint32_t CP_Q_TAIL_LO         = 0x120;
 constexpr uint32_t CP_Q_TAIL_HI         = 0x124;
 constexpr uint32_t CP_Q_SEQNUM          = 0x128;
 constexpr uint32_t CP_Q_LAST_DCR_RSP    = 0x130;
+constexpr uint32_t CP_Q_STRIDE          = 0x040;
 constexpr uint32_t CP_SATP_LO           = 0x028;  // CP DMA MMU page-table root
 constexpr uint32_t CP_SATP_HI           = 0x02C;
 
@@ -230,57 +233,57 @@ private:
 };
 
 vx_result_t Device::cp_init() {
-    // Ring + head + completion live in CP-visible host memory: the runtime
-    // appends commands straight through the ring's host pointer and the CP
-    // fetches them over its m_axi_host master — no per-command DMA.
     auto* p = platform();
-    auto r = host_alloc(CP_RING_SIZE, &cp_ring_);
-    if (r != VX_SUCCESS) return r;
-    r = host_alloc(CP_CL_BYTES, &cp_head_);
-    if (r != VX_SUCCESS) return r;
-    r = host_alloc(CP_CL_BYTES, &cp_cmpl_);
-    if (r != VX_SUCCESS) return r;
+    uint32_t cp_caps = 0;
+    if (p->cp_reg_read(CP_DEV_CAPS, &cp_caps) != VX_SUCCESS)
+        return VX_ERR_DEVICE_LOST;
+    const uint32_t num_queues = cp_caps & 0xffu;
+    if (num_queues == 0)
+        return VX_ERR_DEVICE_LOST;
 
-    // Zero them so the CP doesn't read stale data on first fetch.
-    std::memset(cp_ring_.host_ptr, 0, CP_RING_SIZE);
-    std::memset(cp_head_.host_ptr, 0, CP_CL_BYTES);
-    std::memset(cp_cmpl_.host_ptr, 0, CP_CL_BYTES);
+    vm_enabled_ = (cp_caps & (1u << 24)) != 0;
+    cp_supports_draw_ = (cp_caps & (1u << 25)) != 0;
+    cp_supports_qmd_ = (cp_caps & (1u << 26)) != 0;
 
-    // Program CP queue 0. Any failure here is fatal — the CP regfile is
-    // the sole control path, so a botched setup means cp_enabled_=true
-    // would lie about a working device. Macro keeps the call list legible.
+    // 每个硬件队列使用独立的CP可见Ring、Head和Completion，避免软件队列
+    // 在Host侧共享Tail或Packing状态。
+    cp_queues_.reserve(num_queues);
+    for (uint32_t qid = 0; qid < num_queues; ++qid) {
+        std::unique_ptr<CpQueueState> q(new CpQueueState());
+        q->qid = qid;
+        cp_queues_.push_back(std::move(q));
+        auto& state = *cp_queues_.back();
+        auto r = host_alloc(CP_RING_SIZE, &state.ring);
+        if (r != VX_SUCCESS) return r;
+        r = host_alloc(CP_CL_BYTES, &state.head);
+        if (r != VX_SUCCESS) return r;
+        r = host_alloc(CP_CL_BYTES, &state.cmpl);
+        if (r != VX_SUCCESS) return r;
+        std::memset(state.ring.host_ptr, 0, CP_RING_SIZE);
+        std::memset(state.head.host_ptr, 0, CP_CL_BYTES);
+        std::memset(state.cmpl.host_ptr, 0, CP_CL_BYTES);
+    }
+
     #define CP_WR(_off, _val) do {                                          \
         auto _r = p->cp_reg_write((_off), (_val));                          \
         if (_r != VX_SUCCESS) return _r;                                    \
     } while (0)
-    CP_WR(CP_Q_RING_BASE_LO,   uint32_t(cp_ring_.cp_addr & 0xFFFFFFFFu));
-    CP_WR(CP_Q_RING_BASE_HI,   uint32_t(cp_ring_.cp_addr >> 32));
-    CP_WR(CP_Q_HEAD_ADDR_LO,   uint32_t(cp_head_.cp_addr & 0xFFFFFFFFu));
-    CP_WR(CP_Q_HEAD_ADDR_HI,   uint32_t(cp_head_.cp_addr >> 32));
-    CP_WR(CP_Q_CMPL_ADDR_LO,   uint32_t(cp_cmpl_.cp_addr & 0xFFFFFFFFu));
-    CP_WR(CP_Q_CMPL_ADDR_HI,   uint32_t(cp_cmpl_.cp_addr >> 32));
-    CP_WR(CP_Q_RING_SIZE_LOG2, CP_RING_SIZE_LOG2);
-    CP_WR(CP_Q_CONTROL,        0x1);
+    for (uint32_t qid = 0; qid < num_queues; ++qid) {
+        const auto& q = *cp_queues_[qid];
+        const uint32_t base = qid * CP_Q_STRIDE;
+        CP_WR(CP_Q_RING_BASE_LO + base, uint32_t(q.ring.cp_addr & 0xFFFFFFFFu));
+        CP_WR(CP_Q_RING_BASE_HI + base, uint32_t(q.ring.cp_addr >> 32));
+        CP_WR(CP_Q_HEAD_ADDR_LO + base, uint32_t(q.head.cp_addr & 0xFFFFFFFFu));
+        CP_WR(CP_Q_HEAD_ADDR_HI + base, uint32_t(q.head.cp_addr >> 32));
+        CP_WR(CP_Q_CMPL_ADDR_LO + base, uint32_t(q.cmpl.cp_addr & 0xFFFFFFFFu));
+        CP_WR(CP_Q_CMPL_ADDR_HI + base, uint32_t(q.cmpl.cp_addr >> 32));
+        CP_WR(CP_Q_RING_SIZE_LOG2 + base, CP_RING_SIZE_LOG2);
+        // Q0为Device内部初始化保留可用；其余QID在软件Queue绑定时启用。
+        CP_WR(CP_Q_CONTROL + base, qid == 0 ? (0x1u | (1u << 2)) : 0u);
+    }
     CP_WR(CP_REG_CTRL,         0x1);
 
     cp_enabled_ = true;
-
-    // Discover VM support at runtime: the CP publishes VM_ENABLED in DEV_CAPS
-    // (bit 24); read once here rather than relying on compile-time #ifdefs.
-    {
-        uint32_t dev_caps = 0;
-        if (p->cp_reg_read(CP_DEV_CAPS, &dev_caps) != VX_SUCCESS)
-            return VX_ERR_DEVICE_LOST;
-        vm_enabled_ = (dev_caps & (1u << 24)) != 0;
-        // SUPPORTS_DRAW (bit 25): the CP decodes CMD_DRAW (OP_DRAW). When clear
-        // (e.g. an RTL CP without the OP_DRAW mirror yet), vx_enqueue_draw falls
-        // back to streaming the draw as a ring batch (functionally identical).
-        cp_supports_draw_ = (dev_caps & (1u << 25)) != 0;
-        // SUPPORTS_QMD (bit 26): the CP decodes CMD_LAUNCH_QMD. When clear,
-        // launches replay the staged descriptor as plain CMD_DCR_WRITEs
-        // followed by CMD_LAUNCH (functionally identical, more ring commands).
-        cp_supports_qmd_ = (dev_caps & (1u << 26)) != 0;
-    }
 
     if (vm_enabled_) {
         // Virtual memory: build the page tables and program the CP DMA's MMU
@@ -318,9 +321,9 @@ vx_result_t Device::cp_init() {
         constexpr uint32_t RING  = VX_MEM_IO_COUT_RING;
         std::vector<uint8_t> zeros_meta(SLOTS * 4, 0);
         // wr[] + rd[] are contiguous at the start of the region.
-        r = dev_write(VX_MEM_IO_COUT_ADDR,
-                      std::vector<uint8_t>(SLOTS * 8, 0).data(),
-                      SLOTS * 8);
+        auto r = dev_write(VX_MEM_IO_COUT_ADDR,
+                           std::vector<uint8_t>(SLOTS * 8, 0).data(),
+                           SLOTS * 8);
         if (r != VX_SUCCESS) return r;
         // lost[] sits past data[].
         const uint64_t LOST_BASE = VX_MEM_IO_COUT_ADDR
@@ -333,144 +336,219 @@ vx_result_t Device::cp_init() {
     return VX_SUCCESS;
 }
 
-vx_result_t Device::cp_ring_append_(const void* cl) {
-    // 调用者持有 cp_mu_。写入一条完整缓存行后只推进 tail；seqnum 按命令计数。
-    const uint64_t ring_off = cp_tail_ & (CP_RING_SIZE - 1);
+Device::CpQueueState* Device::cp_queue_(uint32_t qid) {
+    return qid < cp_queues_.size() ? cp_queues_[qid].get() : nullptr;
+}
+
+uint32_t Device::cp_queue_reg_(uint32_t qid, uint32_t reg) const {
+    return reg + qid * CP_Q_STRIDE;
+}
+
+bool Device::cp_defer_cout_drain_(uint32_t qid) {
+    auto* q = cp_queue_(qid);
+    if (!q)
+        return false;
+    std::lock_guard<std::recursive_mutex> queue_guard(q->mu);
+    if (!q->in_batch)
+        return false;
+    // 纯DCR批次不会产生控制台输出，避免为它额外插入两条COUT读取命令。
+    q->batch_needs_cout_drain = true;
+    return true;
+}
+
+vx_result_t Device::cp_queue_acquire(uint32_t priority, uint32_t flags,
+                                     uint32_t* out_qid) {
+    if (!out_qid || priority > 3)
+        return VX_ERR_INVALID_VALUE;
+    std::lock_guard<std::mutex> alloc_guard(cp_queue_alloc_mu_);
+    for (auto& q : cp_queues_) {
+        if (q->assigned)
+            continue;
+        uint32_t control = 0x1u | ((priority & 0x3u) << 2);
+        if (flags & VX_QUEUE_PROFILING_ENABLE)
+            control |= 1u << 4;
+        vx_result_t r;
+        {
+            std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+            r = platform()->cp_reg_write(
+                cp_queue_reg_(q->qid, CP_Q_CONTROL), control);
+        }
+        if (r != VX_SUCCESS)
+            return r;
+        q->assigned = true;
+        *out_qid = q->qid;
+        return VX_SUCCESS;
+    }
+    return VX_ERR_OUT_OF_DEVICE_MEMORY;
+}
+
+void Device::cp_queue_release(uint32_t qid) {
+    std::lock_guard<std::mutex> alloc_guard(cp_queue_alloc_mu_);
+    auto* q = cp_queue_(qid);
+    if (!q || !q->assigned)
+        return;
+    // QID只在工作线程排空后释放，因此可保留单调Tail/Seqnum供下一任安全复用。
+    const uint32_t control = qid == 0 ? (0x1u | (1u << 2)) : 0u;
+    {
+        std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+        (void)platform()->cp_reg_write(cp_queue_reg_(qid, CP_Q_CONTROL), control);
+    }
+    q->assigned = false;
+}
+
+vx_result_t Device::cp_ring_append_(CpQueueState& q, const void* cl) {
+    // 调用者持有该队列的锁。写入完整缓存行后只推进Tail；Seqnum按命令计数。
+    const uint64_t ring_off = q.tail & (CP_RING_SIZE - 1);
     if (ring_off + CP_CL_BYTES > CP_RING_SIZE)
         return VX_ERR_INVALID_VALUE;  // mid-CL ring wrap not yet supported
-    std::memcpy(static_cast<uint8_t*>(cp_ring_.host_ptr) + ring_off,
+    std::memcpy(static_cast<uint8_t*>(q.ring.host_ptr) + ring_off,
                 cl, CP_CL_BYTES);
-    cp_tail_ += CP_CL_BYTES;
+    q.tail += CP_CL_BYTES;
     return VX_SUCCESS;
 }
 
-vx_result_t Device::cp_line_flush_() {
-    if (cp_pending_used_ == 0)
+vx_result_t Device::cp_line_flush_(CpQueueState& q) {
+    if (q.pending_used == 0)
         return VX_SUCCESS;
-    auto r = cp_ring_append_(cp_pending_line_.data());
+    auto r = cp_ring_append_(q, q.pending_line.data());
     if (r != VX_SUCCESS)
         return r;
-    cp_pending_line_.fill(0);
-    cp_pending_used_ = 0;
+    q.pending_line.fill(0);
+    q.pending_used = 0;
     return VX_SUCCESS;
 }
 
-vx_result_t Device::cp_command_append_(const void* cmd, std::size_t cmd_size) {
+vx_result_t Device::cp_command_append_(CpQueueState& q, const void* cmd,
+                                       std::size_t cmd_size) {
     if (!cmd || cmd_size < 4 || cmd_size > CP_CL_BYTES)
         return VX_ERR_INVALID_VALUE;
-    if (cp_pending_used_ + cmd_size > CP_CL_BYTES) {
-        auto r = cp_line_flush_();
+    if (q.pending_used + cmd_size > CP_CL_BYTES) {
+        auto r = cp_line_flush_(q);
         if (r != VX_SUCCESS)
             return r;
     }
-    std::memcpy(cp_pending_line_.data() + cp_pending_used_, cmd, cmd_size);
-    cp_pending_used_ += cmd_size;
-    cp_expected_seqnum_ += 1;
+    std::memcpy(q.pending_line.data() + q.pending_used, cmd, cmd_size);
+    q.pending_used += cmd_size;
+    q.expected_seqnum += 1;
     return VX_SUCCESS;
 }
 
-void Device::cp_batch_begin() {
-    cp_mu_.lock();                       // held until cp_batch_end
-    cp_in_batch_     = true;
+void Device::cp_batch_begin(uint32_t qid) {
+    auto* q = cp_queue_(qid);
+    assert(q != nullptr);
+    q->mu.lock();                       // held until cp_batch_end
+    q->in_batch = true;
+    q->batch_needs_cout_drain = false;
     // Baseline target: an empty batch polls for an already-retired seqnum
     // and returns immediately.
-    cp_batch_target_ = cp_expected_seqnum_;
+    q->batch_target = q->expected_seqnum;
 }
 
-vx_result_t Device::cp_batch_end() {
+vx_result_t Device::cp_batch_end(uint32_t qid) {
     auto* p = platform();
-    cp_in_batch_ = false;
+    auto* q = cp_queue_(qid);
+    if (!q)
+        return VX_ERR_INVALID_VALUE;
+    q->in_batch = false;
+    const bool needs_cout_drain = q->batch_needs_cout_drain;
+    q->batch_needs_cout_drain = false;
 
     // 发布 doorbell 前写出最后一条未满缓存行。
-    auto r = cp_line_flush_();
-    const uint64_t target = cp_batch_target_;
+    auto r = cp_line_flush_(*q);
+    const uint64_t target = q->batch_target;
     if (r != VX_SUCCESS) {
-        cp_mu_.unlock();
+        q->mu.unlock();
         return r;
     }
 
     // Commit the staged tail once (the single doorbell for the whole batch),
-    // while still holding cp_mu_ from cp_batch_begin. Release fence first so
+    // while still holding this queue's lock from cp_batch_begin. Release fence first so
     // the CP cannot read a stale ring entry (see cp_submit_cl_).
     std::atomic_thread_fence(std::memory_order_release);
-    r = p->cp_reg_write(CP_Q_TAIL_LO, uint32_t(cp_tail_ & 0xFFFFFFFFu));
-    if (r == VX_SUCCESS)
-        r = p->cp_reg_write(CP_Q_TAIL_HI, uint32_t(cp_tail_ >> 32));
-    cp_mu_.unlock();                     // release the batch lock before polling
+    {
+        std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+        r = p->cp_reg_write(cp_queue_reg_(qid, CP_Q_TAIL_LO),
+                            uint32_t(q->tail & 0xFFFFFFFFu));
+        if (r == VX_SUCCESS)
+            r = p->cp_reg_write(cp_queue_reg_(qid, CP_Q_TAIL_HI),
+                                uint32_t(q->tail >> 32));
+    }
+    q->mu.unlock();                     // release the batch lock before polling
     if (r != VX_SUCCESS) return r;
 
-    // Poll Q_SEQNUM once for the last command in the batch. Reacquire cp_mu_
-    // around each MMIO read so simx's tick() and concurrent posts don't race.
+    // Poll Q_SEQNUM once for the last command in the batch；MMIO短锁避免后端状态竞争。
     for (;;) {
         uint32_t seqnum32 = 0;
         {
-            std::lock_guard<std::mutex> g(cp_mu_);
-            r = p->cp_reg_read(CP_Q_SEQNUM, &seqnum32);
+            std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+            r = p->cp_reg_read(cp_queue_reg_(qid, CP_Q_SEQNUM), &seqnum32);
         }
         if (r != VX_SUCCESS) return r;
         if (uint64_t(seqnum32) >= target) break;
+        std::this_thread::yield();
     #ifdef SCOPE
         (void)vx_scope_drain();
     #endif
     }
-    // The batch's trailing CMD_CACHE_FLUSH(es) have retired, so every kernel's
-    // writes are coherent: drain the console rings once for the whole batch
-    // (deferred from each in-batch cp_submit_launch).
-    return drain_cout();
+    // 只有执行类命令可能产生控制台输出；多个Launch仍只在批次末尾清空一次。
+    return needs_cout_drain ? drain_cout(qid) : VX_SUCCESS;
 }
 
-vx_result_t Device::cp_submit_cl_(const void* cmd, std::size_t cmd_size) {
+vx_result_t Device::cp_submit_cl_(uint32_t qid, const void* cmd,
+                                  std::size_t cmd_size) {
     auto* p = platform();
+    auto* q = cp_queue_(qid);
+    if (!q)
+        return VX_ERR_INVALID_VALUE;
 
-    // Batch mode: append only — cp_mu_ is already held for the batch, and
-    // the single doorbell + poll happen in cp_batch_end.
-    if (cp_in_batch_) {
-        auto r = cp_command_append_(cmd, cmd_size);
-        if (r == VX_SUCCESS) cp_batch_target_ = cp_expected_seqnum_;
+    // 递归锁允许批处理拥有者重复进入；其他线程会等到Batch结束后再提交，
+    // 不会误把自己的命令追加到别人的未发布批次中。
+    std::unique_lock<std::recursive_mutex> queue_guard(q->mu);
+    if (q->in_batch) {
+        auto r = cp_command_append_(*q, cmd, cmd_size);
+        if (r == VX_SUCCESS) q->batch_target = q->expected_seqnum;
         return r;
     }
 
     uint64_t target;
+    // 同步提交不能留下待发布命令：加入构建器后立即写出缓存行。
+    auto r = cp_command_append_(*q, cmd, cmd_size);
+    if (r != VX_SUCCESS) return r;
+    r = cp_line_flush_(*q);
+    if (r != VX_SUCCESS) return r;
+    target = q->expected_seqnum;
+
+    // Release fence between the ring memcpy and the doorbell MMIO so
+    // the CP cannot read a stale ring entry. The MMIO write is a
+    // serializing UC store on x86 (sfence-equivalent), but on ARM /
+    // RISC-V and on shells that map host_only BOs WB this fence is
+    // required for correctness. Cheap on x86; matters everywhere else.
+    std::atomic_thread_fence(std::memory_order_release);
+
+    // 2) Commit the new tail. Atomic-pair: LO stages, HI commits both.
     {
-        // Hold cp_mu_ only through ring write + TAIL doorbell; release before
-        // polling so concurrent CMD_EVENT_WAIT submitters can post SIGNALs that
-        // unblock a stalled WAIT at the ring head.
-        std::lock_guard<std::mutex> g(cp_mu_);
-
-        // 同步提交不能留下待发布命令：加入构建器后立即写出缓存行。
-        auto r = cp_command_append_(cmd, cmd_size);
+        std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+        r = p->cp_reg_write(cp_queue_reg_(qid, CP_Q_TAIL_LO),
+                            uint32_t(q->tail & 0xFFFFFFFFu));
         if (r != VX_SUCCESS) return r;
-        r = cp_line_flush_();
+        r = p->cp_reg_write(cp_queue_reg_(qid, CP_Q_TAIL_HI),
+                            uint32_t(q->tail >> 32));
         if (r != VX_SUCCESS) return r;
-        target = cp_expected_seqnum_;
+    }
+    queue_guard.unlock();
 
-        // Release fence between the ring memcpy and the doorbell MMIO so
-        // the CP cannot read a stale ring entry. The MMIO write is a
-        // serializing UC store on x86 (sfence-equivalent), but on ARM /
-        // RISC-V and on shells that map host_only BOs WB this fence is
-        // required for correctness. Cheap on x86; matters everywhere else.
-        std::atomic_thread_fence(std::memory_order_release);
-
-        // 2) Commit the new tail. Atomic-pair: LO stages, HI commits both.
-        r = p->cp_reg_write(CP_Q_TAIL_LO, uint32_t(cp_tail_ & 0xFFFFFFFFu));
-        if (r != VX_SUCCESS) return r;
-        r = p->cp_reg_write(CP_Q_TAIL_HI, uint32_t(cp_tail_ >> 32));
-        if (r != VX_SUCCESS) return r;
-    }   // release cp_mu_ — another submitter can now post its own command
-
-    // 3) Poll Q_SEQNUM. Reacquire cp_mu_ around each individual MMIO read
-    // so simx's tick() (which mutates simulator state) and concurrent
-    // posts from other queues don't race; this still leaves a window
-    // between iterations for other submitters to come in.
+    // 3) Poll Q_SEQNUM. MMIO短锁只保护一次后端访问，不阻塞其他QID敲门铃。
     for (;;) {
         uint32_t seqnum32 = 0;
         vx_result_t r;
         {
-            std::lock_guard<std::mutex> g(cp_mu_);
-            r = p->cp_reg_read(CP_Q_SEQNUM, &seqnum32);
+            std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+            r = p->cp_reg_read(cp_queue_reg_(qid, CP_Q_SEQNUM), &seqnum32);
         }
         if (r != VX_SUCCESS) return r;
         if (uint64_t(seqnum32) >= target) return VX_SUCCESS;
+        // 轮询失败后让出Host时间片，避免一个等待队列长期压住其他QID的门铃线程。
+        std::this_thread::yield();
         // COUT is drained post-launch only (see cp_submit_launch). The CP
         // ring is serial — a COUT CMD_MEM_READ posted here would queue
         // behind the very command being waited on; mid-launch draining is not
@@ -485,7 +563,8 @@ vx_result_t Device::cp_submit_cl_(const void* cmd, std::size_t cmd_size) {
     }
 }
 
-vx_result_t Device::cp_submit_dcr_write(uint32_t addr, uint32_t value) {
+vx_result_t Device::cp_submit_dcr_write(uint32_t addr, uint32_t value,
+                                        uint32_t qid) {
     // VM safety check: when VM is active and the pinned slab is configured,
     // every HW-addr DCR must reference a buffer in the pinned slab — the HW
     // master bypasses the per-core MMU and would otherwise dereference a stale VA.
@@ -527,30 +606,30 @@ vx_result_t Device::cp_submit_dcr_write(uint32_t addr, uint32_t value) {
     p32[0] = CP_OPCODE_DCR_WR;
     p32[1] = addr;
     p32[3] = value;
-    return cp_submit_cl_(cl, 20);
+    return cp_submit_cl_(qid, cl, 20);
 }
 
-vx_result_t Device::cp_submit_launch() {
+vx_result_t Device::cp_submit_launch(uint32_t qid) {
     // CMD_LAUNCH on-wire layout (cmd_size=12):
     //   bytes 0..3   header  { opcode=0x06, flags=0, reserved=0 }
     //   bytes 4..11  arg0    unused by VX_cp_launch
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_LAUNCH;
-    auto r = cp_submit_cl_(cl, 12);
+    auto r = cp_submit_cl_(qid, cl, 12);
     if (r != VX_SUCCESS) return r;
     // Cache coherence: post an explicit cache flush right after the launch
     // (ACQUIRE_MEM model) so the host observes coherent kernel results.
-    r = cp_submit_cache_flush();
+    r = cp_submit_cache_flush(qid);
     if (r != VX_SUCCESS) return r;
     // In a batch the flush has only been appended, not retired — defer the
     // COUT drain to cp_batch_end (one drain for the whole sequence).
-    if (cp_in_batch_) return VX_SUCCESS;
+    if (cp_defer_cout_drain_(qid)) return VX_SUCCESS;
     // Final COUT drain: the flush has made the kernel's writes coherent, so
     // the tail-end console output left in the rings is now safe to read.
-    return drain_cout();
+    return drain_cout(qid);
 }
 
-vx_result_t Device::cp_submit_launch_qmd(uint64_t qmd_addr) {
+vx_result_t Device::cp_submit_launch_qmd(uint64_t qmd_addr, uint32_t qid) {
     // CMD_LAUNCH_QMD on-wire layout (cmd_size=12):
     //   bytes 0..3   header  { opcode=0x0B, flags=0, reserved=0 }
     //   bytes 4..11  arg0    QMD descriptor device address
@@ -561,15 +640,15 @@ vx_result_t Device::cp_submit_launch_qmd(uint64_t qmd_addr) {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_LAUNCH_QMD;
     std::memcpy(cl + 4, &qmd_addr, sizeof(qmd_addr));
-    auto r = cp_submit_cl_(cl, 12);
+    auto r = cp_submit_cl_(qid, cl, 12);
     if (r != VX_SUCCESS) return r;
-    r = cp_submit_cache_flush();
+    r = cp_submit_cache_flush(qid);
     if (r != VX_SUCCESS) return r;
-    if (cp_in_batch_) return VX_SUCCESS;
-    return drain_cout();
+    if (cp_defer_cout_drain_(qid)) return VX_SUCCESS;
+    return drain_cout(qid);
 }
 
-vx_result_t Device::cp_submit_draw(uint64_t desc_addr) {
+vx_result_t Device::cp_submit_draw(uint64_t desc_addr, uint32_t qid) {
     // CMD_DRAW on-wire layout (cmd_size=12):
     //   bytes 0..3   header  { opcode=0x0C, flags=0, reserved=0 }
     //   bytes 4..11  arg0    draw descriptor device address
@@ -580,13 +659,13 @@ vx_result_t Device::cp_submit_draw(uint64_t desc_addr) {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_DRAW;
     std::memcpy(cl + 4, &desc_addr, sizeof(desc_addr));
-    auto r = cp_submit_cl_(cl, 12);
+    auto r = cp_submit_cl_(qid, cl, 12);
     if (r != VX_SUCCESS) return r;
-    if (cp_in_batch_) return VX_SUCCESS;
-    return drain_cout();
+    if (cp_defer_cout_drain_(qid)) return VX_SUCCESS;
+    return drain_cout(qid);
 }
 
-vx_result_t Device::cp_submit_cache_flush() {
+vx_result_t Device::cp_submit_cache_flush(uint32_t qid) {
     // CMD_CACHE_FLUSH on-wire layout (cmd_size=12):
     //   bytes 0..3   header  { opcode=0x0A, flags=0, reserved=0 }
     //   bytes 4..11  arg0    number of cores to flush
@@ -600,11 +679,11 @@ vx_result_t Device::cp_submit_cache_flush() {
     uint8_t cl[CP_CL_BYTES] = {0};
     cl[0] = CP_OPCODE_CACHE_FLUSH;
     std::memcpy(cl + 4, &cp_num_cores_, sizeof(cp_num_cores_));
-    return cp_submit_cl_(cl, 12);
+    return cp_submit_cl_(qid, cl, 12);
 }
 
 vx_result_t Device::cp_submit_dcr_read(uint32_t addr, uint32_t tag,
-                                       uint32_t* out_value) {
+                                       uint32_t* out_value, uint32_t qid) {
     if (!out_value) return VX_ERR_INVALID_VALUE;
     // CMD_DCR_READ on-wire layout (cmd_size=20):
     //   bytes 0..3   header  { opcode=0x05, flags=0, reserved=0 }
@@ -616,11 +695,13 @@ vx_result_t Device::cp_submit_dcr_read(uint32_t addr, uint32_t tag,
     p32[0] = CP_OPCODE_DCR_RD;
     p32[1] = addr;
     p32[3] = tag;
-    auto r = cp_submit_cl_(cl, 20);
+    auto r = cp_submit_cl_(qid, cl, 20);
     if (r != VX_SUCCESS) return r;
     // Pick up the response from the CP regfile: VX_cp_dcr_proxy latches
     // it on Q_LAST_DCR_RSP at the same offset as the engine's retire.
-    return platform()->cp_reg_read(CP_Q_LAST_DCR_RSP, out_value);
+    std::lock_guard<std::mutex> mmio_guard(cp_mmio_mu_);
+    return platform()->cp_reg_read(
+        cp_queue_reg_(qid, CP_Q_LAST_DCR_RSP), out_value);
 }
 
 // CMD_EVENT_SIGNAL / CMD_EVENT_WAIT (opcodes 0x08 / 0x09) are implemented by
@@ -638,7 +719,7 @@ vx_result_t Device::cp_submit_dcr_read(uint32_t addr, uint32_t tag,
 
 vx_result_t Device::cp_submit_mem_(uint8_t opcode, uint64_t arg0,
                                    uint64_t arg1, uint64_t arg2,
-                                   bool physical) {
+                                   bool physical, uint32_t qid) {
     // CMD_MEM_* on-wire layout (cmd_size=28):
     //   bytes 0..3   header  { opcode, flags, reserved=0 }
     //   bytes 4..11  arg0    dst address
@@ -650,17 +731,18 @@ vx_result_t Device::cp_submit_mem_(uint8_t opcode, uint64_t arg0,
     std::memcpy(cl + 4,  &arg0, sizeof(arg0));
     std::memcpy(cl + 12, &arg1, sizeof(arg1));
     std::memcpy(cl + 20, &arg2, sizeof(arg2));
-    return cp_submit_cl_(cl, 28);
+    return cp_submit_cl_(qid, cl, 28);
 }
 
 vx_result_t Device::cp_submit_mem_copy(uint64_t dst, uint64_t src,
-                                       uint64_t size) {
+                                       uint64_t size, uint32_t qid) {
     if (size == 0 || dst == src) return VX_SUCCESS;
-    return cp_submit_mem_(CP_OPCODE_MEM_COPY, dst, src, size);
+    return cp_submit_mem_(CP_OPCODE_MEM_COPY, dst, src, size, false, qid);
 }
 
 vx_result_t Device::cp_submit_mem_write(uint64_t dev_dst, const void* host_src,
-                                        uint64_t size, bool physical) {
+                                        uint64_t size, bool physical,
+                                        uint32_t qid) {
     if (size == 0)  return VX_SUCCESS;
     if (!host_src)  return VX_ERR_INVALID_VALUE;
     // Stage the payload into CP-visible host memory (a plain memcpy through
@@ -671,13 +753,14 @@ vx_result_t Device::cp_submit_mem_write(uint64_t dev_dst, const void* host_src,
     if (r != VX_SUCCESS) return r;
     std::memcpy(staging.host_ptr, host_src, size);
     r = cp_submit_mem_(CP_OPCODE_MEM_WRITE, dev_dst, staging.cp_addr, size,
-                       physical);
+                       physical, qid);
     host_free(staging.cp_addr);
     return r;
 }
 
 vx_result_t Device::cp_submit_mem_read(void* host_dst, uint64_t dev_src,
-                                       uint64_t size, bool physical) {
+                                       uint64_t size, bool physical,
+                                       uint32_t qid) {
     if (size == 0)  return VX_SUCCESS;
     if (!host_dst)  return VX_ERR_INVALID_VALUE;
     // Have the CP DMA device->host into a CP-visible host staging buffer,
@@ -686,7 +769,7 @@ vx_result_t Device::cp_submit_mem_read(void* host_dst, uint64_t dev_src,
     auto r = host_alloc(size, &staging);
     if (r != VX_SUCCESS) return r;
     r = cp_submit_mem_(CP_OPCODE_MEM_READ, staging.cp_addr, dev_src, size,
-                       physical);
+                       physical, qid);
     if (r == VX_SUCCESS)
         std::memcpy(host_dst, staging.host_ptr, size);
     host_free(staging.cp_addr);
@@ -831,7 +914,7 @@ vx_result_t Device::query_caps(uint32_t caps_id, uint64_t* out_value) {
     // The two static caps words are read once from the CP regfile caps
     // window; serialize the load against concurrent cp_reg_* traffic.
     if (!caps_loaded_) {
-        std::lock_guard<std::mutex> g(cp_mu_);
+        std::lock_guard<std::mutex> g(cp_mmio_mu_);
         if (!caps_loaded_) {
             auto rd = [this](uint32_t off, uint32_t* v) -> int {
                 return platform_->cp_reg_read(off, v) == VX_SUCCESS ? 0 : -1;
@@ -866,19 +949,22 @@ vx_result_t Device::query_caps(uint32_t caps_id, uint64_t* out_value) {
 // ============================================================================
 
 vx_result_t Device::dev_write(uint64_t dev_addr, const void* src,
-                              uint64_t size) {
-    return cp_submit_mem_write(dev_addr, src, size);
+                              uint64_t size, uint32_t qid) {
+    return cp_submit_mem_write(dev_addr, src, size, false, qid);
 }
 
-vx_result_t Device::dev_read(void* dst, uint64_t dev_addr, uint64_t size) {
-    return cp_submit_mem_read(dst, dev_addr, size);
+vx_result_t Device::dev_read(void* dst, uint64_t dev_addr, uint64_t size,
+                             uint32_t qid) {
+    return cp_submit_mem_read(dst, dev_addr, size, false, qid);
 }
 
-vx_result_t Device::dev_copy(uint64_t dst, uint64_t src, uint64_t size) {
-    return cp_submit_mem_copy(dst, src, size);
+vx_result_t Device::dev_copy(uint64_t dst, uint64_t src, uint64_t size,
+                             uint32_t qid) {
+    return cp_submit_mem_copy(dst, src, size, qid);
 }
 
-vx_result_t Device::drain_cout() {
+vx_result_t Device::drain_cout(uint32_t qid) {
+    std::lock_guard<std::mutex> cout_guard(cout_mu_);
     // Drain each hart's COUT ring: read wr[] and lost[], copy out [rd,wr) bytes,
     // emit "#slot: <line>", surface new lost-byte deltas, and publish the
     // advanced rd[]. vx_putchar is non-blocking (drops + bumps lost[slot] on
@@ -890,14 +976,12 @@ vx_result_t Device::drain_cout() {
     const uint64_t DATA_BASE = VX_MEM_IO_COUT_ADDR + uint64_t(SLOTS) * 8;
     const uint64_t LOST_BASE = DATA_BASE + uint64_t(SLOTS) * RING;
 
-    // dev_read/dev_write route through cp_submit_* (which take cp_mu_
-    // themselves), so this must not hold cp_mu_ — and need not: drain_cout
-    // is only ever called post-launch, when the CP ring is otherwise idle.
+    // 多个软件队列可能同时完成Launch；cout_mu_保证共享读指针只由一个消费者推进。
     uint32_t wr  [SLOTS] = {};
     uint32_t lost[SLOTS] = {};
-    auto r = dev_read(wr,   WR_BASE,   sizeof(wr));
+    auto r = dev_read(wr,   WR_BASE,   sizeof(wr), qid);
     if (r != VX_SUCCESS) return r;
-    r = dev_read(lost, LOST_BASE, sizeof(lost));
+    r = dev_read(lost, LOST_BASE, sizeof(lost), qid);
     if (r != VX_SUCCESS) return r;
 
     bool advanced = false;
@@ -920,7 +1004,7 @@ vx_result_t Device::drain_cout() {
         // bumping `lost`.
         if (n > RING) n = RING;
         char data[RING];
-        r = dev_read(data, DATA_BASE + uint64_t(s) * RING, RING);
+        r = dev_read(data, DATA_BASE + uint64_t(s) * RING, RING, qid);
         if (r != VX_SUCCESS) return r;
         for (uint32_t i = 0; i < n; ++i) {
             const char c = data[(rd + i) & (RING - 1)];
@@ -934,7 +1018,7 @@ vx_result_t Device::drain_cout() {
         advanced = true;
     }
     if (advanced) {
-        r = dev_write(RD_BASE, cout_rd_, sizeof(cout_rd_));
+        r = dev_write(RD_BASE, cout_rd_, sizeof(cout_rd_), qid);
         if (r != VX_SUCCESS) return r;
     }
     return VX_SUCCESS;

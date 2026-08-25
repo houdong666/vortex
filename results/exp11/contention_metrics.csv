@@ -1,0 +1,13 @@
+scenario,mode,queue,priority,commands,grants,average_wait,max_wait,retire_cycle,final_seqnum,total_cycles,fairness
+same-dma,round_robin,0,0,4,4,26.250,35,178,3,222,1.000000
+same-dma,round_robin,1,1,4,4,29.000,35,191,3,222,1.000000
+same-dma,round_robin,2,2,4,4,31.750,35,204,3,222,1.000000
+same-dma,round_robin,3,3,4,4,34.500,35,217,3,222,1.000000
+same-dma,strict_priority,0,0,4,4,32.750,113,204,3,222,1.000000
+same-dma,strict_priority,1,1,4,4,35.500,115,217,3,222,1.000000
+same-dma,strict_priority,2,2,4,4,12.250,22,126,3,222,1.000000
+same-dma,strict_priority,3,3,4,4,8.500,9,113,3,222,1.000000
+same-dma,priority_aging,0,0,4,4,32.750,74,204,3,222,1.000000
+same-dma,priority_aging,1,1,4,4,35.500,50,217,3,222,1.000000
+same-dma,priority_aging,2,2,4,4,28.500,35,191,3,222,1.000000
+same-dma,priority_aging,3,3,4,4,18.250,35,152,3,222,1.000000

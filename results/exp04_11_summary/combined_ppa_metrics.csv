@@ -1,0 +1,4 @@
+metric,baseline,all_enabled,change_percent,yosys_version,abc_version
+fpga_estimated_lcs,11596,11463,-1.15,0.40,1.01
+fpga_fdre,11294,9379,-16.96,0.40,1.01
+asic_cell_area_um2,404105.338000,423578.932000,4.82,0.40,1.01

@@ -27,7 +27,8 @@ module VX_cp_launch (
   input  wire  grant,         // OR of per-CPE grants from KMU arbiter
   output logic start,         // pulsed to gpu_if.start (Vortex)
   input  wire  gpu_busy,      // from gpu_if.busy (Vortex)
-  output logic done           // back to engine: launch fully drained
+  output logic done,          // back to engine: launch fully drained
+  output wire  ready          // 仅空闲时接收新的队列授权
 );
 
   typedef enum logic [1:0] {
@@ -67,5 +68,7 @@ module VX_cp_launch (
     start = (state == S_PULSE_START);
     done  = (state == S_WAIT_DRAIN) && !gpu_busy;
   end
+
+  assign ready = (state == S_IDLE);
 
 endmodule : VX_cp_launch

@@ -1,0 +1,2 @@
+Running: DEBUG=0 CFG_FILE=./ci/../VX_config.toml make -C ./ci/../sw/runtime/rtlsim > /dev/null
+Running: DEBUG=0 OPTS="-n16" make -C "./ci/../tests/regression/sgemm" run-rtlsim > run.log 2>&1

@@ -1314,19 +1314,20 @@ Q3: EVENT_SIGNAL W
 - 四队列对照中，Q1/Q2/Q3 SIGNAL 退休周期由 109/114/119 降至 11/16/21，分别降低 89.9%/86.0%/82.4%。
 - WAIT Poll 次数由 50 降至 18，EVENT 忙碌周期由 113 降至 66；Q0 WAIT 最终延迟仅增加 1 周期。
 - 正确性检查结果为 `lost=0`、`early_retire=0`、`duplicate=0`，完整 CP 100 命令回归同样无丢失和重复。
+- 最新四队列完整CP PPA中，EVENT公平性使FPGA LCs由11319变为11406（+0.77%），FDRE只增加1个；ASIC面积变化-0.22%，按技术映射波动解释为基本持平。
 - 完整报告见 [`docs/experiments/exp09_event_wait_fairness.md`](docs/experiments/exp09_event_wait_fairness.md)，逐步命令见 [`docs/experiments/exp09_commands.md`](docs/experiments/exp09_commands.md)。
 
-**实验 4～9 阶段稳定性记录**
+**实验4～11最新统一稳定性记录（2026-08-25）**
 
-- 单项测试和 Fast Path + Prefetch Depth 2 + Priority + Aging + EVENT_WAIT Fairness + Packing 组合回归已经通过，1000 条命令结果为 `final_seqnum=1000`、`drop=0`、`duplicate=0`。
-- 64 位整机 rtlsim 的 `demo` 和 `sgemm 16×16` 已通过；XRT 当前受工具链、平台和 xclbin 缺失阻塞，不得记为功能 PASS。
-- 已解决 Yosys 0.9 在完整 CP 顶层的 AST 深递归崩溃：换用 Yosys 0.40 后，4 队列 Baseline 与实验 4～9 全开配置均完成映射且 `check` 为 0 个问题；FPGA 面积代理为 11485→11610 LCs（+1.09%），Nangate 标准单元面积为 404913.978→423704.218 µm²（+4.64%）。未布局网表的高扇出使 OpenSTA 时序失真，Fmax 仍需 Vivado 验证。
-- 统一回归状态、补跑命令和 PPA 横向总结见 [`docs/experiments/exp04_09_stability_and_ppa.md`](docs/experiments/exp04_09_stability_and_ppa.md)。
+- 实验4～9单项、实验11 RTL/Runtime、组合1000命令、SimX `demo`、RTL `demo`和`sgemm -n16`全部通过；组合结果为`final_seqnum=1000`、`drop=0`、`duplicate=0`。
+- 最新四队列Baseline与实验4～9全开配置均完成Yosys 0.40映射；FPGA LCs为11596→11463（-1.15%），同时RAM32M由22→366，说明资源发生重映射；Nangate面积为404105.338→423578.932 µm²（+4.82%）。
+- 实验10明确记为`DEFERRED`，不能计入已完成数量；XRT因缺少工具、平台和xclbin记为`BLOCKED`，不得记为PASS。
+- 统一回归、PPA、数据清理与完成边界见 [`docs/experiments/exp04_11_unified_summary.md`](docs/experiments/exp04_11_unified_summary.md)。
 
 ---
 ### 实验10：QMD-Style Kernel Launch（高级）
 
-**定位**：软件已准备（`CMD_LAUNCH_QMD` 0x0B），RTL待补齐。
+**当前状态**：`DEFERRED`。软件格式已准备（`CMD_LAUNCH_QMD` 0x0B），本阶段未完成RTL、Benchmark和PPA，因此实验10不能计入已完成实验。
 
 **QMD思想**：将传统 `18×DCR_WRITE + LAUNCH` 合并为单条 `LAUNCH_QMD`，内部读取Descriptor并Replay DCR，最后Launch。  
 **减少**：Ring command数、Ring traffic、Doorbell pressure、Decode overhead、Launch latency。
@@ -1398,7 +1399,7 @@ bytes / launch
 ---
 ### 实验11：Multi-Queue（高级）
 
-**当前**：RTL已参数化`NUM_QUEUES`，但并非完整软件多Queue并发。
+**当前**：RTL已参数化`NUM_QUEUES`，公共Runtime也已实现软件Queue到独立硬件QID的绑定；XRT/FPGA真板多Queue回归仍是最后门禁。
 
 **第一类实验**：所有Queue竞争同一资源（如Q0~Q3均→DMA），测试Arbiter、Priority、Aging、Fairness。
 
@@ -1481,6 +1482,20 @@ Q3 → KMU
 **本实验完成标志**
 
 > 能够用数据证明多 Queue 的资源竞争行为符合调度策略，并证明不同资源之间是否获得了真实硬件并行性。
+
+**本仓库实测结果（2026-08-25）**
+
+- 新增完整 `VX_cp_core` 四队列测试驱动，每个队列拥有独立Ring、Tail、Completion、Seqnum和Priority配置。
+- 修复共享执行单元忙碌时的伪授权：仲裁器新增 `grant_enable`，KMU/DMA/DCR/EVENT仅在 `ready` 时接受新授权。
+- Q0～Q3各执行4条DMA命令，Round-Robin、Strict Priority、Priority+Aging三种模式均为16次授权、16次退役，`dropped=0`、`duplicate=0`、DMA数据检查通过。
+- Strict Priority下P0/P1最大等待为113/115周期；加入Aging后降为74/50周期，证明Aging在完整多队列CP中有效。
+- 跨资源单项时间：`T_DMA=41`、`T_DCR=17`、`T_EVT=21`、`T_KMU=31`；`T_serial=110`、`T_parallel=43`，并发加速 `2.558x`。并发时间仅比最慢单项高2周期，证明资源真实重叠。
+- 公共Runtime从`CP_DEV_CAPS.NUM_QUEUES`发现队列数，为每个QID维护独立Ring、Head、Completion、Tail、Seqnum、Packing和Batch状态；软件Queue创建时独占QID，并将Priority/Profiling写入对应`Q_CONTROL`。
+- Runtime采用“每QID提交锁 + 设备MMIO短锁 + 全局DCR/KMU配置锁”。前两者保证独立Ring安全并发，配置锁防止不同Queue的全局DCR启动参数互相穿插。
+- Mock-CP四队列测试通过：Q0～Q3独立提交、第五个Queue拒绝、Priority控制位、64B内Packing以及QID释放复用均正确；SimX单队列`demo`兼容回归通过。
+- 一队列扩展到四队列时，FPGA LCs为6145→11406（+85.61%），FDRE为7348→11407（+55.24%），ASIC面积为337524.474→406066.556 µm²（+20.31%）；共享执行资源使面积增长明显低于4倍。
+- 原始数据与波形位于 `results/exp11/`，完整分析和复现命令见 `docs/experiments/exp11_multi_queue.md`、`docs/experiments/exp11_commands.md`、`docs/experiments/exp11_runtime_commands.md`。
+- 边界：Runtime代码接入、Host侧Mock验证和Verilator完整CP RTL验证已经完成；由于当前环境没有多队列XRT/FPGA板卡，真实XRT寄存器端点、Host Ring一致性和板上并发性能仍待验证。
 
 ---
 ### 实验12：最终综合与PPA评估
@@ -1599,9 +1614,9 @@ Commands / Second = (Commands / Cycle) × Fmax
 | 实验6 Fetch Prefetch | 2-entry FIFO RTL、Latency Sweep数据、吞吐曲线、波形、PPA |
 | 实验7 Priority Arbiter | Priority RTL、A/B/C测试、Grant数据、Fairness结果、PPA |
 | 实验8 Aging | Aging RTL、Starvation测试、Max Wait统计、Priority波形、PPA |
-| 实验9 EVENT_WAIT | Release/Backoff RTL、竞争测试、延迟对照、Event正确性报告 |
-| 实验10 QMD | QMD RTL/Runtime、Descriptor文档、Empty Kernel Benchmark、Launch对照 |
-| 实验11 Multi-Queue | 多Queue支持、竞争/并行测试、Concurrency Speedup、多Queue波形 |
+| 实验9 EVENT_WAIT | Release/Backoff RTL、竞争测试、延迟对照、Event正确性报告、完整CP PPA |
+| 实验10 QMD | 当前延期；后续需QMD RTL/Runtime、Descriptor文档、Empty Kernel Benchmark、Launch对照 |
+| 实验11 Multi-Queue | 多Queue RTL/Runtime、竞争/并行测试、Concurrency Speedup、多Queue波形、1Q/4Q PPA |
 | 实验12 PPA/Final | 综合报告、PPA总表、6张性能图、Accept/Reject矩阵、最终报告与复现包 |
 
 ---

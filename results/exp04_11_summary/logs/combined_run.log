@@ -1,0 +1,3 @@
+CP_PERF,B1,1000,1000,1000,1000,7010,1010,1000,1000,2000,2000,0,0,2000,0,334,4,1000,0,2000,4000,6000,1000,0.142653,7.010000,21376,21.376000,1000,0,0
+PACK_RESULT packing=1 command_count=1000 cache_line_count=334 fetch_bytes=21376 bytes_per_command=21.376000 total_cycles=7010 cmd_per_cycle=0.142653 final_seqnum=1000 dropped_count=0 duplicate_count=0
+PASSED - CP perf workload=B1 commands=1000 cycles=7010 cpc=7.010

@@ -181,6 +181,7 @@ module VX_cp_dma_top
     .grant    (grant),
     .cmd      (cmd_typed),
     .done     (done),
+    `UNUSED_PIN(ready),
     .axi_host (axi_host),
     .axi_dev  (axi_dev)
   );

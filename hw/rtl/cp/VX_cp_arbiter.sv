@@ -26,6 +26,8 @@ module VX_cp_arbiter
 )(
   input  wire                  clk,
   input  wire                  reset,
+  // 共享执行单元忙碌时只累计等待时间，不得让请求者误认为已经获权。
+  input  wire                  grant_enable,
 
   input  wire                  bid_valid    [N],
   input  wire [1:0]            bid_priority [N],
@@ -55,7 +57,8 @@ module VX_cp_arbiter
   assign selected_queue_o = selected_queue;
 
   for (genvar g = 0; g < N; ++g) begin : g_ports
-    assign bid_grant[g] = selected_valid && (selected_queue == PTR_W'(g));
+    assign bid_grant[g] = grant_enable && selected_valid
+                       && (selected_queue == PTR_W'(g));
     assign wait_counter_o[g]       = wait_counter[g];
     assign aging_boost_o[g]        = aging_boost[g];
     assign effective_priority_o[g] = effective_priority[g];
@@ -111,7 +114,7 @@ module VX_cp_arbiter
       for (j = 0; j < N; ++j)
         wait_counter[j] <= '0;
     end else begin
-      if (selected_valid) begin
+      if (grant_enable && selected_valid) begin
         if (selected_queue == PTR_W'(N - 1))
           rr_pointer <= '0;
         else
@@ -122,7 +125,8 @@ module VX_cp_arbiter
         // 撤销请求或成功获权都结束本轮等待；其余持续请求饱和累加。
         if (!ENABLE_AGING
          || !bid_valid[j]
-         || (selected_valid && (selected_queue == PTR_W'(j)))) begin
+         || (grant_enable && selected_valid
+          && (selected_queue == PTR_W'(j)))) begin
           wait_counter[j] <= '0;
         end else if (wait_counter[j] != 7'h7f) begin
           wait_counter[j] <= wait_counter[j] + 7'd1;

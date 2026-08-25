@@ -47,6 +47,7 @@ module VX_cp_dma
   input  wire                       grant,
   input  cmd_t                      cmd,
   output logic                      done,
+  output wire                       ready,
 
   // 主机内存 AXI 主设备（命令环侧 / 上传源 / 下载目标）
   VX_mem_axi_if.master             axi_host,
@@ -269,6 +270,9 @@ module VX_cp_dma
 
     done = (state == S_DONE);
   end
+
+  // DMA内部只有一份突发缓冲区，因此一条命令完成前不能接受新的授权。
+  assign ready = (state == S_IDLE);
 
   // 辅助 / 未使用信号
   `UNUSED_VAR (cmd.hdr.flags)
