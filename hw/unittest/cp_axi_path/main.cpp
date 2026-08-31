@@ -28,12 +28,18 @@
 #include "vl_simulator.h"
 #include "VVX_cp_axi_path_top.h"
 #include <array>
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <map>
 #include <vector>
+
+#ifndef TEST_PREFETCH_DEPTH
+#define TEST_PREFETCH_DEPTH 2
+#endif
 
 #ifndef TRACE_START_TIME
 #define TRACE_START_TIME 0ull
@@ -160,9 +166,14 @@ static uint8_t cmd_flags(T* top) {
     return (uint8_t)((read_cmd_bits(top->cmd_out_packed, 256, 32) >> 8) & 0xff);
 }
 
+template <typename T>
+static uint64_t cmd_arg0(T* top) {
+    return read_cmd_bits(top->cmd_out_packed, 192, 64);
+}
+
 // ============================================================================
-// Synthetic AXI4 slave: 4 KiB byte-addressed memory. Handles AR→R and
-// AW+W→B with a 1-cycle latency. Split into:
+// Synthetic AXI4 slave: 4 KiB byte-addressed memory. Handles ordered AR→R
+// with configurable latency and AW+W→B with a 1-cycle latency. Split into:
 //   - comb_drive(): write slave-driven inputs (the *ready / *valid / *data
 //     outputs from the slave's perspective) based on current internal state.
 //     Called every eval so master combinational logic sees consistent
@@ -174,12 +185,15 @@ struct AxiSlave {
     static constexpr uint64_t MEM_BASE = 0x1000;
     static constexpr int      MEM_SIZE = 4096;
     uint8_t mem[MEM_SIZE] = {0};
+    std::vector<uint64_t> ar_addresses;
 
-    // R-side state: a request that's been ACCEPTED is "in flight"; the
-    // response appears on the NEXT cycle.
-    bool         r_inflight = false;
-    uint64_t     r_addr     = 0;
-    uint8_t      r_id       = 0;
+    int          read_latency = 1;
+    struct ReadRequest {
+        uint64_t addr;
+        uint8_t id;
+        int delay;
+    };
+    std::deque<ReadRequest> read_requests;
 
     // AW/W state.
     bool         aw_taken   = false;
@@ -226,14 +240,15 @@ struct AxiSlave {
     // ---- Combinational drive: slave → master inputs ----
     template <typename T>
     void comb_drive(T* top) {
-        // AR side: arready high if no read is currently in flight.
-        top->m_arready = !r_inflight;
-        // R side: drive R from the in-flight request.
-        top->m_rvalid = r_inflight;
-        top->m_rid    = r_id;
+        // 接受少量有序在途请求，响应仍严格保持 AR 顺序。
+        top->m_arready = read_requests.size() < 16;
+        top->m_rvalid = !read_requests.empty()
+                     && (read_requests.front().delay == 0);
+        top->m_rid    = read_requests.empty() ? 0 : read_requests.front().id;
         top->m_rlast  = 1;
         top->m_rresp  = 0;
-        if (r_inflight) mem_read_cl(r_addr, top->m_rdata);
+        if (top->m_rvalid)
+            mem_read_cl(read_requests.front().addr, top->m_rdata);
 
         // AW side.
         top->m_awready = !aw_taken;
@@ -251,13 +266,15 @@ struct AxiSlave {
     void posedge_update(T* top) {
         // Accept new AR.
         if (top->m_arvalid && top->m_arready) {
-            r_inflight = true;
-            r_addr     = top->m_araddr;
-            r_id       = top->m_arid;
-        } else if (r_inflight && top->m_rvalid && top->m_rready) {
-            // R handshake completed; clear the in-flight read.
-            r_inflight = false;
+            read_requests.push_back(
+                {top->m_araddr, static_cast<uint8_t>(top->m_arid), read_latency});
+            ar_addresses.push_back(top->m_araddr);
         }
+        const bool pop_response = top->m_rvalid && top->m_rready;
+        for (auto& request : read_requests)
+            if (request.delay > 0) --request.delay;
+        if (pop_response)
+            read_requests.pop_front();
 
         // Accept new AW.
         if (top->m_awvalid && top->m_awready) {
@@ -280,6 +297,43 @@ struct AxiSlave {
     }
 };
 
+struct Options {
+    int latency = 1;
+    int benchmark_lines = 0;
+};
+
+static int parse_nonnegative(const char* text, const char* name) {
+    char* end = nullptr;
+    long value = std::strtol(text, &end, 10);
+    if (*text == '\0' || *end != '\0' || value < 0 || value > 100000) {
+        std::fprintf(stderr, "Invalid %s: %s\n", name, text);
+        std::exit(2);
+    }
+    return static_cast<int>(value);
+}
+
+static Options parse_options(int argc, char** argv) {
+    Options opt;
+    for (int i = 1; i < argc; ++i) {
+        constexpr const char* latency_prefix = "--latency=";
+        constexpr const char* lines_prefix = "--benchmark-lines=";
+        if (std::strncmp(argv[i], latency_prefix,
+                         std::strlen(latency_prefix)) == 0) {
+            opt.latency = parse_nonnegative(
+                argv[i] + std::strlen(latency_prefix), "--latency");
+        } else if (std::strncmp(argv[i], lines_prefix,
+                                std::strlen(lines_prefix)) == 0) {
+            opt.benchmark_lines = parse_nonnegative(
+                argv[i] + std::strlen(lines_prefix), "--benchmark-lines");
+        } else if (std::strcmp(argv[i], "--help") == 0) {
+            std::printf("Usage: %s [--latency=N] [--benchmark-lines=N]\n",
+                        argv[0]);
+            std::exit(0);
+        }
+    }
+    return opt;
+}
+
 // Advance one full clock cycle. Order:
 //   1. Settle combinational with current slave state.
 //   2. Sample handshakes at the "rising edge" (update slave + simulator FFs).
@@ -299,9 +353,12 @@ static void cycle(vl_simulator<T>& sim, AxiSlave& s, uint64_t& tick) {
 
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
+    const Options opt = parse_options(argc, argv);
+    trace_en = std::getenv("VCD_FILE") != nullptr;
     vl_simulator<VVX_cp_axi_path_top> sim;
     uint64_t tick = 0;
     AxiSlave slave;
+    slave.read_latency = opt.latency;
 
     // Defaults.
     sim->cmd_out_ready = 0;
@@ -310,6 +367,66 @@ int main(int argc, char** argv) {
     sim->cmpl_addr = 0;
     for (int i = 0; i < 13; ++i) sim->state_in_packed[i] = 0;
     tick = sim.reset(tick);
+
+    if (opt.benchmark_lines != 0) {
+        EXPECT(opt.benchmark_lines <= AxiSlave::MEM_SIZE / 64,
+               "benchmark ring exceeds synthetic memory");
+        for (int line = 0; line < opt.benchmark_lines; ++line) {
+            uint8_t cl[64] = {0};
+            for (int slot = 0; slot < 3; ++slot) {
+                const uint64_t index = static_cast<uint64_t>(line * 3 + slot);
+                emit_cmd(cl, slot * 20, OP_DCR_WRITE, 0,
+                         0x1000ull + index, 0xA000ull + index, 0);
+            }
+            slave.mem_write_cl(AxiSlave::MEM_BASE + line * 64, cl);
+        }
+
+        uint32_t s[13];
+        const uint64_t tail = static_cast<uint64_t>(opt.benchmark_lines) * 64;
+        pack_state(s, AxiSlave::MEM_BASE, 0x0FFF, 0,
+                   AxiSlave::MEM_BASE + 0x800, tail, true);
+        for (int i = 0; i < 13; ++i) sim->state_in_packed[i] = s[i];
+        sim->cmd_out_ready = 1;
+
+        const uint64_t expected_commands =
+            static_cast<uint64_t>(opt.benchmark_lines) * 3;
+        uint64_t emitted = 0;
+        uint64_t cycles = 0;
+        const uint64_t cycle_limit =
+            static_cast<uint64_t>(opt.benchmark_lines)
+          * static_cast<uint64_t>(opt.latency + 16) + 100;
+        while (sim->head_out != tail && cycles < cycle_limit) {
+            cycle(sim, slave, tick);
+            ++cycles;
+            if (sim->cmd_out_valid) {
+                EXPECT(cmd_opcode(sim.operator->()) == OP_DCR_WRITE,
+                       "benchmark opcode mismatch");
+                EXPECT(cmd_arg0(sim.operator->()) == 0x1000ull + emitted,
+                       "benchmark command order mismatch");
+                ++emitted;
+            }
+        }
+        EXPECT(sim->head_out == tail, "benchmark head did not reach tail");
+        EXPECT(emitted == expected_commands,
+               "benchmark emitted command count mismatch");
+        EXPECT(slave.ar_addresses.size()
+                   == static_cast<size_t>(opt.benchmark_lines),
+               "benchmark AR count mismatch");
+        for (int i = 0; i < opt.benchmark_lines; ++i) {
+            EXPECT(slave.ar_addresses[i]
+                       == AxiSlave::MEM_BASE + static_cast<uint64_t>(i) * 64,
+                   "benchmark AR address sequence mismatch");
+        }
+        std::printf(
+            "PREFETCH_RESULT depth=%d latency=%d cache_lines=%d commands=%" PRIu64
+            " ar_count=%zu total_cycles=%" PRIu64 " cmd_per_cycle=%.6f"
+            " final_head=%" PRIu64 " dropped_count=0 duplicate_count=0\n",
+            TEST_PREFETCH_DEPTH, opt.latency, opt.benchmark_lines,
+            expected_commands, slave.ar_addresses.size(), cycles,
+            static_cast<double>(expected_commands) / cycles,
+            static_cast<uint64_t>(sim->head_out));
+        return 0;
+    }
 
     // ----- Test 1: ring with 1 CMD_NOP+F_PROFILE; fetch + decode + emit -----
     {
@@ -390,7 +507,54 @@ int main(int argc, char** argv) {
         EXPECT(sim->head_out == 128, "T2: head should advance to 128");
     }
 
-    // ----- Test 3: completion writes retire_seqnum to cmpl_addr -----
+    // ----- 测试 3：小 ring 连续读取跨越回绕边界 -----
+    {
+        const uint64_t expected_addr[4] = {
+            AxiSlave::MEM_BASE + 128,
+            AxiSlave::MEM_BASE + 192,
+            AxiSlave::MEM_BASE,
+            AxiSlave::MEM_BASE + 64,
+        };
+        for (int i = 0; i < 4; ++i) {
+            uint8_t cl[64] = {0};
+            for (int j = 0; j < 3; ++j) {
+                emit_cmd(cl, j * 20, OP_DCR_WRITE, 0,
+                         0x100ull + i * 3 + j,
+                         0x5000ull + i * 3 + j, 0);
+            }
+            slave.mem_write_cl(expected_addr[i], cl);
+        }
+
+        const size_t ar_start = slave.ar_addresses.size();
+        uint32_t s[13];
+        pack_state(s, AxiSlave::MEM_BASE, 0x00FF,
+                   0, AxiSlave::MEM_BASE + 0x300,
+                   /*tail=*/384, /*enabled=*/true);
+        for (int i = 0; i < 13; ++i) sim->state_in_packed[i] = s[i];
+
+        for (int i = 0; i < 12; ++i) {
+            bool got = false;
+            for (int c = 0; c < 50 && !got; ++c) {
+                cycle(sim, slave, tick);
+                got = sim->cmd_out_valid;
+            }
+            EXPECT(got, "T3: wrapped command was not emitted");
+            EXPECT(cmd_opcode(sim.operator->()) == OP_DCR_WRITE,
+                   "T3: wrapped packed opcode");
+            sim->cmd_out_ready = 1;
+            cycle(sim, slave, tick);
+            sim->cmd_out_ready = 0;
+        }
+        for (int c = 0; c < 8; ++c) cycle(sim, slave, tick);
+        EXPECT(sim->head_out == 384, "T3: head should cross wrap to 384");
+        EXPECT(slave.ar_addresses.size() == ar_start + 4,
+               "T3: expected exactly four wrapped reads");
+        for (int i = 0; i < 4; ++i)
+            EXPECT(slave.ar_addresses[ar_start + i] == expected_addr[i],
+                   "T3: wrapped AXI address mismatch");
+    }
+
+    // ----- 测试 4：completion 将 retire_seqnum 写入 cmpl_addr -----
     {
         // Drive cpe_state with enabled=0 to keep fetch idle.
         uint32_t s[13];
@@ -411,9 +575,9 @@ int main(int argc, char** argv) {
             cycle(sim, slave, tick);
             if (slave.mem_read64(AxiSlave::MEM_BASE + 0x200) == 42) wrote = true;
         }
-        EXPECT(wrote, "T3: completion did not write seqnum to cmpl_addr");
+        EXPECT(wrote, "T4: completion did not write seqnum to cmpl_addr");
     }
 
-    std::printf("PASSED — 3 scenarios\n");
+    std::printf("PASSED — 4 scenarios\n");
     return 0;
 }

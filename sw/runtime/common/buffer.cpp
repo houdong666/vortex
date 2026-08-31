@@ -79,12 +79,12 @@ vx_result_t Buffer::map_reserve(uint64_t off, uint64_t size, uint32_t flags,
     return VX_SUCCESS;
 }
 
-vx_result_t Buffer::map_commit() {
+vx_result_t Buffer::map_commit(uint32_t qid) {
     std::lock_guard<std::mutex> g(map_mu_);
     if (!mapped_) return VX_ERR_INVALID_VALUE;
     if ((mapped_flags_ & VX_MEM_READ) && mapped_size_ != 0) {
         return device_->dev_read(host_mirror_, dev_addr_ + mapped_off_,
-                                 mapped_size_);
+                                 mapped_size_, qid);
     }
     return VX_SUCCESS;
 }
@@ -107,14 +107,14 @@ vx_result_t Buffer::map(uint64_t off, uint64_t size, uint32_t flags,
     return r;
 }
 
-vx_result_t Buffer::unmap(void* host_ptr) {
+vx_result_t Buffer::unmap(void* host_ptr, uint32_t qid) {
     std::lock_guard<std::mutex> g(map_mu_);
     if (!mapped_ || host_ptr != host_mirror_)
         return VX_ERR_INVALID_VALUE;
     vx_result_t r = VX_SUCCESS;
     if (mapped_flags_ & VX_MEM_WRITE) {
         r = device_->dev_write(dev_addr_ + mapped_off_, host_mirror_,
-                               mapped_size_);
+                               mapped_size_, qid);
     }
     std::free(host_mirror_);
     host_mirror_ = nullptr;

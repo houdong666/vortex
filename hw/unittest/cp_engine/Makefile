@@ -15,6 +15,9 @@ SRCS := $(SRC_DIR)/main.cpp
 
 DBG_TRACE_FLAGS :=
 
+NOP_FAST_PATH ?= 1
+PARAMS += -GENABLE_NOP_FAST_PATH=$(NOP_FAST_PATH)
+
 # Engine depends on VX_cp_pkg (types); VX_cp_if (modports) auto-discovered via -I.
 RTL_PKGS := $(RTL_DIR)/VX_gpu_pkg.sv $(RTL_DIR)/VX_trace_pkg.sv \
             $(RTL_DIR)/cp/VX_cp_pkg.sv

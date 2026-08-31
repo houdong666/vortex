@@ -19,13 +19,21 @@ namespace vx {
 // Construction / destruction
 // ============================================================================
 
-Queue::Queue(Device* dev, const vx_queue_info_t& info)
+Queue::Queue(Device* dev, const vx_queue_info_t& info, uint32_t qid)
     : device_(dev),
+      qid_(qid),
       priority_(static_cast<uint32_t>(info.priority)),
       flags_(info.flags) {
     device_->retain();
     device_->register_queue(this);
-    worker_ = std::thread([this]{ this->worker_loop(); });
+    try {
+        worker_ = std::thread([this]{ this->worker_loop(); });
+    } catch (...) {
+        device_->unregister_queue(this);
+        device_->release();
+        device_ = nullptr;
+        throw;
+    }
 }
 
 Queue::~Queue() {
@@ -39,6 +47,7 @@ Queue::~Queue() {
     if (worker_.joinable()) worker_.join();
 
     if (device_) {
+        device_->cp_queue_release(qid_);
         device_->unregister_queue(this);
         device_->release();
     }
@@ -53,7 +62,20 @@ vx_result_t Queue::create(Device* dev, const vx_queue_info_t* info,
     default_info.flags       = 0;
     if (!info) info = &default_info;
     if (info->struct_size < sizeof(vx_queue_info_t)) return VX_ERR_INVALID_INFO;
-    *out = new Queue(dev, *info);
+    if (info->priority < VX_QUEUE_PRIORITY_LOW
+     || info->priority > VX_QUEUE_PRIORITY_HIGH)
+        return VX_ERR_INVALID_VALUE;
+    uint32_t qid = 0;
+    auto r = dev->cp_queue_acquire(static_cast<uint32_t>(info->priority),
+                                   info->flags, &qid);
+    if (r != VX_SUCCESS)
+        return r;
+    try {
+        *out = new Queue(dev, *info, qid);
+    } catch (...) {
+        dev->cp_queue_release(qid);
+        throw;
+    }
     return VX_SUCCESS;
 }
 
@@ -194,7 +216,7 @@ vx_result_t Queue::enqueue_write(Buffer* dst, uint64_t off, const void* host,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             // Host->device through the CP's DMA engine (CMD_MEM_WRITE).
             r = device_->cp_submit_mem_write(dst->dev_address() + off,
-                                             host, sz);
+                                             host, sz, false, qid_);
             *e = now_ns();
         }
         dst->release();
@@ -221,7 +243,8 @@ vx_result_t Queue::enqueue_read(void* host, Buffer* src, uint64_t so,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             // Device->host through the CP's DMA engine (CMD_MEM_READ).
             r = device_->cp_submit_mem_read(host,
-                                            src->dev_address() + so, sz);
+                                            src->dev_address() + so, sz,
+                                            false, qid_);
             *e = now_ns();
         }
         src->release();
@@ -250,7 +273,8 @@ vx_result_t Queue::enqueue_copy(Buffer* dst, uint64_t do_, Buffer* src,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             // Device->device through the CP's DMA engine (CMD_MEM_COPY).
             r = device_->cp_submit_mem_copy(dst->dev_address() + do_,
-                                            src->dev_address() + so, sz);
+                                            src->dev_address() + so, sz,
+                                            qid_);
             *e = now_ns();
         }
         src->release();
@@ -372,7 +396,7 @@ vx_result_t Queue::enqueue_launch(const vx_launch_info_t* info,
                 *s = *e = now_ns(); return r;
             }
             r = device_->dev_write(args_addr, args_blob.data(),
-                                   args_blob.size());
+                                   args_blob.size(), qid_);
             if (r != VX_SUCCESS) {
                 device_->args_slot_release(args_addr, args_pooled);
                 if (kernel) kernel->release();
@@ -384,12 +408,13 @@ vx_result_t Queue::enqueue_launch(const vx_launch_info_t* info,
         vx_result_t r;
         {
             std::lock_guard<std::mutex> g(enqueue_mu_);
+            std::lock_guard<std::mutex> config_guard(device_->cp_config_mutex());
 
             // Program the KMU DCRs via CMD_DCR_WRITE descriptors through
             // the CP ring. has_kernel / args_staged false → caller
             // pre-programmed those DCRs (legacy escape hatch).
             #define WR(addr, val) do {                                        \
-                auto _r = device_->cp_submit_dcr_write((addr), (uint32_t)(val)); \
+                auto _r = device_->cp_submit_dcr_write((addr), (uint32_t)(val), qid_); \
                 if (_r != VX_SUCCESS) {                                       \
                     if (args_staged)                                          \
                         device_->args_slot_release(args_addr, args_pooled);   \
@@ -432,7 +457,7 @@ vx_result_t Queue::enqueue_launch(const vx_launch_info_t* info,
             // the engine retires (the engine retires only after Vortex
             // signals done, so Q_SEQNUM advance means the kernel
             // finished).
-            r = device_->cp_submit_launch();
+            r = device_->cp_submit_launch(qid_);
             *e = now_ns();
         }
 
@@ -546,7 +571,8 @@ vx_result_t cmd_build_recs(const vx_command_t* commands, uint32_t count,
 // the first error; the caller releases any active slots in `staged`. `tpw` is
 // threads-per-warp (NUM_THREADS) for the warp_step derivation.
 vx_result_t cmd_stage_qmds(Device* device_, const std::vector<CmdRec>& recs,
-                           std::vector<CmdStaged>& staged, uint32_t tpw) {
+                           std::vector<CmdStaged>& staged, uint32_t tpw,
+                           uint32_t qid) {
     vx_result_t r = VX_SUCCESS;
     for (size_t i = 0; i < recs.size() && r == VX_SUCCESS; ++i) {
         const CmdRec& rec = recs[i];
@@ -559,7 +585,8 @@ vx_result_t cmd_stage_qmds(Device* device_, const std::vector<CmdRec>& recs,
                                            &st.args_addr, &st.args_pooled);
             if (r != VX_SUCCESS) break;
             st.args_active = true;
-            r = device_->dev_write(st.args_addr, rec.args.data(), rec.args.size());
+            r = device_->dev_write(st.args_addr, rec.args.data(),
+                                   rec.args.size(), qid);
             if (r != VX_SUCCESS) break;
         }
 
@@ -623,7 +650,8 @@ vx_result_t cmd_stage_qmds(Device* device_, const std::vector<CmdRec>& recs,
             r = device_->args_slot_acquire(qmd_bytes, &st.qmd_addr, &st.qmd_pooled);
             if (r != VX_SUCCESS) break;
             st.qmd_active = true;
-            r = device_->dev_write(st.qmd_addr, st.qmd_words.data(), qmd_bytes);
+            r = device_->dev_write(st.qmd_addr, st.qmd_words.data(),
+                                   qmd_bytes, qid);
             if (r != VX_SUCCESS) break;
         }
     }
@@ -633,17 +661,19 @@ vx_result_t cmd_stage_qmds(Device* device_, const std::vector<CmdRec>& recs,
 // Submit one staged launch: CMD_LAUNCH_QMD when the CP decodes it, else
 // replay the descriptor pairs as CMD_DCR_WRITEs followed by a plain
 // CMD_LAUNCH (same trailing cache-flush discipline in cp_submit_launch).
-vx_result_t cmd_submit_launch(Device* device_, const CmdStaged& st) {
+vx_result_t cmd_submit_launch(Device* device_, const CmdStaged& st,
+                              uint32_t qid) {
     if (device_->cp_supports_qmd()) {
-        return device_->cp_submit_launch_qmd(st.qmd_addr);
+        return device_->cp_submit_launch_qmd(st.qmd_addr, qid);
     }
     const auto& qmd = st.qmd_words;
     const uint32_t count = qmd.empty() ? 0 : qmd[0];
     for (uint32_t k = 0; k < count; ++k) {
-        auto r = device_->cp_submit_dcr_write(qmd[1 + 2 * k], qmd[2 + 2 * k]);
+        auto r = device_->cp_submit_dcr_write(qmd[1 + 2 * k],
+                                              qmd[2 + 2 * k], qid);
         if (r != VX_SUCCESS) return r;
     }
-    return device_->cp_submit_launch();
+    return device_->cp_submit_launch(qid);
 }
 
 } // namespace
@@ -677,25 +707,27 @@ vx_result_t Queue::enqueue_commands(const vx_command_t* commands,
         // Phase 1 — stage each launch's args + QMD into device scratch.
         std::vector<CmdStaged> staged(recs.size());
         const uint32_t tpw = (uint32_t)num_threads; (void)num_warps;
-        vx_result_t r = cmd_stage_qmds(device_, recs, staged, tpw);
+        vx_result_t r = cmd_stage_qmds(device_, recs, staged, tpw, qid_);
 
         // Phase 2 — emit the whole sequence as one ring batch: each launch is a
         // single CMD_LAUNCH_QMD (the CP replays the staged descriptor); FF/state
         // DCR writes pass through directly. One doorbell, one poll.
         if (r == VX_SUCCESS) {
             std::lock_guard<std::mutex> g(enqueue_mu_);
+            std::lock_guard<std::mutex> config_guard(device_->cp_config_mutex());
             *s = now_ns();
-            device_->cp_batch_begin();
+            device_->cp_batch_begin(qid_);
             for (size_t i = 0; i < recs.size(); ++i) {
                 const CmdRec& rec = recs[i];
                 r = rec.is_launch
-                  ? cmd_submit_launch(device_, staged[i])
-                  : device_->cp_submit_dcr_write(rec.dcr_addr, rec.dcr_value);
+                  ? cmd_submit_launch(device_, staged[i], qid_)
+                  : device_->cp_submit_dcr_write(rec.dcr_addr, rec.dcr_value,
+                                                 qid_);
                 if (r != VX_SUCCESS) break;
             }
             // Always close the batch (commit + poll + drain) even on a mid-batch
             // error so the partial sequence retires and the lock releases.
-            auto re = device_->cp_batch_end();
+            auto re = device_->cp_batch_end(qid_);
             if (r == VX_SUCCESS) r = re;
             *e = now_ns();
         } else {
@@ -749,7 +781,7 @@ vx_result_t Queue::enqueue_draw(const vx_command_t* commands,
         // Phase 1 — stage each launch's args + QMD into device scratch.
         std::vector<CmdStaged> staged(recs.size());
         const uint32_t tpw = (uint32_t)num_threads; (void)num_warps;
-        vx_result_t r = cmd_stage_qmds(device_, recs, staged, tpw);
+        vx_result_t r = cmd_stage_qmds(device_, recs, staged, tpw, qid_);
 
         // Phase 2 — build the resident draw descriptor: [u32 num_steps] then
         // 28-byte cmd-record steps. A launch becomes a CMD_LAUNCH_QMD step
@@ -791,7 +823,8 @@ vx_result_t Queue::enqueue_draw(const vx_command_t* commands,
             r = device_->args_slot_acquire(desc.size(), &desc_addr, &desc_pooled);
             if (r == VX_SUCCESS) {
                 desc_active = true;
-                r = device_->dev_write(desc_addr, desc.data(), desc.size());
+                r = device_->dev_write(desc_addr, desc.data(), desc.size(),
+                                       qid_);
             }
         }
 
@@ -800,19 +833,21 @@ vx_result_t Queue::enqueue_draw(const vx_command_t* commands,
         // Fallback: the same sequence as a single ring batch (one doorbell).
         if (r == VX_SUCCESS) {
             std::lock_guard<std::mutex> g(enqueue_mu_);
+            std::lock_guard<std::mutex> config_guard(device_->cp_config_mutex());
             *s = now_ns();
             if (use_op_draw) {
-                r = device_->cp_submit_draw(desc_addr);
+                r = device_->cp_submit_draw(desc_addr, qid_);
             } else {
-                device_->cp_batch_begin();
+                device_->cp_batch_begin(qid_);
                 for (size_t i = 0; i < recs.size(); ++i) {
                     const CmdRec& rec = recs[i];
                     r = rec.is_launch
-                      ? cmd_submit_launch(device_, staged[i])
-                      : device_->cp_submit_dcr_write(rec.dcr_addr, rec.dcr_value);
+                      ? cmd_submit_launch(device_, staged[i], qid_)
+                      : device_->cp_submit_dcr_write(rec.dcr_addr,
+                                                     rec.dcr_value, qid_);
                     if (r != VX_SUCCESS) break;
                 }
-                auto re = device_->cp_batch_end();
+                auto re = device_->cp_batch_end(qid_);
                 if (r == VX_SUCCESS) r = re;
             }
             *e = now_ns();
@@ -962,7 +997,7 @@ vx_result_t Queue::enqueue_read_rect(void* host_dst, Buffer* src,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             rc = rect_for_each(rr, [&](uint64_t bo, uint64_t ho, uint64_t len) {
                 return device_->dev_read((uint8_t*)host_dst + ho,
-                                         src->dev_address() + bo, len);
+                                         src->dev_address() + bo, len, qid_);
             });
             *e = now_ns();
         }
@@ -997,7 +1032,8 @@ vx_result_t Queue::enqueue_write_rect(Buffer* dst, const void* host_src,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             rc = rect_for_each(rr, [&](uint64_t bo, uint64_t ho, uint64_t len) {
                 return device_->dev_write(dst->dev_address() + bo,
-                                          (const uint8_t*)host_src + ho, len);
+                                          (const uint8_t*)host_src + ho, len,
+                                          qid_);
             });
             *e = now_ns();
         }
@@ -1037,7 +1073,7 @@ vx_result_t Queue::enqueue_copy_rect(Buffer* dst, Buffer* src,
             std::lock_guard<std::mutex> g(enqueue_mu_);
             rc = rect_for_each(rr, [&](uint64_t do_, uint64_t so, uint64_t len) {
                 return device_->dev_copy(dst->dev_address() + do_,
-                                         src->dev_address() + so, len);
+                                         src->dev_address() + so, len, qid_);
             });
             *e = now_ns();
         }
@@ -1082,7 +1118,7 @@ vx_result_t Queue::enqueue_fill_buffer(Buffer* dst, uint64_t offset,
             for (uint64_t done = 0; done < size && r == VX_SUCCESS; done += chunk) {
                 uint64_t n = std::min<uint64_t>(chunk, size - done);
                 r = device_->dev_write(dst->dev_address() + offset + done,
-                                       staging.data(), n);
+                                       staging.data(), n, qid_);
             }
             *e = now_ns();
         }
@@ -1112,7 +1148,7 @@ vx_result_t Queue::enqueue_map(Buffer* buf, uint64_t offset, uint64_t size,
         {
             *s = now_ns();
             std::lock_guard<std::mutex> g(enqueue_mu_);
-            rc = buf->map_commit();
+            rc = buf->map_commit(qid_);
             *e = now_ns();
         }
         buf->release();
@@ -1138,7 +1174,7 @@ vx_result_t Queue::enqueue_unmap(Buffer* buf, void* host_ptr, uint32_t nw,
         {
             *s = now_ns();
             std::lock_guard<std::mutex> g(enqueue_mu_);
-            r = buf->unmap(host_ptr);
+            r = buf->unmap(host_ptr, qid_);
             *e = now_ns();
         }
         buf->release();
@@ -1157,7 +1193,8 @@ vx_result_t Queue::enqueue_dcr_write(uint32_t addr, uint32_t value,
     cmd.work = [this, addr, value](uint64_t* s, uint64_t* e) {
         *s = now_ns();
         std::lock_guard<std::mutex> g(enqueue_mu_);
-        auto r = device_->cp_submit_dcr_write(addr, value);
+        std::lock_guard<std::mutex> config_guard(device_->cp_config_mutex());
+        auto r = device_->cp_submit_dcr_write(addr, value, qid_);
         *e = now_ns();
         return r;
     };
@@ -1174,7 +1211,8 @@ vx_result_t Queue::enqueue_dcr_read(uint32_t addr, uint32_t* host_dst,
     cmd.work = [this, addr, host_dst](uint64_t* s, uint64_t* e) {
         *s = now_ns();
         std::lock_guard<std::mutex> g(enqueue_mu_);
-        auto r = device_->cp_submit_dcr_read(addr, /*tag=*/0, host_dst);
+        std::lock_guard<std::mutex> config_guard(device_->cp_config_mutex());
+        auto r = device_->cp_submit_dcr_read(addr, /*tag=*/0, host_dst, qid_);
         *e = now_ns();
         return r;
     };

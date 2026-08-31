@@ -1,6 +1,6 @@
 
 // 版权 © 2019-2023
-// 根据 Apache License, Version 2.0 授权许可。
+// 根据 Apache 许可证 2.0 版授权。
 
 `include "VX_define.vh"
 
@@ -29,7 +29,8 @@
 module VX_cp_engine
   import VX_cp_pkg::*;
 #(
-  parameter int QID = 0
+  parameter int QID = 0,
+  parameter bit ENABLE_NOP_FAST_PATH = 1'b0
 )(
   input  wire clk,
   input  wire reset,
@@ -59,6 +60,7 @@ module VX_cp_engine
   input  wire                     dma_done_i,
   input  wire                     dcr_done_i,
   input  wire                     event_done_i,
+  input  wire                     event_retry_i,
 
   // 退役信号给 VX_cp_completion。`retire_evt` 在 S_RETIRE 状态下保持高，
   // 直到观察到 `retire_ready_i` — 这是 valid/ready 握手机制，确保完成模块
@@ -79,7 +81,8 @@ module VX_cp_engine
     S_DECODE,
     S_BID,
     S_WAIT_DONE,
-    S_RETIRE
+    S_RETIRE,
+    S_EVENT_BACKOFF
   } state_e;
 
   state_e       fsm;
@@ -133,7 +136,12 @@ module VX_cp_engine
         S_IDLE: begin
           if (cmd_in_valid) begin
             cur_cmd <= cmd_in;
-            fsm     <= S_DECODE;
+            if (ENABLE_NOP_FAST_PATH
+                && (cmd_in.hdr.opcode == CMD_NOP)) begin
+              fsm <= S_RETIRE;
+            end else begin
+              fsm <= S_DECODE;
+            end
           end
         end
         S_DECODE: begin
@@ -162,10 +170,17 @@ module VX_cp_engine
             RES_KMU:   if (kmu_done_i)   fsm <= S_RETIRE;
             RES_DMA:   if (dma_done_i)   fsm <= S_RETIRE;
             RES_DCR:   if (dcr_done_i)   fsm <= S_RETIRE;
-            RES_EVT: if (event_done_i) fsm <= S_RETIRE;
+            RES_EVT: begin
+              if (event_done_i)
+                fsm <= S_RETIRE;
+              else if (event_retry_i)
+                fsm <= S_EVENT_BACKOFF;
+            end
             default:                     fsm <= S_RETIRE;
           endcase
         end
+        // 退避一个周期后重新竞标，让其他 EVENT 命令先进入候选集合。
+        S_EVENT_BACKOFF: fsm <= S_BID;
         S_RETIRE: begin
           // 保持 S_RETIRE（以及 retire_evt），直到完成模块接受该退役请求。
           // seqnum_r 仅在移出该状态的那个周期递增，因此 retire_seqnum
@@ -207,7 +222,11 @@ module VX_cp_engine
     retire_evt    = (fsm == S_RETIRE);
     retire_seqnum = seqnum_r;
 
-    submit_evt   = (fsm == S_DECODE) && cur_cmd.hdr.flags[F_PROFILE];
+    submit_evt   = (((fsm == S_DECODE) && cur_cmd.hdr.flags[F_PROFILE])
+                 || ((fsm == S_IDLE) && cmd_in_valid
+                     && ENABLE_NOP_FAST_PATH
+                     && (cmd_in.hdr.opcode == CMD_NOP)
+                     && cmd_in.hdr.flags[F_PROFILE]));
     // end_evt 与退役握手的触发周期对齐（每条命令一个脉冲），
     // 而不是与多周期的 S_RETIRE 状态对齐，这样性能分析单元
     // 能对每条退役的命令恰好计数一次。

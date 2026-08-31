@@ -78,7 +78,13 @@ module VX_cp_core
   parameter int ADDR_W     = 64,                   // AXI 地址位宽
   parameter int DATA_W     = 512,                 // AXI 数据位宽（用于数据搬运）
   parameter int ID_W       = VX_CP_AXI_TID_WIDTH_C, // AXI 事务 ID 位宽
-  parameter int AXIL_AW    = 16                   // AXI-Lite 控制接口的地址位宽
+  parameter int AXIL_AW    = 16,                  // AXI-Lite 控制接口的地址位宽
+  // 将实验 4/6 的局部开关提升到 CP 顶层，便于整机回归和同顶层 PPA 对照。
+  parameter bit ENABLE_NOP_FAST_PATH = 0,
+  parameter int PREFETCH_DEPTH = 1,
+  parameter bit ENABLE_PRIORITY_ARBITRATION = 0,
+  parameter bit ENABLE_ARBITRATION_AGING = 0,
+  parameter bit ENABLE_EVENT_WAIT_FAIRNESS = 0
 )(
   input  wire                       clk,          // 时钟
   input  wire                       reset,        // 复位
@@ -175,7 +181,8 @@ module VX_cp_core
   logic       cpe_cmd_ready [NUM_QUEUES]; // 引擎准备好接收
 
   // 共享资源完成的脉冲（广播给所有 CPE）
-  logic launch_done, dma_done, dcr_done, event_done;
+  logic launch_done, dma_done, dcr_done, event_done, event_retry;
+  wire event_ready;
 
   // 每个队列内部的 AXI 子主设备（仅取指单元使用 AXI）
   VX_mem_axi_if #(.ADDR_W(ADDR_W), .DATA_W(DATA_W), .ID_W(ID_W))
@@ -185,7 +192,10 @@ module VX_cp_core
   generate
     for (genvar q = 0; q < NUM_QUEUES; ++q) begin : g_cpe
       // 取指单元：负责从主机内存的命令环读取命令并解包
-      VX_cp_fetch #(.QID(q)) u_fetch (
+      VX_cp_fetch #(
+        .QID            (q),
+        .PREFETCH_DEPTH (PREFETCH_DEPTH)
+      ) u_fetch (
         .clk           (clk),
         .reset         (reset),
         .state_in      (q_state[q]),            // 本队列的配置状态
@@ -197,7 +207,10 @@ module VX_cp_core
       );
 
       // 命令执行引擎：解码并执行来自取指单元的命令
-      VX_cp_engine #(.QID(q)) u_engine (
+      VX_cp_engine #(
+        .QID                  (q),
+        .ENABLE_NOP_FAST_PATH (ENABLE_NOP_FAST_PATH)
+      ) u_engine (
         .clk           (clk),
         .reset         (reset),
         .prio_in       (q_state[q].prio),       // 队列优先级
@@ -215,6 +228,7 @@ module VX_cp_core
         .dma_done_i    (dma_done),
         .dcr_done_i    (dcr_done),
         .event_done_i  (event_done),
+        .event_retry_i (event_retry),
         .retire_evt    (retire_evt[q]),         // 输出退役事件
         .retire_seqnum (retire_seqnum[q]),      // 输出退役序号
         .retire_ready_i(retire_ready[q]),       // 完成写回单元反压
@@ -256,6 +270,7 @@ module VX_cp_core
   wire [1:0]  event_prio  [NUM_QUEUES];
   cmd_t       event_cmd   [NUM_QUEUES];
   logic       event_grant [NUM_QUEUES];
+  logic       kmu_ready, dma_ready, dcr_ready;
 
   // 将 bid 接口信号连接到相应的仲裁器输入数组
   generate
@@ -283,21 +298,33 @@ module VX_cp_core
   endgenerate
 
   // 实例化四个仲裁器
-  VX_cp_arbiter #(.N(NUM_QUEUES)) u_arb_kmu (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_kmu (
     .clk(clk), .reset(reset),
-    .bid_valid(kmu_valid), .bid_priority(kmu_prio), .bid_grant(kmu_grant)
+    .grant_enable(kmu_ready),
+    .bid_valid(kmu_valid), .bid_priority(kmu_prio), .bid_grant(kmu_grant),
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES)) u_arb_dma (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dma (
     .clk(clk), .reset(reset),
-    .bid_valid(dma_valid), .bid_priority(dma_prio), .bid_grant(dma_grant)
+    .grant_enable(dma_ready),
+    .bid_valid(dma_valid), .bid_priority(dma_prio), .bid_grant(dma_grant),
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES)) u_arb_dcr (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_dcr (
     .clk(clk), .reset(reset),
-    .bid_valid(dcr_valid), .bid_priority(dcr_prio), .bid_grant(dcr_grant)
+    .grant_enable(dcr_ready),
+    .bid_valid(dcr_valid), .bid_priority(dcr_prio), .bid_grant(dcr_grant),
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
-  VX_cp_arbiter #(.N(NUM_QUEUES)) u_arb_event (
+  VX_cp_arbiter #(.N(NUM_QUEUES), .ENABLE_PRIORITY(ENABLE_PRIORITY_ARBITRATION), .ENABLE_AGING(ENABLE_ARBITRATION_AGING)) u_arb_event (
     .clk(clk), .reset(reset),
-    .bid_valid(event_valid), .bid_priority(event_prio), .bid_grant(event_grant)
+    .grant_enable(event_ready),
+    .bid_valid(event_valid), .bid_priority(event_prio), .bid_grant(event_grant),
+    `UNUSED_PIN(rr_pointer_o), `UNUSED_PIN(selected_queue_o),
+    `UNUSED_PIN(wait_counter_o), `UNUSED_PIN(aging_boost_o), `UNUSED_PIN(effective_priority_o)
   );
 
   // ----- 从授权者中选出对应的命令体，供各共享资源模块使用 -----
@@ -330,7 +357,8 @@ module VX_cp_core
     .grant    (any_kmu_grant),          // 来自仲裁器的有效授权
     .start    (gpu_if_int.start),       // 向 GPU 发送启动脉冲
     .gpu_busy (gpu_if_int.busy),        // 接收 GPU 忙信号
-    .done     (launch_done)             // 输出完成脉冲（广播）
+    .done     (launch_done),            // 输出完成脉冲（广播）
+    .ready    (kmu_ready)                // 空闲时才允许仲裁器授权
   );
 
   // ----- 共享的 DCR 代理单元（响应 DCR 仲裁授权）-----
@@ -340,6 +368,7 @@ module VX_cp_core
     .grant         (any_dcr_grant),              // 有效授权
     .cmd           (granted_dcr_cmd),            // 要执行的 DCR 命令
     .done          (dcr_done),                   // 完成脉冲
+    .ready         (dcr_ready),                  // 空闲时才允许仲裁器授权
     .last_rsp_data (dcr_last_rsp_data),          // 最近读返回数据（送寄存文件）
     .dcr_req_valid (gpu_if_int.dcr_req_valid),   // 向 GPU 发出的 DCR 请求有效
     .dcr_req_rw    (gpu_if_int.dcr_req_rw),      // 读/写标志
@@ -362,17 +391,22 @@ module VX_cp_core
     .grant    (any_dma_grant),        // DMA 仲裁授权
     .cmd      (granted_dma_cmd),      // 要执行的 MEM_* 命令
     .done     (dma_done),             // 完成脉冲
+    .ready    (dma_ready),            // 空闲时才允许仲裁器授权
     .axi_host (dma_host_axi),         // 连接到主机交叉开关的 AXI 主设备
     .axi_dev  (dma_dev_axi)           // 连接到设备交叉开关的 AXI 主设备
   );
 
   // ----- 事件单元（处理 EVENT_SIGNAL / EVENT_WAIT）-----
-  VX_cp_event_unit u_event (
+  VX_cp_event_unit #(
+    .ENABLE_WAIT_RELEASE(ENABLE_EVENT_WAIT_FAIRNESS)
+  ) u_event (
     .clk   (clk),
     .reset (reset),
     .grant (any_event_grant),         // 事件仲裁授权
     .cmd   (granted_event_cmd),       // 事件命令
     .done  (event_done),              // 完成脉冲
+    .retry (event_retry),             // WAIT 未满足时通知原队列重新竞标
+    .ready (event_ready),             // 仅空闲状态接收新命令
     .axi_m (event_axi)                // 连接到设备交叉开关的 AXI 主设备
   );
 
